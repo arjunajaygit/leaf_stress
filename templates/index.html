@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaf Stress Detector</title>
+<style>
+  body { font-family: sans-serif; max-width: 480px; margin: 30px auto; text-align: center; padding: 0 16px; }
+  h2 { margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; }
+  img#preview { max-width: 100%; margin-top: 14px; border-radius: 10px; display: none; }
+  button { padding: 12px 24px; font-size: 1em; margin-top: 16px; border-radius: 8px; border: none;
+           background: #2e7d32; color: white; cursor: pointer; }
+  button:disabled { background: #aaa; }
+  #result { margin-top: 20px; text-align: left; }
+  .bar-row { display: flex; align-items: center; margin: 6px 0; font-size: 0.9em; }
+  .bar-label { width: 170px; }
+  .bar-bg { flex: 1; background: #eee; border-radius: 4px; overflow: hidden; height: 10px; margin: 0 8px; }
+  .bar-fill { height: 100%; background: #2e7d32; }
+  .prediction { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+  .error { color: #c62828; }
+</style>
+</head>
+<body>
+  <h2>🍃 Leaf Stress Detector</h2>
+  <p class="sub">Take or upload a tomato leaf photo</p>
+
+  <input type="file" id="imageInput" accept="image/*" capture="environment">
+  <br>
+  <img id="preview">
+  <br>
+  <button id="analyzeBtn" onclick="predict()">Analyze Leaf</button>
+
+  <div id="result"></div>
+
+<script>
+const input = document.getElementById('imageInput');
+const preview = document.getElementById('preview');
+const resultDiv = document.getElementById('result');
+
+input.addEventListener('change', () => {
+  if (input.files[0]) {
+    preview.src = URL.createObjectURL(input.files[0]);
+    preview.style.display = 'block';
+    resultDiv.innerHTML = '';
+  }
+});
+
+async function predict() {
+  if (!input.files[0]) { alert('Choose or take a photo first'); return; }
+
+  const formData = new FormData();
+  formData.append('image', input.files[0]);
+
+  resultDiv.innerHTML = 'Analyzing…';
+  try {
+    const res = await fetch('/predict', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (data.error) {
+      resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+      return;
+    }
+
+    let html = `<div class="prediction">Prediction: ${data.prediction}</div>`;
+    const sorted = Object.entries(data.probabilities).sort((a, b) => b[1] - a[1]);
+    for (const [cls, prob] of sorted) {
+      const pct = (prob * 100).toFixed(1);
+      html += `
+        <div class="bar-row">
+          <div class="bar-label">${cls}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
+          <div>${pct}%</div>
+        </div>`;
+    }
+    resultDiv.innerHTML = html;
+  } catch (err) {
+    resultDiv.innerHTML = `<p class="error">Request failed: ${err}</p>`;
+  }
+}
+</script>
+</body>
+</html>
