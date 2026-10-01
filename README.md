@@ -73,9 +73,6 @@ Models evaluated on the same 5-fold stratified cross-validation splits ($N=55$):
 | **Gradient Boosting (GBM)** | Sequential Gradient Descent | **67.3%** | **57.7%** | **60.9%** | **0.581** | **0.659** |
 | **K-Nearest Neighbors (k=5)** | Non-parametric Metric Space | **69.1%** | **57.8%** | **55.3%** | **0.544** | **0.652** |
 
-> **Capstone Viva Defense (Small-Sample Regime):**  
-> *"In controlled agronomic drought experiments, acquiring ground-truth calibrated drought samples is resource-intensive ($N=55$). Deep learning architectures (ResNet, MobileNet) have millions of parameters and overfit severely on small sample sizes. By injecting domain knowledge through 15 biophysical features and training regularized Support Vector Machines with RBF kernel, we maximize generalization bounds without requiring millions of training images."*
-
 ---
 
 ## 🧠 Explainable AI (XAI): Biophysical Trait Attribution
@@ -155,12 +152,3 @@ leaf_stress/
 │   └── index.html             # High-end interactive research dashboard
 └── uploads/                   # Runtime inspection cache
 ```
-
----
-
-## 🎓 Academic Presentation Tips
-
-When presenting this project to external examiners:
-1. **Highlight the Visual Decomposition:** Switch to the **Vision Pipeline** tab to show that the system actually understands leaf contours, chlorosis, and necrosis rather than operating as a black box.
-2. **Present the Multi-Model Benchmark:** Show the **5-Fold Cross-Validation** comparison table to prove why SVM with RBF kernel is mathematically superior to heuristic methods on tabular plant data.
-3. **Walk through the Explainable AI (XAI) Attributions:** Demonstrate how the Z-score deviations correlate with biological wilting and chlorophyll degradation.
