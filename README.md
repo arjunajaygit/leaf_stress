@@ -61,20 +61,6 @@ Rather than deploying unconstrained deep neural networks that memorize small sam
 
 ---
 
-## 📊 Academic 5-Fold Stratified Cross-Validation Benchmark
-
-Models evaluated on the same 5-fold stratified cross-validation splits ($N=55$):
-
-| Model Architecture | Paradigm | Accuracy | Macro Precision | Macro Recall | Macro F1 | Weighted F1 |
-|---|---|:---:|:---:|:---:|:---:|:---:|
-| **Support Vector Machine (RBF)** | Kernel Maximum Margin | **78.2%** | **78.3%** | **71.7%** | **0.726** | **0.777** |
-| **Logistic Regression (L2)** | Regularized Linear | **74.5%** | **74.2%** | **67.6%** | **0.683** | **0.748** |
-| **Random Forest (250 Trees)** | Bagged Decision Ensemble | **69.1%** | **55.0%** | **57.5%** | **0.560** | **0.659** |
-| **Gradient Boosting (GBM)** | Sequential Gradient Descent | **67.3%** | **57.7%** | **60.9%** | **0.581** | **0.659** |
-| **K-Nearest Neighbors (k=5)** | Non-parametric Metric Space | **69.1%** | **57.8%** | **55.3%** | **0.544** | **0.652** |
-
----
-
 ## 🧠 Explainable AI (XAI): Biophysical Trait Attribution
 
 For every scanned leaf, the system calculates the normalized Z-score anomaly against baseline population distributions:
@@ -94,7 +80,6 @@ The application features a responsive dashboard designed for desktop and field s
 * **Diagnostics Scanner:** Instant photo upload, CWSI gauge, and actionable irrigation/mulching instructions.
 * **Computer Vision Pipeline Inspector:** Live visualization of (1) Raw Capture, (2) Morphological Cutout, (3) Pathology Tissue Map (Chlorosis vs Necrosis), and (4) GLI Spectral Heatmap.
 * **Explainable AI Tab:** Real-time biophysical trait attribution waterfall.
-* **Model Benchmark Suite:** Interactive cross-validation metric tables, feature importance bars, and confusion matrices.
 * **PDF Diagnostic Dossier:** Client-side printable agronomy report with full recovery checklist.
 
 ---

@@ -512,7 +512,6 @@
         <button class="nav-btn active" onclick="setTab('scanner')">Diagnostics</button>
         <button class="nav-btn" onclick="setTab('pipeline')">Pipeline</button>
         <button class="nav-btn" onclick="setTab('xai')">Explainability</button>
-        <button class="nav-btn" onclick="setTab('benchmarks')">Benchmarks</button>
       </nav>
     </div>
   </header>
@@ -687,47 +686,7 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 4: BENCHMARKS ==================== -->
-    <section id="tab-benchmarks" class="tab-content">
-      <div class="card" style="margin-bottom: 20px;">
-        <div class="card-title">Cross-Validation Benchmark (5-Fold Stratified)</div>
-        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-          Empirical comparison across five machine learning models on identical data folds.
-        </p>
 
-        <div style="overflow-x: auto;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Model</th>
-                <th>Accuracy</th>
-                <th>Macro Precision</th>
-                <th>Macro Recall</th>
-                <th>Macro F1</th>
-                <th>Weighted F1</th>
-              </tr>
-            </thead>
-            <tbody id="benchmarkBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <!-- Confusion Matrix -->
-        <div class="card">
-          <div class="card-title">Confusion Matrix (Primary Model)</div>
-          <div style="overflow-x: auto;">
-            <div id="cmContainer"></div>
-          </div>
-        </div>
-
-        <!-- Feature Importance -->
-        <div class="card">
-          <div class="card-title">Feature Importance Rankings (MDI)</div>
-          <div id="importanceContainer" style="margin-top: 10px;"></div>
-        </div>
-      </div>
-    </section>
 
   </main>
 
@@ -935,75 +894,7 @@
       return 'var(--rose)';
     }
 
-    async function initBenchmarks() {
-      try {
-        const res = await fetch('/api/benchmark');
-        const data = await res.json();
-        if (!data || !data.models) return;
 
-        // Table
-        const tbody = document.getElementById('benchmarkBody');
-        tbody.innerHTML = '';
-        const sorted = Object.entries(data.models).sort((a,b) => b[1].macro_f1 - a[1].macro_f1);
-        sorted.forEach(([name, m]) => {
-          const isBest = name === data.best_model;
-          tbody.innerHTML += `
-            <tr class="${isBest ? 'active-row' : ''}">
-              <td style="font-weight: 500;">${name} ${isBest ? '<span style="color: var(--emerald); font-size: 0.72rem; margin-left: 4px;">●</span>' : ''}</td>
-              <td>${(m.accuracy * 100).toFixed(1)}%</td>
-              <td>${(m.macro_precision * 100).toFixed(1)}%</td>
-              <td>${(m.macro_recall * 100).toFixed(1)}%</td>
-              <td style="font-weight: 600; color: var(--emerald);">${m.macro_f1.toFixed(3)}</td>
-              <td>${m.weighted_f1.toFixed(3)}</td>
-            </tr>
-          `;
-        });
-
-        // Feature Importance
-        const impEl = document.getElementById('importanceContainer');
-        impEl.innerHTML = '';
-        const top = Object.entries(data.feature_importance).slice(0, 7);
-        top.forEach(([k, v]) => {
-          const pct = (v * 100).toFixed(1);
-          impEl.innerHTML += `
-            <div style="margin-bottom: 8px;">
-              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 2px;">
-                <span>${k}</span>
-                <span style="font-family: 'JetBrains Mono', monospace;">${pct}%</span>
-              </div>
-              <div class="progress-bg" style="height: 4px;">
-                <div class="progress-fill" style="width: ${pct * 3.5}%; background: var(--emerald);"></div>
-              </div>
-            </div>
-          `;
-        });
-
-        // Confusion Matrix
-        const best = data.models[data.best_model];
-        if (best && best.confusion_matrix) {
-          const cmEl = document.getElementById('cmContainer');
-          let html = '<div style="display: flex; gap: 6px;">';
-          best.confusion_matrix.forEach((row, r) => {
-            html += '<div style="display: flex; flex-direction: column; gap: 6px;">';
-            row.forEach((val, c) => {
-              const isMatch = r === c;
-              const bg = isMatch ? 'var(--emerald-subtle)' : (val > 0 ? 'var(--rose-subtle)' : 'var(--surface-elevated)');
-              const border = isMatch ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid var(--border)';
-              const color = isMatch ? 'var(--emerald)' : (val > 0 ? 'var(--rose)' : 'var(--text-dim)');
-              html += `<div class="cm-cell" style="background: ${bg}; border: ${border}; color: ${color};">${val}</div>`;
-            });
-            html += '</div>';
-          });
-          html += '</div>';
-          cmEl.innerHTML = html;
-        }
-
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', initBenchmarks);
   </script>
 </body>
 </html>
