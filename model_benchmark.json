@@ -1,6 +1,6 @@
 {
   "dataset_summary": {
-    "total_samples": 55,
+    "total_samples": 40,
     "num_features": 15,
     "classes": [
       "Disease_Confounded",
@@ -9,109 +9,325 @@
       "Severe_Water_Stress"
     ],
     "class_distribution": {
-      "Disease_Confounded": 23,
-      "Healthy": 13,
+      "Disease_Confounded": 12,
       "Severe_Water_Stress": 11,
-      "Moderate_Water_Stress": 8
+      "Moderate_Water_Stress": 9,
+      "Healthy": 8
     }
   },
   "models": {
     "Random Forest": {
-      "accuracy": 0.6909,
-      "macro_precision": 0.5503,
-      "macro_recall": 0.5748,
-      "macro_f1": 0.56,
-      "weighted_f1": 0.6586,
+      "accuracy": 0.575,
+      "macro_precision": 0.4947,
+      "macro_recall": 0.5259,
+      "macro_f1": 0.5017,
+      "weighted_f1": 0.5411,
       "confusion_matrix": [
         [
-          22,
-          0,
-          0,
-          1
+          10,
+          1,
+          1,
+          0
         ],
         [
           2,
-          8,
-          3,
+          2,
+          4,
           0
         ],
         [
           3,
-          4,
-          0,
-          1
+          2,
+          1,
+          3
         ],
         [
+          0,
+          0,
           1,
-          1,
-          1,
-          8
+          10
         ]
       ],
       "classification_report": {
         "Disease_Confounded": {
-          "precision": 0.7857142857142857,
-          "recall": 0.9565217391304348,
-          "f1-score": 0.8627450980392157,
-          "support": 23.0
+          "precision": 0.6666666666666666,
+          "recall": 0.8333333333333334,
+          "f1-score": 0.7407407407407407,
+          "support": 12.0
         },
         "Healthy": {
-          "precision": 0.6153846153846154,
-          "recall": 0.6153846153846154,
-          "f1-score": 0.6153846153846154,
-          "support": 13.0
-        },
-        "Moderate_Water_Stress": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
+          "precision": 0.4,
+          "recall": 0.25,
+          "f1-score": 0.3076923076923077,
           "support": 8.0
         },
+        "Moderate_Water_Stress": {
+          "precision": 0.14285714285714285,
+          "recall": 0.1111111111111111,
+          "f1-score": 0.125,
+          "support": 9.0
+        },
         "Severe_Water_Stress": {
-          "precision": 0.8,
-          "recall": 0.7272727272727273,
-          "f1-score": 0.7619047619047619,
+          "precision": 0.7692307692307693,
+          "recall": 0.9090909090909091,
+          "f1-score": 0.8333333333333334,
           "support": 11.0
         },
-        "accuracy": 0.6909090909090909,
+        "accuracy": 0.575,
         "macro avg": {
-          "precision": 0.5502747252747253,
-          "recall": 0.5747947704469444,
-          "f1-score": 0.5600086188321483,
-          "support": 55.0
+          "precision": 0.4946886446886447,
+          "recall": 0.5258838383838385,
+          "f1-score": 0.5016915954415955,
+          "support": 40.0
         },
         "weighted avg": {
-          "precision": 0.6340259740259739,
-          "recall": 0.6909090909090909,
-          "f1-score": 0.658619811560988,
-          "support": 55.0
+          "precision": 0.5236813186813187,
+          "recall": 0.575,
+          "f1-score": 0.5410523504273504,
+          "support": 40.0
         }
       }
     },
     "Support Vector Machine (RBF)": {
-      "accuracy": 0.7818,
-      "macro_precision": 0.7476,
-      "macro_recall": 0.7155,
-      "macro_f1": 0.726,
-      "weighted_f1": 0.7774,
+      "accuracy": 0.625,
+      "macro_precision": 0.589,
+      "macro_recall": 0.5934,
+      "macro_f1": 0.5885,
+      "weighted_f1": 0.6196,
       "confusion_matrix": [
         [
-          22,
+          9,
+          1,
+          2,
+          0
+        ],
+        [
+          2,
+          2,
+          3,
+          1
+        ],
+        [
+          1,
+          2,
+          5,
+          1
+        ],
+        [
           0,
+          1,
+          1,
+          9
+        ]
+      ],
+      "classification_report": {
+        "Disease_Confounded": {
+          "precision": 0.75,
+          "recall": 0.75,
+          "f1-score": 0.75,
+          "support": 12.0
+        },
+        "Healthy": {
+          "precision": 0.3333333333333333,
+          "recall": 0.25,
+          "f1-score": 0.2857142857142857,
+          "support": 8.0
+        },
+        "Moderate_Water_Stress": {
+          "precision": 0.45454545454545453,
+          "recall": 0.5555555555555556,
+          "f1-score": 0.5,
+          "support": 9.0
+        },
+        "Severe_Water_Stress": {
+          "precision": 0.8181818181818182,
+          "recall": 0.8181818181818182,
+          "f1-score": 0.8181818181818182,
+          "support": 11.0
+        },
+        "accuracy": 0.625,
+        "macro avg": {
+          "precision": 0.5890151515151515,
+          "recall": 0.5934343434343434,
+          "f1-score": 0.588474025974026,
+          "support": 40.0
+        },
+        "weighted avg": {
+          "precision": 0.6189393939393939,
+          "recall": 0.625,
+          "f1-score": 0.6196428571428572,
+          "support": 40.0
+        }
+      }
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.45,
+      "macro_precision": 0.4375,
+      "macro_recall": 0.4246,
+      "macro_f1": 0.4212,
+      "weighted_f1": 0.4457,
+      "confusion_matrix": [
+        [
+          7,
+          1,
+          3,
+          1
+        ],
+        [
+          4,
+          1,
+          2,
+          1
+        ],
+        [
+          2,
+          3,
+          4,
+          0
+        ],
+        [
+          2,
+          0,
+          3,
+          6
+        ]
+      ],
+      "classification_report": {
+        "Disease_Confounded": {
+          "precision": 0.4666666666666667,
+          "recall": 0.5833333333333334,
+          "f1-score": 0.5185185185185185,
+          "support": 12.0
+        },
+        "Healthy": {
+          "precision": 0.2,
+          "recall": 0.125,
+          "f1-score": 0.15384615384615385,
+          "support": 8.0
+        },
+        "Moderate_Water_Stress": {
+          "precision": 0.3333333333333333,
+          "recall": 0.4444444444444444,
+          "f1-score": 0.38095238095238093,
+          "support": 9.0
+        },
+        "Severe_Water_Stress": {
+          "precision": 0.75,
+          "recall": 0.5454545454545454,
+          "f1-score": 0.631578947368421,
+          "support": 11.0
+        },
+        "accuracy": 0.45,
+        "macro avg": {
+          "precision": 0.4375,
+          "recall": 0.4245580808080808,
+          "f1-score": 0.4212240001713686,
+          "support": 40.0
+        },
+        "weighted avg": {
+          "precision": 0.46125,
+          "recall": 0.45,
+          "f1-score": 0.4457232825653878,
+          "support": 40.0
+        }
+      }
+    },
+    "Logistic Regression (L2)": {
+      "accuracy": 0.625,
+      "macro_precision": 0.6119,
+      "macro_recall": 0.6001,
+      "macro_f1": 0.6019,
+      "weighted_f1": 0.6254,
+      "confusion_matrix": [
+        [
+          10,
+          1,
           0,
           1
         ],
         [
           1,
-          10,
+          3,
           2,
-          0
+          2
+        ],
+        [
+          0,
+          1,
+          5,
+          3
+        ],
+        [
+          0,
+          1,
+          3,
+          7
+        ]
+      ],
+      "classification_report": {
+        "Disease_Confounded": {
+          "precision": 0.9090909090909091,
+          "recall": 0.8333333333333334,
+          "f1-score": 0.8695652173913043,
+          "support": 12.0
+        },
+        "Healthy": {
+          "precision": 0.5,
+          "recall": 0.375,
+          "f1-score": 0.42857142857142855,
+          "support": 8.0
+        },
+        "Moderate_Water_Stress": {
+          "precision": 0.5,
+          "recall": 0.5555555555555556,
+          "f1-score": 0.5263157894736842,
+          "support": 9.0
+        },
+        "Severe_Water_Stress": {
+          "precision": 0.5384615384615384,
+          "recall": 0.6363636363636364,
+          "f1-score": 0.5833333333333334,
+          "support": 11.0
+        },
+        "accuracy": 0.625,
+        "macro avg": {
+          "precision": 0.6118881118881119,
+          "recall": 0.6000631313131314,
+          "f1-score": 0.6019464421924376,
+          "support": 40.0
+        },
+        "weighted avg": {
+          "precision": 0.6333041958041957,
+          "recall": 0.625,
+          "f1-score": 0.6254215702299226,
+          "support": 40.0
+        }
+      }
+    },
+    "K-Nearest Neighbors": {
+      "accuracy": 0.45,
+      "macro_precision": 0.3929,
+      "macro_recall": 0.416,
+      "macro_f1": 0.3956,
+      "weighted_f1": 0.422,
+      "confusion_matrix": [
+        [
+          8,
+          2,
+          0,
+          2
         ],
         [
           2,
           2,
-          4,
-          0
+          2,
+          2
+        ],
+        [
+          3,
+          1,
+          1,
+          4
         ],
         [
           1,
@@ -122,421 +338,205 @@
       ],
       "classification_report": {
         "Disease_Confounded": {
-          "precision": 0.8461538461538461,
-          "recall": 0.9565217391304348,
-          "f1-score": 0.8979591836734694,
-          "support": 23.0
+          "precision": 0.5714285714285714,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.6153846153846154,
+          "support": 12.0
         },
         "Healthy": {
-          "precision": 0.7692307692307693,
-          "recall": 0.7692307692307693,
-          "f1-score": 0.7692307692307693,
-          "support": 13.0
-        },
-        "Moderate_Water_Stress": {
-          "precision": 0.5,
-          "recall": 0.5,
-          "f1-score": 0.5,
-          "support": 8.0
-        },
-        "Severe_Water_Stress": {
-          "precision": 0.875,
-          "recall": 0.6363636363636364,
-          "f1-score": 0.7368421052631579,
-          "support": 11.0
-        },
-        "accuracy": 0.7818181818181819,
-        "macro avg": {
-          "precision": 0.7475961538461539,
-          "recall": 0.7155290361812101,
-          "f1-score": 0.7260080145418492,
-          "support": 55.0
-        },
-        "weighted avg": {
-          "precision": 0.7833916083916084,
-          "recall": 0.7818181818181819,
-          "f1-score": 0.7774240796797187,
-          "support": 55.0
-        }
-      }
-    },
-    "Gradient Boosting": {
-      "accuracy": 0.6727,
-      "macro_precision": 0.6272,
-      "macro_recall": 0.5691,
-      "macro_f1": 0.5811,
-      "weighted_f1": 0.6591,
-      "confusion_matrix": [
-        [
-          22,
-          0,
-          1,
-          0
-        ],
-        [
-          2,
-          8,
-          3,
-          0
-        ],
-        [
-          2,
-          3,
-          2,
-          1
-        ],
-        [
-          3,
-          1,
-          2,
-          5
-        ]
-      ],
-      "classification_report": {
-        "Disease_Confounded": {
-          "precision": 0.7586206896551724,
-          "recall": 0.9565217391304348,
-          "f1-score": 0.8461538461538461,
-          "support": 23.0
-        },
-        "Healthy": {
-          "precision": 0.6666666666666666,
-          "recall": 0.6153846153846154,
-          "f1-score": 0.64,
-          "support": 13.0
-        },
-        "Moderate_Water_Stress": {
-          "precision": 0.25,
+          "precision": 0.3333333333333333,
           "recall": 0.25,
-          "f1-score": 0.25,
+          "f1-score": 0.2857142857142857,
           "support": 8.0
-        },
-        "Severe_Water_Stress": {
-          "precision": 0.8333333333333334,
-          "recall": 0.45454545454545453,
-          "f1-score": 0.5882352941176471,
-          "support": 11.0
-        },
-        "accuracy": 0.6727272727272727,
-        "macro avg": {
-          "precision": 0.6271551724137931,
-          "recall": 0.5691129522651261,
-          "f1-score": 0.5810972850678733,
-          "support": 55.0
-        },
-        "weighted avg": {
-          "precision": 0.6778474399164054,
-          "recall": 0.6727272727272727,
-          "f1-score": 0.6591295763060468,
-          "support": 55.0
-        }
-      }
-    },
-    "Logistic Regression (L2)": {
-      "accuracy": 0.7455,
-      "macro_precision": 0.6942,
-      "macro_recall": 0.6769,
-      "macro_f1": 0.6827,
-      "weighted_f1": 0.7483,
-      "confusion_matrix": [
-        [
-          21,
-          1,
-          0,
-          1
-        ],
-        [
-          0,
-          9,
-          4,
-          0
-        ],
-        [
-          1,
-          4,
-          3,
-          0
-        ],
-        [
-          1,
-          1,
-          1,
-          8
-        ]
-      ],
-      "classification_report": {
-        "Disease_Confounded": {
-          "precision": 0.9130434782608695,
-          "recall": 0.9130434782608695,
-          "f1-score": 0.9130434782608695,
-          "support": 23.0
-        },
-        "Healthy": {
-          "precision": 0.6,
-          "recall": 0.6923076923076923,
-          "f1-score": 0.6428571428571429,
-          "support": 13.0
         },
         "Moderate_Water_Stress": {
-          "precision": 0.375,
-          "recall": 0.375,
-          "f1-score": 0.375,
-          "support": 8.0
+          "precision": 0.2,
+          "recall": 0.1111111111111111,
+          "f1-score": 0.14285714285714285,
+          "support": 9.0
         },
         "Severe_Water_Stress": {
-          "precision": 0.8888888888888888,
-          "recall": 0.7272727272727273,
-          "f1-score": 0.8,
+          "precision": 0.4666666666666667,
+          "recall": 0.6363636363636364,
+          "f1-score": 0.5384615384615384,
           "support": 11.0
         },
-        "accuracy": 0.7454545454545455,
+        "accuracy": 0.45,
         "macro avg": {
-          "precision": 0.6942330917874395,
-          "recall": 0.6769059744603223,
-          "f1-score": 0.6827251552795031,
-          "support": 55.0
+          "precision": 0.3928571428571428,
+          "recall": 0.4160353535353535,
+          "f1-score": 0.39560439560439564,
+          "support": 40.0
         },
         "weighted avg": {
-          "precision": 0.7559595959595959,
-          "recall": 0.7454545454545455,
-          "f1-score": 0.7483116883116884,
-          "support": 55.0
-        }
-      }
-    },
-    "K-Nearest Neighbors": {
-      "accuracy": 0.6909,
-      "macro_precision": 0.5251,
-      "macro_recall": 0.5678,
-      "macro_f1": 0.5444,
-      "weighted_f1": 0.6517,
-      "confusion_matrix": [
-        [
-          22,
-          0,
-          0,
-          1
-        ],
-        [
-          0,
-          10,
-          2,
-          1
-        ],
-        [
-          3,
-          2,
-          0,
-          3
-        ],
-        [
-          3,
-          1,
-          1,
-          6
-        ]
-      ],
-      "classification_report": {
-        "Disease_Confounded": {
-          "precision": 0.7857142857142857,
-          "recall": 0.9565217391304348,
-          "f1-score": 0.8627450980392157,
-          "support": 23.0
-        },
-        "Healthy": {
-          "precision": 0.7692307692307693,
-          "recall": 0.7692307692307693,
-          "f1-score": 0.7692307692307693,
-          "support": 13.0
-        },
-        "Moderate_Water_Stress": {
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1-score": 0.0,
-          "support": 8.0
-        },
-        "Severe_Water_Stress": {
-          "precision": 0.5454545454545454,
-          "recall": 0.5454545454545454,
-          "f1-score": 0.5454545454545454,
-          "support": 11.0
-        },
-        "accuracy": 0.6909090909090909,
-        "macro avg": {
-          "precision": 0.5250999000999002,
-          "recall": 0.5678017634539374,
-          "f1-score": 0.5443576031811326,
-          "support": 55.0
-        },
-        "weighted avg": {
-          "precision": 0.6194805194805194,
-          "recall": 0.6909090909090909,
-          "f1-score": 0.6516934046345811,
-          "support": 55.0
+          "precision": 0.4114285714285715,
+          "recall": 0.45,
+          "f1-score": 0.421978021978022,
+          "support": 40.0
         }
       }
     }
   },
   "feature_importance": {
-    "h_std": 0.1321,
-    "v_std": 0.1305,
-    "extent": 0.1298,
-    "h_mean": 0.084,
-    "s_mean": 0.0809,
-    "s_std": 0.0675,
-    "b_mean": 0.0672,
-    "gli_mean": 0.0576,
-    "compactness": 0.0479,
-    "solidity": 0.0468,
-    "aspect_ratio": 0.0425,
-    "exg_mean": 0.0355,
-    "r_mean": 0.029,
-    "g_mean": 0.0281,
-    "v_mean": 0.0207
+    "v_std": 0.1342,
+    "extent": 0.1324,
+    "h_std": 0.1229,
+    "s_mean": 0.0791,
+    "s_std": 0.0788,
+    "h_mean": 0.0678,
+    "solidity": 0.0585,
+    "b_mean": 0.0579,
+    "gli_mean": 0.0509,
+    "compactness": 0.0491,
+    "aspect_ratio": 0.0487,
+    "exg_mean": 0.0345,
+    "r_mean": 0.0339,
+    "g_mean": 0.0278,
+    "v_mean": 0.0236
   },
   "feature_stats": {
     "h_mean": {
-      "mean": 43.567701867033044,
-      "std": 8.470079067814483,
+      "mean": 43.70276123010859,
+      "std": 9.076668129865372,
       "min": 30.726391451939943,
       "max": 73.3154455270672
     },
     "h_std": {
-      "mean": 11.302745626128777,
-      "std": 7.443965937514827,
+      "mean": 13.090111167558714,
+      "std": 7.9178881099353,
       "min": 3.415047027590176,
       "max": 37.89381098471846
     },
     "s_mean": {
-      "mean": 119.32840356569288,
-      "std": 34.505840647814665,
+      "mean": 118.54566260863128,
+      "std": 33.41331714865378,
       "min": 54.16048492341507,
       "max": 189.3137154090428
     },
     "s_std": {
-      "mean": 44.306302103141256,
-      "std": 13.307597713476135,
+      "mean": 45.40061119619587,
+      "std": 12.186477379853356,
       "min": 14.323133553956056,
       "max": 63.921593656753494
     },
     "v_mean": {
-      "mean": 129.55131454364962,
-      "std": 14.143268031133335,
+      "mean": 129.92899718214682,
+      "std": 15.460186998889434,
       "min": 94.42196477798282,
       "max": 169.89079320833062
     },
     "v_std": {
-      "mean": 39.5079422948339,
-      "std": 13.730171828580543,
+      "mean": 42.8214740418762,
+      "std": 13.840851497596228,
       "min": 16.052843658257444,
       "max": 76.42815094183693
     },
     "r_mean": {
-      "mean": 104.83957578796657,
-      "std": 15.332736189122482,
+      "mean": 105.90077938937944,
+      "std": 16.17077059702474,
       "min": 80.56951459246937,
       "max": 151.2357403898814
     },
     "g_mean": {
-      "mean": 127.17571805291675,
-      "std": 14.690422513987107,
+      "mean": 126.99660034141539,
+      "std": 15.901852679168941,
       "min": 85.83450436288247,
       "max": 165.03151120370572
     },
     "b_mean": {
-      "mean": 72.12369144456187,
-      "std": 21.95705005366729,
+      "mean": 73.84353900760718,
+      "std": 21.93934477005828,
       "min": 25.975865719038257,
       "max": 142.51590081736384
     },
     "exg_mean": {
-      "mean": 77.38816887330513,
-      "std": 28.43807984372522,
+      "mean": 74.24888228584413,
+      "std": 28.021212320108443,
       "min": 36.10148222640024,
       "max": 131.49073829927488
     },
     "gli_mean": {
-      "mean": 0.19809711097582733,
-      "std": 0.07407446561884393,
+      "mean": 0.19197146688186578,
+      "std": 0.0725314091582044,
       "min": 0.0554839673280189,
       "max": 0.3624222797188809
     },
     "solidity": {
-      "mean": 0.8762055748848506,
-      "std": 0.08974538685198576,
+      "mean": 0.8835688027270413,
+      "std": 0.09146608810916551,
       "min": 0.6550953833061485,
       "max": 1.0
     },
     "aspect_ratio": {
-      "mean": 0.8465024474775106,
-      "std": 0.2068719008576997,
+      "mean": 0.8703711677362727,
+      "std": 0.24596420956312495,
       "min": 0.4805194805194805,
       "max": 1.510989010989011
     },
     "extent": {
-      "mean": 0.6902583232746322,
-      "std": 0.17959691384045784,
+      "mean": 0.7379599589979244,
+      "std": 0.18465170474172396,
       "min": 0.3502734375,
       "max": 0.9963675527488128
     },
     "compactness": {
-      "mean": 0.43596026824788753,
-      "std": 0.19103211749856183,
+      "mean": 0.4238064301342891,
+      "std": 0.20189242375639346,
       "min": 0.0625902161562776,
       "max": 0.7756320069481839
     }
   },
   "class_profiles": {
     "Disease_Confounded": {
-      "h_mean": 41.018708709131026,
-      "h_std": 7.626204604057493,
-      "s_mean": 135.4263506337501,
-      "s_std": 47.54028876060979,
-      "v_mean": 125.48922988304476,
-      "v_std": 32.75159212356804,
-      "r_mean": 99.51711693677517,
-      "g_mean": 124.3634686398913,
-      "b_mean": 58.52991634399558,
-      "exg_mean": 90.67990399901183,
-      "gli_mean": 0.23276906637440972,
-      "solidity": 0.8428464319506598,
-      "aspect_ratio": 0.8619100792890818,
-      "extent": 0.559997068137193,
-      "compactness": 0.46685165520267696
+      "h_mean": 40.69121761603434,
+      "h_std": 7.960049462964521,
+      "s_mean": 133.89727853240694,
+      "s_std": 47.52740556117206,
+      "v_mean": 125.57654577922854,
+      "v_std": 33.350384333624106,
+      "r_mean": 100.24961423986126,
+      "g_mean": 124.26286910726141,
+      "b_mean": 59.594655062959696,
+      "exg_mean": 88.68146891170186,
+      "gli_mean": 0.22712425088744956,
+      "solidity": 0.8411064437792045,
+      "aspect_ratio": 0.8630135283663223,
+      "extent": 0.5586445752885717,
+      "compactness": 0.4575232029893077
     },
     "Healthy": {
-      "h_mean": 49.128843499681324,
-      "h_std": 9.708032482482931,
-      "s_mean": 87.93119419477115,
-      "s_std": 31.041789569717448,
-      "v_mean": 134.25478517293433,
-      "v_std": 32.47092548026557,
-      "r_mean": 108.7211951319801,
-      "g_mean": 132.64612654591625,
-      "b_mean": 90.57663020082151,
-      "exg_mean": 65.99442775903084,
-      "gli_mean": 0.15508453962497284,
-      "solidity": 0.9099721524913931,
-      "aspect_ratio": 0.7528740943082474,
-      "extent": 0.7009432067860705,
-      "compactness": 0.48085707229930474
+      "h_mean": 49.67416706166357,
+      "h_std": 11.496679698224678,
+      "s_mean": 91.7280103898874,
+      "s_std": 31.990983426378467,
+      "v_mean": 136.81878742403677,
+      "v_std": 36.11916638810038,
+      "r_mean": 110.7318916404405,
+      "g_mean": 134.65498989578884,
+      "b_mean": 90.97993187222485,
+      "exg_mean": 67.59815627891231,
+      "gli_mean": 0.1574499152458413,
+      "solidity": 0.9134430728829189,
+      "aspect_ratio": 0.7515431009310065,
+      "extent": 0.7363877010315381,
+      "compactness": 0.4887462109925126
     },
     "Moderate_Water_Stress": {
-      "h_mean": 45.579366844962934,
-      "h_std": 16.398311171969222,
-      "s_mean": 112.4224263332201,
-      "s_std": 48.67295983045827,
-      "v_mean": 131.8936041890618,
-      "v_std": 46.33583018047402,
-      "r_mean": 106.95396687478961,
-      "g_mean": 128.6286793164716,
-      "b_mean": 81.43869083809598,
-      "exg_mean": 68.86470092005757,
-      "gli_mean": 0.18365741376230071,
-      "solidity": 0.9054167354006425,
-      "aspect_ratio": 0.9203506582399613,
-      "extent": 0.8741500996787814,
-      "compactness": 0.4389642127473178
+      "h_mean": 45.88212213304232,
+      "h_std": 16.361447073916494,
+      "s_mean": 110.60709805535508,
+      "s_std": 48.808298063776945,
+      "v_mean": 128.56467407919712,
+      "v_std": 44.09549820891121,
+      "r_mean": 104.32277383278284,
+      "g_mean": 125.62155895988096,
+      "b_mean": 79.90633448304625,
+      "exg_mean": 67.01400960393286,
+      "gli_mean": 0.18194156564694197,
+      "solidity": 0.9121181536066084,
+      "aspect_ratio": 0.9847561406577435,
+      "extent": 0.8827499023224059,
+      "compactness": 0.45273755993967035
     },
     "Severe_Water_Stress": {
       "h_mean": 40.862127465567475,
@@ -556,5 +556,5 @@
       "compactness": 0.31612464019115755
     }
   },
-  "best_model": "Support Vector Machine (RBF)"
+  "best_model": "Logistic Regression (L2)"
 }

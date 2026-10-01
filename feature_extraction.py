@@ -151,8 +151,9 @@ def generate_visual_pipeline(img_bgr, mask, contour):
         s_chan = hsv[:, :, 1]
         v_chan = hsv[:, :, 2]
 
-        chlorosis_mask = (mask == 255) & (h_chan >= 18) & (h_chan <= 35) & (s_chan >= 45)
+        # Necrosis takes priority (most severe), then chlorosis, then healthy
         necrosis_mask = (mask == 255) & ((h_chan < 18) | ((v_chan < 75) & (s_chan > 35)))
+        chlorosis_mask = (mask == 255) & (~necrosis_mask) & (h_chan >= 18) & (h_chan <= 35) & (s_chan >= 45)
         healthy_mask = (mask == 255) & (~chlorosis_mask) & (~necrosis_mask)
 
         chlorosis_pixels = int(np.sum(chlorosis_mask))
