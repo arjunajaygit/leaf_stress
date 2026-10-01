@@ -1,4 +1,4 @@
-# PhytoStress AI v2.0 🍃
+# lecor 🍃
 ### Abiotic Drought Stress & Foliar Pathology Diagnostic Suite
 *A Computer Vision & Machine Learning Framework for Phenotypic Plant Stress Assessment*
 
@@ -13,7 +13,7 @@
 
 In precision agronomy, early detection of plant water deficit is essential to prevent permanent wilting points and catastrophic yield loss. However, foliar water stress symptoms (wilting, chlorosis, and marginal necrosis) frequently overlap with biotic fungal and bacterial infections.
 
-**PhytoStress AI v2.0** solves this challenge through a multi-stage, interpretable computer vision and machine learning pipeline that:
+**lecor** solves this challenge through a multi-stage, interpretable computer vision and machine learning pipeline that:
 1. Segments leaf lamina from uncalibrated field photography.
 2. Extracts **15 domain-specific biophysical & morphometric features**.
 3. Classifies foliage into 4 distinct phenotypic categories using a **5-model benchmarked ensemble**.
@@ -35,7 +35,7 @@ In precision agronomy, early detection of plant water deficit is essential to pr
 
 ## 🔬 Mathematical Feature Engineering Pipeline
 
-Rather than deploying unconstrained deep neural networks that memorize small sample sets, PhytoStress AI extracts 15 mathematically verified biophysical features:
+Rather than deploying unconstrained deep neural networks that memorize small sample sets, lecor extracts 15 mathematically verified biophysical features:
 
 ### 1. Spectral Vegetation Indices
 * **Excess Green Index (ExG):**
