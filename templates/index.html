@@ -1,82 +1,1176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leaf Stress Detector</title>
-<style>
-  body { font-family: sans-serif; max-width: 480px; margin: 30px auto; text-align: center; padding: 0 16px; }
-  h2 { margin-bottom: 4px; }
-  p.sub { color: #666; margin-top: 0; }
-  img#preview { max-width: 100%; margin-top: 14px; border-radius: 10px; display: none; }
-  button { padding: 12px 24px; font-size: 1em; margin-top: 16px; border-radius: 8px; border: none;
-           background: #2e7d32; color: white; cursor: pointer; }
-  button:disabled { background: #aaa; }
-  #result { margin-top: 20px; text-align: left; }
-  .bar-row { display: flex; align-items: center; margin: 6px 0; font-size: 0.9em; }
-  .bar-label { width: 170px; }
-  .bar-bg { flex: 1; background: #eee; border-radius: 4px; overflow: hidden; height: 10px; margin: 0 8px; }
-  .bar-fill { height: 100%; background: #2e7d32; }
-  .prediction { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
-  .error { color: #c62828; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhytoStress AI • Crop Water Stress & Foliar Pathology Diagnostic Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --bg-card: rgba(18, 26, 41, 0.75);
+      --bg-card-hover: rgba(25, 36, 56, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(34, 197, 94, 0.3);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #8b5cf6;
+      --blue: #3b82f6;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 15% 15%, #111a2e 0%, var(--bg-dark) 55%),
+                  radial-gradient(circle at 85% 85%, #0d1e24 0%, var(--bg-dark) 60%);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* Header & Top Bar */
+    header {
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 28px;
+    }
+
+    .header-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px var(--emerald-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #ffffff 40%, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--emerald);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Tabs Navigation */
+    .tabs-nav {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.2));
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1320px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s ease;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffffff;
+    }
+
+    .card-title .icon {
+      font-size: 1.2rem;
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 960px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    /* Upload Zone */
+    .upload-box {
+      border: 2px dashed rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius);
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .upload-box:hover, .upload-box.dragover {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.04);
+      transform: translateY(-2px);
+    }
+
+    .upload-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      display: inline-block;
+      filter: drop-shadow(0 4px 12px var(--emerald-glow));
+    }
+
+    .upload-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .upload-box p { font-size: 0.85rem; color: var(--text-muted); }
+
+    input[type="file"] { display: none; }
+
+    /* Action Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 16px var(--emerald-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Diagnosis Banner */
+    .diagnosis-hero {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.05));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .diagnosis-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-healthy { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+    .badge-moderate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .badge-severe { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid #f43f5e; }
+    .badge-disease { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid #8b5cf6; }
+
+    /* CWSI Meter */
+    .cwsi-dial {
+      text-align: right;
+    }
+
+    .cwsi-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+
+    .cwsi-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Progress Probability Bars */
+    .prob-row {
+      margin-bottom: 12px;
+    }
+
+    .prob-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+
+    .prob-bar-bg {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Vision Pipeline Viewer */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .pipeline-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .pipeline-item {
+      background: rgba(10, 14, 23, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .pipeline-item img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #000000;
+      margin-bottom: 8px;
+    }
+
+    .pipeline-item h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .pipeline-item p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Tissue Pathology Chips */
+    .stat-chip {
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      text-align: center;
+    }
+
+    .stat-chip .val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-chip .lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Agronomic Action List */
+    .action-list {
+      list-style: none;
+      margin-top: 12px;
+    }
+
+    .action-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+
+    .action-icon {
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    /* XAI Attribution Cards */
+    .xai-item {
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+
+    .xai-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .xai-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table.benchmark-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    table.benchmark-table th {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    table.benchmark-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    table.benchmark-table tr.highlight-row {
+      background: rgba(16, 185, 129, 0.06);
+      font-weight: 600;
+    }
+
+    /* Confusion Matrix Table */
+    .cm-grid {
+      display: inline-grid;
+      grid-template-columns: repeat(4, 75px);
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .cm-cell {
+      height: 65px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.8s ease-in-out infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Print Styles for Report Export */
+    @media print {
+      body { background: #ffffff !important; color: #000000 !important; }
+      header, .tabs-nav, .upload-box, #analyzeBtn, .no-print { display: none !important; }
+      .glass-card { border: 1px solid #ccc !important; box-shadow: none !important; background: transparent !important; }
+      .diagnosis-hero { border: 1px solid #000 !important; }
+    }
+  </style>
 </head>
 <body>
-  <h2>🍃 Leaf Stress Detector</h2>
-  <p class="sub">Take or upload a tomato leaf photo</p>
 
-  <input type="file" id="imageInput" accept="image/*" capture="environment">
-  <br>
-  <img id="preview">
-  <br>
-  <button id="analyzeBtn" onclick="predict()">Analyze Leaf</button>
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <a href="#" class="brand">
+        <div class="brand-icon">🍃</div>
+        <div class="brand-text">
+          <h1>PhytoStress AI <span style="font-size: 0.65rem; padding: 2px 6px; background: rgba(16,185,129,0.2); border-radius: 4px; vertical-align: middle; border: 1px solid var(--emerald); color: var(--emerald);">v2.0</span></h1>
+          <p>Abiotic Water Stress & Foliar Pathology Diagnostics</p>
+        </div>
+      </a>
 
-  <div id="result"></div>
+      <!-- Navigation Tabs -->
+      <nav class="tabs-nav no-print">
+        <button class="tab-btn active" onclick="switchTab('scannerTab')">
+          <span>🔬</span> Diagnostics Scanner
+        </button>
+        <button class="tab-btn" onclick="switchTab('pipelineTab')">
+          <span>🖼️</span> Vision Pipeline
+        </button>
+        <button class="tab-btn" onclick="switchTab('xaiTab')">
+          <span>🧠</span> Explainable AI (XAI)
+        </button>
+        <button class="tab-btn" onclick="switchTab('benchmarkTab')">
+          <span>📊</span> Model Benchmark
+        </button>
+        <button class="tab-btn" onclick="switchTab('defenseTab')">
+          <span>📑</span> Academic Defense
+        </button>
+      </nav>
+    </div>
+  </header>
 
-<script>
-const input = document.getElementById('imageInput');
-const preview = document.getElementById('preview');
-const resultDiv = document.getElementById('result');
+  <main class="container">
 
-input.addEventListener('change', () => {
-  if (input.files[0]) {
-    preview.src = URL.createObjectURL(input.files[0]);
-    preview.style.display = 'block';
-    resultDiv.innerHTML = '';
-  }
-});
+    <!-- ==================== TAB 1: SCANNER & DIAGNOSTICS ==================== -->
+    <section id="scannerTab" class="tab-content active">
+      <div class="grid-2">
 
-async function predict() {
-  if (!input.files[0]) { alert('Choose or take a photo first'); return; }
+        <!-- Left: Upload & Input -->
+        <div>
+          <div class="glass-card" style="margin-bottom: 24px;">
+            <div class="card-title">
+              <span class="icon">📷</span> Leaf Image Capture
+            </div>
+            
+            <div class="upload-box" id="dropArea" onclick="document.getElementById('imageInput').click()">
+              <span class="upload-icon">📸</span>
+              <h3>Click to browse or drop leaf image</h3>
+              <p>Supports high-resolution PNG, JPG, or Smartphone Camera captures</p>
+              <input type="file" id="imageInput" accept="image/*">
+            </div>
 
-  const formData = new FormData();
-  formData.append('image', input.files[0]);
+            <div id="previewContainer" style="display: none; margin-top: 16px; text-align: center;">
+              <img id="sourcePreview" style="max-height: 240px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); max-width: 100%; object-fit: contain;">
+              <div style="margin-top: 12px; display: flex; gap: 12px; justify-content: center;">
+                <button class="btn btn-primary" id="analyzeBtn" onclick="runAnalysis()">
+                  <span>⚡</span> Run Comprehensive Diagnosis
+                </button>
+                <button class="btn btn-secondary" onclick="resetScan()">
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
 
-  resultDiv.innerHTML = 'Analyzing…';
-  try {
-    const res = await fetch('/predict', { method: 'POST', body: formData });
-    const data = await res.json();
+          <!-- Multi-Model Consensus (Mini) -->
+          <div class="glass-card" id="consensusCard" style="display: none;">
+            <div class="card-title">
+              <span class="icon">🗳️</span> Multi-Model Algorithm Consensus
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;">
+              Live cross-evaluation across 5 distinct machine learning paradigms:
+            </p>
+            <div id="consensusList" style="display: grid; gap: 8px;"></div>
+          </div>
+        </div>
 
-    if (data.error) {
-      resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
-      return;
+        <!-- Right: Results & Prescriptions -->
+        <div>
+          <!-- Placeholder before scan -->
+          <div class="glass-card" id="emptyResultPlaceholder" style="text-align: center; padding: 60px 20px;">
+            <div style="font-size: 48px; margin-bottom: 12px;">🌱</div>
+            <h3 style="font-size: 1.15rem; margin-bottom: 8px;">Ready for Canopy Health Analysis</h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 360px; margin: 0 auto;">
+              Upload a single-leaf photo to decompose biophysical features, evaluate water stress, and generate agronomic recovery recommendations.
+            </p>
+          </div>
+
+          <!-- Active Diagnosis Container -->
+          <div id="resultsCard" style="display: none;">
+            <!-- Hero Banner -->
+            <div class="diagnosis-hero">
+              <div>
+                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+                  Classified Phenotype
+                </span>
+                <div style="margin-top: 4px;">
+                  <span id="diagnosisBadge" class="diagnosis-badge">--</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;" id="modelAttribution">
+                  Evaluated by: <b>Support Vector Machine (RBF)</b>
+                </div>
+              </div>
+
+              <!-- CWSI Gauge -->
+              <div class="cwsi-dial">
+                <div class="cwsi-val" id="cwsiValue">--%</div>
+                <div class="cwsi-label">Crop Water Stress Index</div>
+              </div>
+            </div>
+
+            <!-- Probability Breakdown -->
+            <div class="glass-card" style="margin-bottom: 24px;">
+              <div class="card-title">
+                <span class="icon">📊</span> Phenotypic Probability Distribution
+              </div>
+              <div id="probBars"></div>
+            </div>
+
+            <!-- Tissue Pathology Breakdown -->
+            <div class="glass-card" style="margin-bottom: 24px;">
+              <div class="card-title">
+                <span class="icon">🔬</span> Foliar Tissue Composition
+              </div>
+              <div class="grid-3" id="tissueChips">
+                <div class="stat-chip">
+                  <div class="val" id="healthyPctVal" style="color: var(--emerald);">--%</div>
+                  <div class="lbl">Healthy Green Lamina</div>
+                </div>
+                <div class="stat-chip">
+                  <div class="val" id="chlorosisPctVal" style="color: var(--amber);">--%</div>
+                  <div class="lbl">Chlorotic (Yellowing) Area</div>
+                </div>
+                <div class="stat-chip">
+                  <div class="val" id="necrosisPctVal" style="color: var(--rose);">--%</div>
+                  <div class="lbl">Necrotic (Drying) Spots</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Agronomic Action Plan -->
+            <div class="glass-card" style="margin-bottom: 24px;">
+              <div class="card-title" style="justify-content: space-between;">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                  <span class="icon">📋</span> Agronomic Recovery Prescription
+                </span>
+                <span id="alertLevelBadge" class="tag-badge">Protocol Active</span>
+              </div>
+              
+              <div style="padding: 12px; background: rgba(16, 185, 129, 0.08); border-left: 3px solid var(--emerald); border-radius: 4px; margin-bottom: 14px;">
+                <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--emerald);">
+                  Irrigation Regimen
+                </div>
+                <div id="irrigationPlan" style="font-size: 0.9rem; font-weight: 600; margin-top: 2px;">
+                  --
+                </div>
+              </div>
+
+              <div style="font-size: 0.82rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">
+                Required Field Interventions:
+              </div>
+              <ul class="action-list" id="actionList"></ul>
+
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <span>Expected Recovery: <b id="recoveryTimeText" style="color: var(--text-main);">--</b></span>
+                <button class="btn btn-secondary no-print" onclick="window.print()" style="padding: 6px 14px; font-size: 0.8rem;">
+                  🖨️ Export PDF Dossier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: VISION PIPELINE ==================== -->
+    <section id="pipelineTab" class="tab-content">
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="card-title">
+          <span class="icon">🖼️</span> Multi-Stage Computer Vision Decomposition
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 800px; margin-bottom: 16px;">
+          Rather than feeding raw RGB pixels into a black-box model, the system executes mathematical image processing stages to isolate the leaf blade, decompose color anomalies, and map biophysical vegetation indices.
+        </p>
+
+        <div class="pipeline-grid">
+          <!-- Stage 1 -->
+          <div class="pipeline-item">
+            <img id="visSource" src="" alt="Source Leaf">
+            <h4>1. Raw Field Capture</h4>
+            <p>Uncalibrated mobile camera capture under ambient irradiance</p>
+          </div>
+
+          <!-- Stage 2 -->
+          <div class="pipeline-item">
+            <img id="visSegmented" src="" alt="Otsu Segmentation">
+            <h4>2. Morphological Mask</h4>
+            <p>Otsu + HSV segmentation with neon contour boundary</p>
+          </div>
+
+          <!-- Stage 3 -->
+          <div class="pipeline-item">
+            <img id="visPathology" src="" alt="Tissue Pathology">
+            <h4>3. Tissue Pathology Map</h4>
+            <p>Decomposes Chlorosis (Yellow) & Necrosis (Red) pixels</p>
+          </div>
+
+          <!-- Stage 4 -->
+          <div class="pipeline-item">
+            <img id="visHeatmap" src="" alt="GLI Spectral Map">
+            <h4>4. GLI Spectral Heatmap</h4>
+            <p>Green Leaf Index: (2G - R - B) / (2G + R + B) Turbo map</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Matrix Cards -->
+      <div class="glass-card">
+        <div class="card-title">
+          <span class="icon">📐</span> Extracted Numerical Feature Vector (15 Dimensions)
+        </div>
+        <div id="featureVectorGrid" class="grid-4" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: EXPLAINABLE AI (XAI) ==================== -->
+    <section id="xaiTab" class="tab-content">
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="card-title">
+          <span class="icon">🧠</span> Explainable AI: Biophysical Trait Attribution
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 850px; margin-bottom: 16px;">
+          To avoid black-box decision making, this module calculates the normalized deviation (Z-score) of the current leaf against the baseline population distribution. Each trait is weighted by Random Forest Mean Decrease in Impurity (MDI) to explain <b>why</b> the algorithm arrived at its diagnosis.
+        </p>
+
+        <div id="xaiList">
+          <div style="text-align: center; color: var(--text-muted); padding: 40px;">
+            Run a scan in the Diagnostics tab to view real-time trait attributions.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: BENCHMARK & EVALUATION ==================== -->
+    <section id="benchmarkTab" class="tab-content">
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="card-title">
+          <span class="icon">📊</span> 5-Fold Stratified Cross-Validation Benchmark
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 900px; margin-bottom: 20px;">
+          Academic comparison across 5 distinct machine learning paradigms evaluated on the same 5-fold stratified cross-validation folds. Notice how regularized Support Vector Machines (RBF) outperform deep architectures on small sample regimes.
+        </p>
+
+        <div class="table-container">
+          <table class="benchmark-table">
+            <thead>
+              <tr>
+                <th>Model Architecture</th>
+                <th>Accuracy</th>
+                <th>Macro Precision</th>
+                <th>Macro Recall</th>
+                <th>Macro F1</th>
+                <th>Weighted F1</th>
+                <th>Rank</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkTableBody">
+              <!-- Dynamically populated from /api/benchmark -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Confusion Matrix -->
+        <div class="glass-card">
+          <div class="card-title">
+            <span class="icon">🎯</span> Confusion Matrix (Best Model)
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">
+            Rows represent Ground Truth, Columns represent Model Predictions.
+          </p>
+          <div style="overflow-x: auto; margin-top: 14px;">
+            <div id="confusionMatrixContainer"></div>
+          </div>
+        </div>
+
+        <!-- Feature Importance Rankings -->
+        <div class="glass-card">
+          <div class="card-title">
+            <span class="icon">⚖️</span> Top Biophysical Feature Importance (MDI)
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
+            Random Forest Gini importance showing which physical and spectral markers provide the strongest discriminative power.
+          </p>
+          <div id="featureImportanceList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: ACADEMIC DEFENSE ==================== -->
+    <section id="defenseTab" class="tab-content">
+      <div class="glass-card" style="margin-bottom: 24px;">
+        <div class="card-title">
+          <span class="icon">📑</span> Capstone Viva Defense: Small-Sample Regime Justification
+        </div>
+        <div style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.7; max-width: 900px;">
+          <h4 style="color: #ffffff; margin-bottom: 6px; font-size: 1rem;">1. The Core Scientific Premise</h4>
+          <p style="margin-bottom: 14px;">
+            In controlled agricultural drought studies, procuring certified ground-truth imagery under measured volumetric soil moisture levels is highly labor-intensive, naturally leading to a small-sample regime ($N=55$). Deep Convolutional Neural Networks (e.g. ResNet, MobileNet) contain millions of unconstrained parameters, leading to catastrophic empirical overfitting when $N < 100$.
+          </p>
+
+          <h4 style="color: #ffffff; margin-bottom: 6px; font-size: 1rem;">2. Feature Engineering vs Black-Box Convolutions</h4>
+          <p style="margin-bottom: 14px;">
+            Rather than forcing a neural network to infer geometry from scratch, we explicitly inject agronomic domain knowledge through 15 biophysical descriptors:
+          </p>
+          <ul style="margin-left: 20px; margin-bottom: 16px;">
+            <li><b>Excess Green Index (ExG):</b> $2G - R - B$ — isolates vegetative contrast from soil/shadows.</li>
+            <li><b>Green Leaf Index (GLI):</b> $\frac{2G - R - B}{2G + R + B}$ — quantifies chlorophyll degradation during incipient drought.</li>
+            <li><b>Convex Hull Solidity:</b> $\frac{\text{Area}}{\text{Convex Area}}$ — captures leaf margin involution and curling caused by turgor pressure drop.</li>
+            <li><b>Contour Compactness:</b> $\frac{4\pi \times \text{Area}}{\text{Perimeter}^2}$ — measures cellular flaccidity and border irregularity.</li>
+          </ul>
+
+          <h4 style="color: #ffffff; margin-bottom: 6px; font-size: 1rem;">3. Why SVM (RBF) Outperformed Random Forest & Boosting</h4>
+          <p>
+            In tabular settings where the number of features $p=15$ and samples $N=55$, Support Vector Machines with an RBF kernel project samples into an infinite-dimensional Hilbert space with margin maximization. The $L_2$ regularization parameter $C$ strictly bounds the VC-dimension, preventing the model from fitting high-frequency noise that tree ensembles occasionally split upon.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentScanData = null;
+
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
     }
 
-    let html = `<div class="prediction">Prediction: ${data.prediction}</div>`;
-    const sorted = Object.entries(data.probabilities).sort((a, b) => b[1] - a[1]);
-    for (const [cls, prob] of sorted) {
-      const pct = (prob * 100).toFixed(1);
-      html += `
-        <div class="bar-row">
-          <div class="bar-label">${cls}</div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
-          <div>${pct}%</div>
-        </div>`;
+    // File Selection
+    const imageInput = document.getElementById('imageInput');
+    const sourcePreview = document.getElementById('sourcePreview');
+    const previewContainer = document.getElementById('previewContainer');
+    const dropArea = document.getElementById('dropArea');
+
+    imageInput.addEventListener('change', () => {
+      if (imageInput.files && imageInput.files[0]) {
+        const file = imageInput.files[0];
+        sourcePreview.src = URL.createObjectURL(file);
+        previewContainer.style.display = 'block';
+        dropArea.style.display = 'none';
+      }
+    });
+
+    // Drag and drop handlers
+    dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.classList.add('dragover'); });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+    dropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropArea.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        imageInput.files = e.dataTransfer.files;
+        sourcePreview.src = URL.createObjectURL(e.dataTransfer.files[0]);
+        previewContainer.style.display = 'block';
+        dropArea.style.display = 'none';
+      }
+    });
+
+    function resetScan() {
+      imageInput.value = '';
+      previewContainer.style.display = 'none';
+      dropArea.style.display = 'block';
+      document.getElementById('resultsCard').style.display = 'none';
+      document.getElementById('emptyResultPlaceholder').style.display = 'block';
+      document.getElementById('consensusCard').style.display = 'none';
     }
-    resultDiv.innerHTML = html;
-  } catch (err) {
-    resultDiv.innerHTML = `<p class="error">Request failed: ${err}</p>`;
-  }
-}
-</script>
+
+    // Run Full Inference
+    async function runAnalysis() {
+      if (!imageInput.files || !imageInput.files[0]) {
+        alert('Please choose or capture a leaf photo first.');
+        return;
+      }
+
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      analyzeBtn.disabled = true;
+      analyzeBtn.innerHTML = '<span class="spinner"></span> Processing Pipeline…';
+
+      const formData = new FormData();
+      formData.append('image', imageInput.files[0]);
+
+      try {
+        const res = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.error) {
+          alert('Error: ' + data.error);
+          analyzeBtn.disabled = false;
+          analyzeBtn.innerHTML = '<span>⚡</span> Run Comprehensive Diagnosis';
+          return;
+        }
+
+        currentScanData = data;
+        renderResults(data);
+      } catch (err) {
+        alert('Network request failed: ' + err);
+      } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<span>⚡</span> Run Comprehensive Diagnosis';
+      }
+    }
+
+    function renderResults(data) {
+      document.getElementById('emptyResultPlaceholder').style.display = 'none';
+      document.getElementById('resultsCard').style.display = 'block';
+      document.getElementById('consensusCard').style.display = 'block';
+
+      // 1. Diagnosis Banner & CWSI
+      const badge = document.getElementById('diagnosisBadge');
+      badge.textContent = data.prediction.replace(/_/g, ' ');
+      badge.className = 'diagnosis-badge ' + getBadgeClass(data.prediction);
+
+      const cwsiVal = document.getElementById('cwsiValue');
+      cwsiVal.textContent = data.cwsi + '%';
+      cwsiVal.style.color = getCwsiColor(data.cwsi);
+
+      document.getElementById('modelAttribution').innerHTML = `Evaluated by: <b>${data.best_model_name}</b>`;
+
+      // 2. Probabilities
+      const probContainer = document.getElementById('probBars');
+      probContainer.innerHTML = '';
+      const sortedProbs = Object.entries(data.probabilities).sort((a,b) => b[1] - a[1]);
+      for (const [cls, prob] of sortedProbs) {
+        const pct = (prob * 100).toFixed(1);
+        const color = getClassColor(cls);
+        probContainer.innerHTML += `
+          <div class="prob-row">
+            <div class="prob-info">
+              <span>${cls.replace(/_/g, ' ')}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">${pct}%</span>
+            </div>
+            <div class="prob-bar-bg">
+              <div class="prob-bar-fill" style="width: ${pct}%; background: ${color};"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 3. Multi-Model Consensus
+      const consensusList = document.getElementById('consensusList');
+      consensusList.innerHTML = '';
+      for (const [mName, mPred] of Object.entries(data.multi_model_predictions)) {
+        consensusList.innerHTML += `
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px;">
+            <span style="color: var(--text-muted);">${mName}</span>
+            <span class="tag-badge" style="font-size: 0.72rem;">${mPred.replace(/_/g, ' ')}</span>
+          </div>
+        `;
+      }
+
+      // 4. Tissue Pathology Stats
+      document.getElementById('healthyPctVal').textContent = data.tissue_stats.healthy_pct + '%';
+      document.getElementById('chlorosisPctVal').textContent = data.tissue_stats.chlorosis_pct + '%';
+      document.getElementById('necrosisPctVal').textContent = data.tissue_stats.necrosis_pct + '%';
+
+      // 5. Agronomic Prescriptions
+      document.getElementById('irrigationPlan').textContent = data.advisory.irrigation_plan;
+      const actionList = document.getElementById('actionList');
+      actionList.innerHTML = '';
+      data.advisory.action_items.forEach(act => {
+        actionList.innerHTML += `
+          <li class="action-item">
+            <span class="action-icon">🔹</span>
+            <span>${act}</span>
+          </li>
+        `;
+      });
+      document.getElementById('recoveryTimeText').textContent = data.advisory.recovery_time;
+
+      // 6. Vision Pipeline Images
+      if (data.visualizations) {
+        document.getElementById('visSource').src = sourcePreview.src;
+        document.getElementById('visSegmented').src = data.visualizations.segmented;
+        document.getElementById('visPathology').src = data.visualizations.pathology;
+        document.getElementById('visHeatmap').src = data.visualizations.gli_heatmap;
+      }
+
+      // 7. Feature Vector Grid
+      const featGrid = document.getElementById('featureVectorGrid');
+      featGrid.innerHTML = '';
+      for (const [featKey, featVal] of Object.entries(data.features)) {
+        featGrid.innerHTML += `
+          <div class="stat-chip">
+            <div class="val" style="font-size: 1.05rem;">${featVal}</div>
+            <div class="lbl">${featKey}</div>
+          </div>
+        `;
+      }
+
+      // 8. Explainable AI Attributions
+      const xaiContainer = document.getElementById('xaiList');
+      xaiContainer.innerHTML = '';
+      data.xai_attributions.forEach((attr, idx) => {
+        const zSign = attr.z_score >= 0 ? `+${attr.z_score}` : `${attr.z_score}`;
+        const zColor = Math.abs(attr.z_score) > 1.5 ? 'var(--rose)' : (Math.abs(attr.z_score) > 0.8 ? 'var(--amber)' : 'var(--emerald)');
+        xaiContainer.innerHTML += `
+          <div class="xai-item">
+            <div class="xai-header">
+              <span>#${idx+1} ${attr.label}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; color: ${zColor}; font-weight: 700;">
+                Z-Score: ${zSign}σ
+              </span>
+            </div>
+            <div class="xai-desc">
+              ${attr.interpretation} (Observed: <b>${attr.value}</b> | Baseline: <b>${attr.baseline_mean}</b>)
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function getBadgeClass(cls) {
+      if (cls === 'Healthy') return 'badge-healthy';
+      if (cls === 'Moderate_Water_Stress') return 'badge-moderate';
+      if (cls === 'Severe_Water_Stress') return 'badge-severe';
+      return 'badge-disease';
+    }
+
+    function getClassColor(cls) {
+      if (cls === 'Healthy') return 'var(--emerald)';
+      if (cls === 'Moderate_Water_Stress') return 'var(--amber)';
+      if (cls === 'Severe_Water_Stress') return 'var(--rose)';
+      return 'var(--purple)';
+    }
+
+    function getCwsiColor(val) {
+      if (val < 25) return 'var(--emerald)';
+      if (val < 60) return 'var(--amber)';
+      return 'var(--rose)';
+    }
+
+    // Load Academic Benchmark Data
+    async function loadBenchmark() {
+      try {
+        const res = await fetch('/api/benchmark');
+        const data = await res.json();
+        if (!data || !data.models) return;
+
+        const tbody = document.getElementById('benchmarkTableBody');
+        tbody.innerHTML = '';
+        
+        const sortedModels = Object.entries(data.models).sort((a,b) => b[1].macro_f1 - a[1].macro_f1);
+        sortedModels.forEach(([name, mData], idx) => {
+          const isBest = name === data.best_model;
+          tbody.innerHTML += `
+            <tr class="${isBest ? 'highlight-row' : ''}">
+              <td>
+                <b>${name}</b> ${isBest ? '<span class="tag-badge" style="font-size: 0.65rem; margin-left: 6px;">TOP RANK</span>' : ''}
+              </td>
+              <td>${(mData.accuracy * 100).toFixed(1)}%</td>
+              <td>${(mData.macro_precision * 100).toFixed(1)}%</td>
+              <td>${(mData.macro_recall * 100).toFixed(1)}%</td>
+              <td style="color: var(--emerald); font-weight: 700;">${mData.macro_f1.toFixed(3)}</td>
+              <td>${mData.weighted_f1.toFixed(3)}</td>
+              <td>#${idx+1}</td>
+            </tr>
+          `;
+        });
+
+        // Feature Importance
+        const featImpList = document.getElementById('featureImportanceList');
+        featImpList.innerHTML = '';
+        const topFeats = Object.entries(data.feature_importance).slice(0, 7);
+        topFeats.forEach(([fKey, fImp]) => {
+          const pct = (fImp * 100).toFixed(1);
+          featImpList.innerHTML += `
+            <div style="margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 3px;">
+                <span>${fKey}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">${pct}%</span>
+              </div>
+              <div class="prob-bar-bg" style="height: 6px;">
+                <div class="prob-bar-fill" style="width: ${pct * 3.5}%; background: linear-gradient(90deg, #06b6d4, #10b981);"></div>
+              </div>
+            </div>
+          `;
+        });
+
+        // Confusion Matrix
+        const bestModelData = data.models[data.best_model];
+        if (bestModelData && bestModelData.confusion_matrix) {
+          const cmContainer = document.getElementById('confusionMatrixContainer');
+          const classes = data.dataset_summary.classes;
+          let html = '<div style="display: flex; gap: 8px;">';
+          
+          bestModelData.confusion_matrix.forEach((row, rIdx) => {
+            html += '<div style="display: flex; flex-direction: column; gap: 6px;">';
+            row.forEach((val, cIdx) => {
+              const isDiag = rIdx === cIdx;
+              const bg = isDiag ? 'rgba(16, 185, 129, 0.25)' : (val > 0 ? 'rgba(244, 63, 94, 0.2)' : 'rgba(255,255,255,0.02)');
+              const border = isDiag ? '1px solid var(--emerald)' : '1px solid var(--border-subtle)';
+              const color = isDiag ? '#34d399' : (val > 0 ? '#fb7185' : 'var(--text-muted)');
+              html += `
+                <div class="cm-cell" style="background: ${bg}; border: ${border}; color: ${color};" title="True: ${classes[rIdx]}, Pred: ${classes[cIdx]}">
+                  ${val}
+                </div>
+              `;
+            });
+            html += '</div>';
+          });
+          html += '</div>';
+          cmContainer.innerHTML = html;
+        }
+
+      } catch (err) {
+        console.error('Failed to load benchmark:', err);
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadBenchmark();
+    });
+  </script>
 </body>
 </html>
