@@ -530,7 +530,7 @@
             <div class="upload-box" id="dropArea" onclick="document.getElementById('fileInput').click()">
               <p class="primary">Select or drop leaf image</p>
               <p class="secondary">JPG, PNG, or mobile camera capture</p>
-              <input type="file" id="fileInput" accept="image/*">
+              <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp">
             </div>
 
             <div id="previewWrap" style="display: none; margin-top: 14px; text-align: center;">
@@ -539,7 +539,7 @@
                 <button class="btn btn-primary" id="scanBtn" onclick="executeScan()">
                   Analyze Leaf
                 </button>
-                <button class="btn btn-secondary" onclick="clearScan()">
+                <button class="btn btn-secondary" id="resetBtn" onclick="clearScan()">
                   Reset
                 </button>
               </div>
@@ -707,63 +707,105 @@
     const previewWrap = document.getElementById('previewWrap');
     const dropArea = document.getElementById('dropArea');
 
-    fileInput.addEventListener('change', () => {
+    let scanInFlight = false;
+    let previewUrl = null;
+
+    function clearResults() {
+      document.getElementById('resultsWrap').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('consensusBox').style.display = 'none';
+      for (const id of ['probabilityBars', 'consensusEntries', 'actionItems', 'featuresGrid', 'xaiContainer']) {
+        document.getElementById(id).replaceChildren();
+      }
+      for (const id of ['pipeSource', 'pipeSegmented', 'pipePathology', 'pipeHeatmap']) {
+        document.getElementById(id).removeAttribute('src');
+      }
+    }
+
+    function releasePreview() {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = null;
+      imagePreview.removeAttribute('src');
+    }
+
+    function showSelectedFile() {
+      clearResults();
+      releasePreview();
       if (fileInput.files && fileInput.files[0]) {
-        imagePreview.src = URL.createObjectURL(fileInput.files[0]);
+        previewUrl = URL.createObjectURL(fileInput.files[0]);
+        imagePreview.src = previewUrl;
         previewWrap.style.display = 'block';
         dropArea.style.display = 'none';
       }
-    });
+    }
 
-    dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.classList.add('dragover'); });
+    fileInput.addEventListener('change', () => {
+      if (!scanInFlight) showSelectedFile();
+    });
+    window.addEventListener('beforeunload', releasePreview);
+    dropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (!scanInFlight) dropArea.classList.add('dragover');
+    });
     dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
     dropArea.addEventListener('drop', (e) => {
       e.preventDefault();
       dropArea.classList.remove('dragover');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      if (!scanInFlight && e.dataTransfer.files && e.dataTransfer.files[0]) {
         fileInput.files = e.dataTransfer.files;
-        imagePreview.src = URL.createObjectURL(e.dataTransfer.files[0]);
-        previewWrap.style.display = 'block';
-        dropArea.style.display = 'none';
+        showSelectedFile();
       }
     });
 
     function clearScan() {
+      if (scanInFlight) return;
       fileInput.value = '';
+      releasePreview();
       previewWrap.style.display = 'none';
       dropArea.style.display = 'block';
-      document.getElementById('resultsWrap').style.display = 'none';
-      document.getElementById('emptyState').style.display = 'block';
-      document.getElementById('consensusBox').style.display = 'none';
+      clearResults();
     }
 
     async function executeScan() {
+      if (scanInFlight) return;
       if (!fileInput.files || !fileInput.files[0]) {
         alert('Please choose an image first.');
         return;
       }
-
       const scanBtn = document.getElementById('scanBtn');
-      scanBtn.disabled = true;
+      const resetBtn = document.getElementById('resetBtn');
+      clearResults();
+      scanInFlight = true;
+      scanBtn.disabled = resetBtn.disabled = fileInput.disabled = true;
       scanBtn.innerHTML = '<span class="spin"></span> Analyzing…';
-
       const formData = new FormData();
       formData.append('image', fileInput.files[0]);
 
       try {
         const res = await fetch('/predict', { method: 'POST', body: formData });
-        const data = await res.json();
-
-        if (data.error) {
-          alert(data.error);
-          return;
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          throw new Error(`The server returned an unreadable response (HTTP ${res.status}). Please try again or contact the operator.`);
         }
-
+        let data;
+        try { data = await res.json(); }
+        catch { throw new Error('The server returned invalid response data. Please try again.'); }
+        if (!data || typeof data !== 'object') {
+          throw new Error('The server returned an incomplete result. Please try again.');
+        }
+        if (!res.ok || data.error) {
+          throw new Error(data.error || `The scan failed (HTTP ${res.status}). Please try again.`);
+        }
+        if (typeof data.prediction !== 'string' || !data.probabilities || !data.advisory || !data.tissue_stats) {
+          throw new Error('The server returned an incomplete result. Please try again.');
+        }
         renderOutput(data);
       } catch (err) {
-        alert('Scan failed: ' + err);
+        clearResults();
+        alert('Scan failed: ' + err.message);
       } finally {
-        scanBtn.disabled = false;
+        scanInFlight = false;
+        scanBtn.disabled = resetBtn.disabled = fileInput.disabled = false;
         scanBtn.innerHTML = 'Analyze Leaf';
       }
     }

@@ -16,6 +16,8 @@ Exports:
     and feature importance rankings for academic reporting and UI visualization.
 """
 
+from config import CSV_PATH, versioned_path
+
 import json
 import joblib
 import numpy as np
@@ -42,7 +44,7 @@ def run_benchmarks():
     print("🌿 LEAF STRESS CLASSIFICATION - MULTI-MODEL BENCHMARK")
     print("==================================================")
 
-    df = pd.read_csv("leaf_features.csv")
+    df = pd.read_csv(CSV_PATH)
     feature_cols = [c for c in df.columns if c not in ("label", "filename")]
     X = df[feature_cols]
     y = df["label"]
@@ -158,9 +160,11 @@ def run_benchmarks():
         "best_model": best_model_name,
     }
 
-    with open("model_benchmark.json", "w") as f:
+    benchmark_path = versioned_path("model_benchmark", ".json")
+    model_path = benchmark_path.with_name(benchmark_path.name.replace("model_benchmark", "leaf_stress_model")).with_suffix(".pkl")
+    with open(benchmark_path, "x") as f:
         json.dump(benchmark_payload, f, indent=2)
-    print("Saved benchmark report to model_benchmark.json")
+    print(f"Saved benchmark report to {benchmark_path}")
 
     # Save complete bundle into leaf_stress_model.pkl
     # Keeps backward compatibility so model.predict() works directly if unpickled as pipeline
@@ -176,8 +180,9 @@ def run_benchmarks():
         "benchmark": benchmark_results,
     }
 
-    joblib.dump(bundle, "leaf_stress_model.pkl")
-    print("Saved complete model & XAI bundle to leaf_stress_model.pkl\n")
+    with open(model_path, "xb") as stream:
+        joblib.dump(bundle, stream)
+    print(f"Saved complete model & XAI bundle to {model_path}\n")
 
 
 if __name__ == "__main__":

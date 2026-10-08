@@ -18,7 +18,9 @@ import os
 import pandas as pd
 from feature_extraction import extract_all_features
 
-DATASET_DIR = "dataset"  # <-- point this at your actual folder
+from config import DATASET_DIR, versioned_path
+
+OUTPUT_PATH = versioned_path("leaf_features", ".csv")
 CLASSES = [
     "Healthy",
     "Moderate_Water_Stress",
@@ -59,8 +61,8 @@ for label in CLASSES:
         rows.append(feats)
 
 df = pd.DataFrame(rows)
-df.to_csv("leaf_features.csv", index=False)
+df.to_csv(OUTPUT_PATH, index=False, mode="x")
 
 print(f"\nDuplicates removed (by MD5 content hash): {duplicates_removed}")
-print(f"Saved {len(df)} unique rows to leaf_features.csv")
+print(f"Saved {len(df)} unique rows to {OUTPUT_PATH}")
 print(df["label"].value_counts())

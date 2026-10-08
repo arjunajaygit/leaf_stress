@@ -164,14 +164,16 @@ def generate_visual_pipeline(img_bgr, mask, contour):
         # Chlorosis -> Bright Gold/Yellow highlight (0, 220, 255) BGR
         # Necrosis -> Crimson/Red highlight (0, 0, 240) BGR
         # Healthy -> Natural or tinted green (0, 220, 0)
-        pathology_vis[chlorosis_mask] = cv2.addWeighted(
-            pathology_vis[chlorosis_mask], 0.35,
-            np.full_like(pathology_vis[chlorosis_mask], (0, 220, 255)), 0.65, 0
-        )
-        pathology_vis[necrosis_mask] = cv2.addWeighted(
-            pathology_vis[necrosis_mask], 0.3,
-            np.full_like(pathology_vis[necrosis_mask], (40, 40, 255)), 0.7, 0
-        )
+        if chlorosis_pixels:
+            pathology_vis[chlorosis_mask] = cv2.addWeighted(
+                pathology_vis[chlorosis_mask], 0.35,
+                np.full_like(pathology_vis[chlorosis_mask], (0, 220, 255)), 0.65, 0
+            )
+        if necrosis_pixels:
+            pathology_vis[necrosis_mask] = cv2.addWeighted(
+                pathology_vis[necrosis_mask], 0.3,
+                np.full_like(pathology_vis[necrosis_mask], (40, 40, 255)), 0.7, 0
+            )
 
     # 3. Spectral Heatmap (Green Leaf Index - GLI)
     bgr_f = img_bgr.astype(np.float32)
