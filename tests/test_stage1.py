@@ -23,6 +23,10 @@ HEALTHY = ROOT / 'dataset' / 'Healthy'
 def isolate_globals(monkeypatch):
     for name in ['bundle', 'primary_model', 'all_models', 'feature_names', 'classes', 'feature_stats', 'model_load_error']:
         monkeypatch.setattr(web, name, getattr(web, name))
+    # Test-only compatibility marker to exercise old API regression paths.
+    # Production legacy artifacts are explicitly refused by Stage 3 tests.
+    monkeypatch.setattr(web, 'bundle', {**(web.bundle or {}), 'preprocessing': config.preprocessing_signature()})
+    monkeypatch.setitem(web.app.config, 'MIN_CLASS_PROBABILITY', 0.0)
     monkeypatch.setitem(web.app.config, 'TESTING', True)
     monkeypatch.setitem(web.app.config, 'MAX_CONTENT_LENGTH', 10 * 1024 * 1024)
     monkeypatch.setitem(web.app.config, 'MAX_IMAGE_PIXELS', 16_000_000)
@@ -48,7 +52,8 @@ def assert_error(response, status, code):
 
 @pytest.mark.parametrize('name', ['healthy_006.JPG', 'healthy_008.JPG'])
 def test_healthy_visualization_regression(name):
-    features, pictures, stats = analyze_leaf_full(str(HEALTHY / name))
+    features, pictures, stats, quality = analyze_leaf_full(str(HEALTHY / name))
+    assert quality["passed"]
     assert len(features) == 15
     assert all(value.startswith('data:image/jpeg;base64,') for value in pictures.values())
     assert stats['chlorosis_pct'] == 0
@@ -241,9 +246,12 @@ def test_regeneration_uses_new_artifact_names(tmp_path, monkeypatch):
     csv_files = list(tmp_path.glob('leaf_features_v1_*.csv'))
     assert len(csv_files) == 1
     monkeypatch.setattr(config, 'CSV_PATH', csv_files[0])
-    runpy.run_path(str(ROOT / 'train_model.py'), run_name='__main__')
-    assert len(list(tmp_path.glob('leaf_stress_model_v1_*.pkl'))) == 1
-    assert len(list(tmp_path.glob('model_benchmark_v1_*.json'))) == 1
+    # New gate leaves no Moderate/Severe examples: do not fit a misleading two-class model.
+    with pytest.raises(ValueError, match='lacks one or more required classes'):
+        runpy.run_path(str(ROOT / 'train_model.py'), run_name='__main__')
+    assert csv_files[0].with_suffix('.metadata.json').exists()
+    assert not list(tmp_path.glob('leaf_stress_model_v1_*.pkl'))
+    assert not list(tmp_path.glob('model_benchmark_v1_*.json'))
     assert not (tmp_path / 'leaf_features.csv').exists()
     assert not (tmp_path / 'leaf_stress_model.pkl').exists()
     assert not (tmp_path / 'model_benchmark.json').exists()

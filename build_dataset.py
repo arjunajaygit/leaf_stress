@@ -14,6 +14,8 @@ Expected folder layout (DATASET_DIR is defined in config.py):
 """
 
 import hashlib
+import json
+import config
 import os
 import pandas as pd
 from feature_extraction import extract_all_features
@@ -54,7 +56,7 @@ for label in CLASSES:
 
         feats = extract_all_features(path)
         if feats is None:
-            print(f"  skipped (no leaf detected): {path}")
+            print(f"  skipped (mask quality failed): {path}")
             continue
         feats["label"] = label
         feats["filename"] = fname
@@ -62,6 +64,10 @@ for label in CLASSES:
 
 df = pd.DataFrame(rows)
 df.to_csv(OUTPUT_PATH, index=False, mode="x")
+with OUTPUT_PATH.with_suffix(".metadata.json").open("x") as stream:
+    json.dump({"preprocessing": config.preprocessing_signature(),
+               "mask_quality": config.mask_quality_settings(),
+               "csv_sha256": hashlib.sha256(OUTPUT_PATH.read_bytes()).hexdigest()}, stream, indent=2)
 
 print(f"\nDuplicates removed (by MD5 content hash): {duplicates_removed}")
 print(f"Saved {len(df)} unique rows to {OUTPUT_PATH}")

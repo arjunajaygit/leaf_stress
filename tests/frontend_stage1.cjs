@@ -87,6 +87,35 @@ const run = code => vm.runInContext(code, context);
   assert.equal(element('diagBadge').textContent, 'Disease-like or other confounding symptoms suspected');
   realRenderOutput(result);
   assert.equal(element('indicatorWrap').hidden, false);
+  for (const [outcome, status] of [['rejected', 422], ['uncertain', 200], ['model_update_required', 503]]) {
+    element('fileInput').files = [{}];
+    const body = {outcome, error: outcome === 'uncertain' ? undefined : 'Retake or update model',
+      code: outcome === 'rejected' ? 'border_contact' : 'preprocessing_mismatch',
+      detail: 'Below the provisional threshold', top_probability: .5996, probability_threshold: .6,
+      prediction: null, visual_stress_indicator: null,
+      quality: {reason_codes: outcome === 'rejected' ? ['border_contact', 'foreground_too_large'] : []},
+      visualizations: {mask: 'data:image/jpeg;base64,mask', candidate_mask: 'data:image/jpeg;base64,candidates'}};
+    context.fetch = async () => ({status, ok: status === 200, headers: {get() {return 'application/json';}}, json: async () => body});
+    await run('executeScan()');
+    assert.equal(element('qualityFeedback').hidden, false);
+    assert.equal(element('resultsWrap').style.display, 'none');
+    assert.equal(element('consensusBox').style.display, 'none');
+    assert.equal(element('qualityMask').src, body.visualizations.mask);
+    assert.equal(element('qualityCandidates').src, body.visualizations.candidate_mask);
+    assert.equal(element('resetBtn').disabled, false);
+    if (outcome === 'uncertain') {
+      assert.equal(element('qualityTitle').textContent, 'Uncertain / unsupported input');
+      assert.match(element('qualityReasons').textContent, /0.5996/);
+    }
+    if (outcome === 'rejected') {
+      assert.equal(element('qualityTitle').textContent, 'Retake photo');
+      assert.match(element('qualityReasons').textContent, /border_contact, foreground_too_large/);
+    }
+    run('clearScan()');
+    assert.equal(element('qualityFeedback').hidden, true);
+    assert.equal(element('qualityMask').src, undefined);
+  }
+  console.log('PASS: Stage 3 mask preview, all rejection reasons, uncertainty, incompatible-model feedback and reset');
   console.log('PASS: Stage 2 integer indicator, disease suppression, descriptive comparisons and disease labels');
   console.log('PASS: frontend stale results, reset lock, URL cleanup, non-JSON/JSON errors, successful completion');
 })().catch(error => {console.error(error); process.exitCode = 1;});

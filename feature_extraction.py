@@ -5,31 +5,112 @@ indicator. None of these outputs measures physiological water status.
 """
 
 import base64
+import config
 import cv2
 import numpy as np
 
 
+QUALITY_MESSAGES = {
+    "unreadable_image": "The file could not be read as an image. Retake photo or choose another file.",
+    "no_leaf": "No foreground leaf candidate was found. Retake photo with one leaf against a contrasting background.",
+    "border_contact": "The selected mask touches the frame; the leaf may be cut off or merged with background. Retake photo with the full leaf inside the frame.",
+    "foreground_too_large": "The selected mask fills too much of the frame. Retake photo with a visible neutral background around the leaf.",
+    "foreground_too_small": "The selected mask is too small in the frame. Retake photo closer to one fully visible leaf.",
+    "multiple_components": "Several large foreground regions were found. Retake photo showing only one leaf.",
+    "tiny_contour": "The detected outline is too small for reliable shape measurements. Retake photo with a larger, clearer leaf.",
+}
+
+
+def standardize_image(image):
+    """Preserve aspect ratio and set the longest side to 800 px by default.
+
+    Upsampling small inputs standardizes geometry but adds no image information.
+    """
+    height, width = image.shape[:2]
+    scale = config.WORKING_LONGEST_SIDE / max(height, width)
+    size = (max(1, round(width * scale)), max(1, round(height * scale)))
+    if size == (width, height):
+        return image.copy()
+    return cv2.resize(image, size, interpolation=cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR)
+
+
+def morphology_kernel_size(shape):
+    size = max(1, round(config.MORPH_KERNEL_AT_REFERENCE * max(shape[:2]) / config.MORPH_REFERENCE_SIDE))
+    return size if size % 2 else size + 1
+
+
+def _segment_candidates(image):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    candidates = cv2.inRange(hsv, np.array(config.HSV_LOWER), np.array(config.HSV_UPPER))
+    size = morphology_kernel_size(image.shape)
+    kernel = np.ones((size, size), np.uint8)
+    candidates = cv2.morphologyEx(candidates, cv2.MORPH_OPEN, kernel)
+    candidates = cv2.morphologyEx(candidates, cv2.MORPH_CLOSE, kernel)
+    contours, _ = cv2.findContours(candidates, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    largest = max(contours, key=cv2.contourArea) if contours else None
+    selected = np.zeros_like(candidates)
+    if largest is not None:
+        cv2.drawContours(selected, [largest], -1, 255, -1)
+    return selected, largest, candidates
+
+
 def segment_leaf(img_bgr):
-    """Isolate the leaf from the background. Returns (mask, largest_contour)."""
-    hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+    """Segment a prepared image; shared callers standardize before this step."""
+    mask, contour, _ = _segment_candidates(img_bgr)
+    return mask, contour
 
-    # Range covering green through yellow/chlorotic and dry brown leaves
-    lower = np.array([10, 20, 20])
-    upper = np.array([100, 255, 255])
-    mask = cv2.inRange(hsv, lower, upper)
 
-    kernel = np.ones((5, 5), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+def check_mask_quality(mask, contour, candidates):
+    """Retain all failures, inspecting components before selecting/filling one outline."""
+    pixels = mask.size
+    count, _, stats, _ = cv2.connectedComponentsWithStats(candidates, connectivity=8)
+    areas = stats[1:, cv2.CC_STAT_AREA] if count > 1 else np.array([])
+    cutoff = max(pixels * config.MASK_LARGE_COMPONENT_MIN_FRACTION,
+                 float(areas.max()) * config.MASK_LARGE_COMPONENT_RELATIVE_FRACTION if len(areas) else 0)
+    large = int(np.sum(areas >= cutoff)) if len(areas) else 0
+    fraction = float(np.count_nonzero(mask) / pixels)
+    border = bool(np.any(mask[0]) or np.any(mask[-1]) or np.any(mask[:, 0]) or np.any(mask[:, -1]))
+    area = float(cv2.contourArea(contour)) if contour is not None else 0.0
+    reasons = []
+    if contour is None:
+        reasons.append("no_leaf")
+    else:
+        if border and config.MASK_REJECT_BORDER_CONTACT:
+            reasons.append("border_contact")
+        if fraction > config.MASK_MAX_FOREGROUND_FRACTION:
+            reasons.append("foreground_too_large")
+        if fraction < config.MASK_MIN_FOREGROUND_FRACTION:
+            reasons.append("foreground_too_small")
+        if large > config.MASK_MAX_LARGE_COMPONENTS:
+            reasons.append("multiple_components")
+        if area < max(config.MASK_MIN_CONTOUR_AREA_PIXELS, pixels * config.MASK_MIN_CONTOUR_AREA_FRACTION):
+            reasons.append("tiny_contour")
+    return {
+        "passed": not reasons, "reason_code": reasons[0] if reasons else "ok",
+        "reason_codes": reasons,
+        "message": "Mask passed provisional quality checks; leaf identity is not verified." if not reasons else " ".join(QUALITY_MESSAGES[r] for r in reasons),
+        "border_contact": border, "foreground_fraction": fraction,
+        "candidate_foreground_fraction": float(np.count_nonzero(candidates) / pixels),
+        "components": int(count - 1), "large_components": large,
+        "contour_area": area, "working_width": int(mask.shape[1]), "working_height": int(mask.shape[0]),
+    }
 
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours:
-        return mask, None
 
-    largest = max(contours, key=cv2.contourArea)
-    clean_mask = np.zeros_like(mask)
-    cv2.drawContours(clean_mask, [largest], -1, 255, -1)
-    return clean_mask, largest
+def prepare_leaf(image_path):
+    """One preprocessing, gate and feature path used by training, inference and reports."""
+    original = cv2.imread(str(image_path))
+    if original is None:
+        return None, None, None, None, {
+            "passed": False, "reason_code": "unreadable_image", "reason_codes": ["unreadable_image"],
+            "message": QUALITY_MESSAGES["unreadable_image"],
+        }
+    image = standardize_image(original)
+    mask, contour, candidates = _segment_candidates(image)
+    quality = check_mask_quality(mask, contour, candidates)
+    features = None
+    if quality["passed"]:
+        features = {**extract_color_features(image, mask), **extract_shape_features(contour)}
+    return image, mask, contour, features, quality
 
 
 def extract_color_features(img_bgr, mask):
@@ -81,21 +162,8 @@ def extract_shape_features(contour):
 
 
 def extract_all_features(image_path):
-    """Returns a dict of features for one image, or None if no leaf found."""
-    img = cv2.imread(image_path)
-    if img is None:
-        return None
-
-    mask, contour = segment_leaf(img)
-    if contour is None:
-        return None
-
-    color_feats = extract_color_features(img, mask)
-    if color_feats is None:
-        return None
-    shape_feats = extract_shape_features(contour)
-
-    return {**color_feats, **shape_feats}
+    """Return shared standardized features only for images passing the quality gate."""
+    return prepare_leaf(image_path)[3]
 
 
 def _img_to_base64(img_bgr):
@@ -118,8 +186,8 @@ def generate_visual_pipeline(img_bgr, mask, contour):
     max_dim = 640
     if max(h, w) > max_dim:
         scale = max_dim / float(max(h, w))
-        img_bgr = cv2.resize(img_bgr, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
-        mask = cv2.resize(mask, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_NEAREST)
+        img_bgr = cv2.resize(img_bgr, (max(1, int(w * scale)), max(1, int(h * scale))), interpolation=cv2.INTER_AREA)
+        mask = cv2.resize(mask, (max(1, int(w * scale)), max(1, int(h * scale))), interpolation=cv2.INTER_NEAREST)
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contour = max(contours, key=cv2.contourArea) if contours else None
 
@@ -241,23 +309,19 @@ def generate_agronomic_advisory(prediction):
 
 
 def analyze_leaf_full(image_path):
-    """
-    Comprehensive pipeline returning extracted features, intermediate CV stages,
-    and heuristic color-group pixel fractions.
-    """
-    img = cv2.imread(image_path)
-    if img is None:
-        return None, None, None
-
-    mask, contour = segment_leaf(img)
-    if contour is None:
-        return None, None, None
-
-    color_feats = extract_color_features(img, mask)
-    if color_feats is None:
-        return None, None, None
-    shape_feats = extract_shape_features(contour)
-    features = {**color_feats, **shape_feats}
-
-    visualizations, tissue_stats = generate_visual_pipeline(img, mask, contour)
-    return features, visualizations, tissue_stats
+    """Return features, displays, color fractions and quality for every readable input."""
+    image, mask, contour, features, quality = prepare_leaf(image_path)
+    if image is None:
+        return None, {}, {}, quality
+    # Binary previews show both the selected mask and all pre-selection candidates.
+    _, _, candidates = _segment_candidates(image)
+    previews = {}
+    for name, binary in (("mask", mask), ("candidate_mask", candidates)):
+        scale = min(1.0, 640 / max(binary.shape))
+        display = cv2.resize(binary, (max(1, round(binary.shape[1] * scale)),
+                                      max(1, round(binary.shape[0] * scale))), interpolation=cv2.INTER_NEAREST)
+        previews[name] = _img_to_base64(display)
+    if not quality["passed"]:
+        return None, previews, {}, quality
+    visualizations, tissue_stats = generate_visual_pipeline(image, mask, contour)
+    return features, {**visualizations, **previews}, tissue_stats, quality

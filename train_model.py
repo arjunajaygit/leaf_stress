@@ -19,6 +19,8 @@ Exports:
 from config import CSV_PATH, versioned_path
 
 import json
+import hashlib
+import config
 import joblib
 import numpy as np
 import pandas as pd
@@ -44,7 +46,18 @@ def run_benchmarks():
     print("🌿 LEAF STRESS CLASSIFICATION - MULTI-MODEL BENCHMARK")
     print("==================================================")
 
+    metadata_path = CSV_PATH.with_suffix(".metadata.json")
+    if not metadata_path.exists():
+        raise ValueError("Feature CSV has no preprocessing metadata. Build a new versioned dataset first; the original CSV is preserved.")
+    metadata = json.loads(metadata_path.read_text())
+    if metadata.get("preprocessing") != config.preprocessing_signature() or metadata.get("csv_sha256") != hashlib.sha256(CSV_PATH.read_bytes()).hexdigest():
+        raise ValueError("Feature CSV preprocessing metadata or content hash does not match. Rebuild the dataset.")
     df = pd.read_csv(CSV_PATH)
+    required_classes = {"Healthy", "Moderate_Water_Stress", "Severe_Water_Stress", "Disease_Confounded"}
+    if set(df.get("label", [])) != required_classes:
+        raise ValueError("Quality-filtered dataset lacks one or more required classes. Collect acceptable images before four-class training.")
+    if df["label"].value_counts().min() < 2:
+        raise ValueError("At least two accepted samples per class are required even for provisional image-level CV.")
     feature_cols = [c for c in df.columns if c not in ("label", "filename")]
     X = df[feature_cols]
     y = df["label"]
@@ -169,6 +182,8 @@ def run_benchmarks():
     # Save a new versioned bundle; preserve the original artifact.
     # Bundle contains fitted estimators and descriptive metadata.
     bundle = {
+        "preprocessing": metadata["preprocessing"],
+        "mask_quality": metadata["mask_quality"],
         "best_model_name": best_model_name,
         "primary_model": trained_models[best_model_name],
         "all_models": trained_models,

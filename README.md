@@ -6,18 +6,18 @@ Lecor is an academic prototype for **visual leaf classification** using OpenCV, 
 
 The supplied dataset contains 56 image files and 40 byte-unique images: Healthy 8, Moderate Water Stress 9, Severe Water Stress 11 and Disease Confounded 12. Plant/session identities, label provenance and independent physiological measurements are missing. Background and framing vary with class, so the model may learn acquisition conditions instead of relevant symptoms.
 
-The app predicts one of the four existing dataset labels. `Disease_Confounded` is displayed as **“Disease-like or other confounding symptoms suspected”**, not a confirmed disease diagnosis. Other class names are dataset categories, not verified physiological assessments. Drought and disease can coexist.
+With a compatible trained model, the app predicts one of the four existing dataset labels. `Disease_Confounded` is displayed as **“Disease-like or other confounding symptoms suspected”**, not a confirmed disease diagnosis. Other class names are dataset categories, not verified physiological assessments. Drought and disease can coexist.
 
-Use one fully visible leaf on a plain contrasting background with even lighting. The current fixed-threshold segmentation can merge green backgrounds and multiple leaves or accept non-leaf objects. Automatic mask quality rejection and low-confidence abstention are not implemented yet. These remain scheduled for Stage 3.
+Use one fully visible leaf on a plain contrasting background with even lighting. The current fixed-threshold segmentation can merge green backgrounds and multiple leaves or accept non-leaf objects. Provisional mask-quality checks now reject border contact, excessive/insufficient foreground, multiple large components and tiny outlines. A provisional top-class-probability threshold (default 0.60) produces “Uncertain / unsupported input” without a category or indicator. These checks do not establish leaf identity; a centered green non-leaf object can still pass.
 
 This is a small-dataset, visual-only prototype, not a replacement for direct soil assessment, laboratory testing or expert advice.
 
 ## What the code does
 
 1. Validates an uploaded JPEG, PNG or WebP, request size and image dimensions.
-2. Segments at original resolution with a fixed HSV range, 5×5 opening/closing and the largest external contour, filling its interior.
+2. Resizes with preserved aspect ratio to longest side 800 px (area interpolation for reduction, linear for enlargement), then segments with a fixed HSV range and resolution-scaled opening/closing (5×5 at 800 px). It selects/fills the largest external contour and checks all candidate components before allowing feature extraction. Upsampling smaller photos does not add detail.
 3. Uses one shared implementation to extract 15 numerical features for training and inference.
-4. Runs the selected saved classifier. Predictions from other fitted models are shown separately on the same image.
+4. Requires a model with matching preprocessing metadata, then runs the selected classifier and applies provisional confidence rejection. Predictions from other fitted models are shown separately only for classified results.
 5. Produces an optional experimental heuristic indicator, color-threshold visualizations, descriptive feature comparisons and cautious inspection guidance.
 6. Displays results in the browser; the print button opens the browser print dialog.
 
@@ -54,11 +54,42 @@ The color map divides masked pixels using fixed HSV rules into yellow-toned, dar
 
 ## Training and current evidence
 
-`build_dataset.py` removes byte-identical duplicates and writes a versioned CSV. It currently executes when imported; import safety and label-conflict handling are planned for Stage 4. Do not import it as a library yet.
+`build_dataset.py` removes byte-identical duplicates, excludes quality-rejected images from new feature rows, and writes a versioned CSV plus a content-hashed preprocessing metadata sidecar. Original images are never removed. It currently executes when imported; import safety and label-conflict handling are planned for Stage 4. Do not import it as a library yet.
 
-`train_model.py` compares Random Forest, scaled RBF SVM, Gradient Boosting, scaled Logistic Regression and scaled KNN using stratified image-level CV. It computes metrics from pooled out-of-fold predictions, selects the highest Macro F1, then fits all candidates on all development rows. Training does not occur during web requests.
+`train_model.py` compares Random Forest, scaled RBF SVM, Gradient Boosting, scaled Logistic Regression and scaled KNN using stratified image-level CV. It computes metrics from pooled out-of-fold predictions, selects the highest Macro F1, then fits all candidates on all development rows. Training does not occur during web requests. The trainer refuses CSVs with missing/mismatched preprocessing metadata, changed CSV content, missing classes or fewer than two accepted samples per class. This minimum only prevents invalid CV setup; it does not establish adequate sample size.
 
-The original saved winner is Logistic Regression: accuracy **0.6250**, Macro F1 **0.6019**, on image-level development CV. These are **not independent final test estimates**: model selection used those same results, and plant/session independence is unknown. No grouped evaluation or new scientific performance result has been produced by the software fixes. The saved benchmark is accessible at `GET /api/benchmark`; there is no benchmark dashboard in the current UI.
+The original saved winner (now incompatible with resized preprocessing) is Logistic Regression: accuracy **0.6250**, Macro F1 **0.6019**, on image-level development CV. These are **not independent final test estimates**: model selection used those same results, and plant/session independence is unknown. No grouped evaluation or new scientific performance result has been produced by the software fixes. Stage 3 has not retrained or activated a new production model. The saved benchmark is accessible at `GET /api/benchmark`; there is no benchmark dashboard in the current UI.
+
+
+## Stage 3 quality gate and model compatibility
+
+The original model was trained on original-resolution features. It is preserved but **cannot be used for classification with the new resized extractor**. A passing image currently receives “Model update required” (HTTP 503) rather than a silently mismatched prediction. Rejected images still receive a mask preview, all reason codes, and a retake message (HTTP 422). The application starts with a warning so users can review masks. No class/indicator is returned for rejected, uncertain or model-incompatible inputs.
+
+`reports/mask_quality_report.csv` contains one row per byte-unique image, duplicate aliases, both selected/candidate foreground fractions, border contact, component counts, contour area, working dimensions, pass/fail and all reason codes. `reports/mask_quality_summary.md` includes overlapping and primary failure counts, a threshold snapshot and the rejected-image list.
+
+The current report contains **11 passes and 29 failures**. All 29 failures touch the frame; 9 also exceed 95% foreground. Accepted classes are Healthy 4 and Disease Confounded 7; **no Moderate or Severe images pass**. A new valid four-class model cannot be trained from this accepted subset. Collect appropriate examples, or review masks and acquisition assumptions before approving any threshold change. Do not relax thresholds solely to recover class counts.
+
+| Setting in `config.py` | Provisional default |
+|---|---|
+| `WORKING_LONGEST_SIDE` | 800 px |
+| `MORPH_KERNEL_AT_REFERENCE` / `MORPH_REFERENCE_SIDE` | 5 / 800; scaled to an odd kernel |
+| `MASK_REJECT_BORDER_CONTACT` | True (selected mask) |
+| `MASK_MIN_FOREGROUND_FRACTION` / `MASK_MAX_FOREGROUND_FRACTION` | 0.02 / 0.95 |
+| `MASK_MIN_CONTOUR_AREA_FRACTION` / `MASK_MIN_CONTOUR_AREA_PIXELS` | 0.005 / 128; require the larger minimum |
+| `MASK_LARGE_COMPONENT_MIN_FRACTION` | 0.01 of image pixels |
+| `MASK_LARGE_COMPONENT_RELATIVE_FRACTION` | 0.20 of the largest component; both component cutoffs must be met |
+| `MASK_MAX_LARGE_COMPONENTS` | 1 |
+| `MIN_CLASS_PROBABILITY` | 0.60; configurable using `LECOR_MIN_CLASS_PROBABILITY` |
+
+The confidence check uses probabilities before rounding. It is uncalibrated and provisional, not evidence of reliability. Missing probability support is a model error. Both the original model and its benchmark are retained for historical reference; `/api/benchmark` still serves that original development benchmark by default.
+
+Reproduce the mask audit without overwriting earlier reports by choosing new filenames:
+
+```sh
+python3 report_mask_quality.py --csv reports/mask_quality_report_review2.csv --summary reports/mask_quality_summary_review2.md
+```
+
+The report script refuses existing output paths. Preprocessing settings are embedded in new model bundles; full schema/version/library provenance remains Stage 5 work.
 
 ## Run locally
 
@@ -82,7 +113,7 @@ LECOR_MODEL_PATH=leaf_stress_model_v1_REPLACE_WITH_RUN_ID.pkl \
 LECOR_BENCHMARK_PATH=model_benchmark_v1_REPLACE_WITH_RUN_ID.json python3 app.py
 ```
 
-Generated filenames contain timestamps and UUIDs; creation is exclusive. Relative configured paths resolve against the project directory, not the shell working directory. Defaults still read the original artifacts. `backup_original/` contains copies and a SHA-256 manifest; do not edit these or the original dataset/artifacts.
+Training is currently blocked by missing accepted Moderate/Severe examples; the commands above describe the workflow once suitable data is available. Generated filenames contain timestamps and UUIDs; creation is exclusive. Relative configured paths resolve against the project directory, not the shell working directory. Defaults still read the original artifacts. `backup_original/` contains copies and a SHA-256 manifest; do not edit these or the original dataset/artifacts.
 
 ## Files and tests
 
@@ -90,7 +121,8 @@ Generated filenames contain timestamps and UUIDs; creation is exclusive. Relativ
 |---|---|
 | `app.py` | Routes, model loading, predictions and dataset comparisons |
 | `feature_extraction.py` | Shared features, mask, color visualizations, heuristic and guidance |
-| `config.py` | Paths, upload limits and server settings |
+| `config.py` | Paths, upload limits, preprocessing, quality thresholds and server settings |
+| `report_mask_quality.py` | Read-only unique-image mask report and failure counts |
 | `build_dataset.py` | Deduplication and versioned feature CSV |
 | `train_model.py` | Image-level development benchmark and fitted bundles |
 | `templates/index.html` | Scan, pipeline, measurements and browser printing |
@@ -103,4 +135,4 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
 node tests/frontend_stage1.cjs
 ```
 
-The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pinning, mask gates, grouped evaluation, ablations and fuller academic test documents remain future approved stages.
+The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pinning, grouped evaluation, ablations and fuller academic test documents remain future approved stages.

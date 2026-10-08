@@ -4,6 +4,7 @@ Uses a saved classifier, shared image features, heuristic visualizations and
 comparisons with dataset averages. Outputs do not establish physiological status.
 """
 
+import config
 import json
 import tempfile
 import warnings
@@ -25,7 +26,8 @@ from config import (
 from feature_extraction import analyze_leaf_full, compute_visual_stress_indicator, generate_agronomic_advisory
 
 app = Flask(__name__)
-app.config.update(MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH, MAX_IMAGE_PIXELS=MAX_IMAGE_PIXELS)
+app.config.update(MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH, MAX_IMAGE_PIXELS=MAX_IMAGE_PIXELS,
+                  MIN_CLASS_PROBABILITY=config.MIN_CLASS_PROBABILITY)
 
 bundle = None
 primary_model = None
@@ -60,6 +62,8 @@ def load_model_bundle(path=MODEL_PATH):
         all_models = bundle.get("all_models", {"Primary": candidate}) if bundle else {"Default Model": candidate}
         feature_stats = bundle.get("feature_stats", {}) if bundle else {}
         model_load_error = None
+        if not bundle or bundle.get("preprocessing") != config.preprocessing_signature():
+            app.logger.warning("Model preprocessing is incompatible with the current extractor; classification will be refused. A versioned model trained with matching preprocessing is required.")
         return True
     except Exception as exc:
         model_load_error = f"Cannot load model at {path}: {exc}"
@@ -189,13 +193,24 @@ def predict():
         file.save(save_path)
         validate_image(save_path)
         try:
-            features, visualizations, tissue_stats = analyze_leaf_full(str(save_path))
+            features, visualizations, tissue_stats, quality = analyze_leaf_full(str(save_path))
         except Exception:
             app.logger.exception("Image processing failed")
             raise APIError("Image processing failed. Please try another photo.", 500, "processing_error") from None
 
-    if features is None:
-        raise APIError("No leaf could be segmented. Please retake the photo against a contrasting background.", 422, "no_leaf")
+    if not quality["passed"]:
+        return jsonify({
+            "outcome": "rejected", "error": quality["message"], "code": quality["reason_code"],
+            "prediction": None, "visual_stress_indicator": None,
+            "quality": quality, "visualizations": visualizations,
+        }), 422
+    if not bundle or bundle.get("preprocessing") != config.preprocessing_signature():
+        return jsonify({
+            "outcome": "model_update_required", "code": "preprocessing_mismatch",
+            "error": "This image passed the provisional mask checks, but the saved model uses older preprocessing. Compatible retraining is required before classification.",
+            "prediction": None, "visual_stress_indicator": None,
+            "quality": quality, "visualizations": visualizations,
+        }), 503
     try:
         if set(features) != set(feature_names):
             raise ValueError("Extracted features do not match the model schema")
@@ -220,12 +235,27 @@ def predict():
                 raise ValueError("Invalid model probabilities")
             probs = {cls: round(float(p), 3) for cls, p in zip(model_classes, probabilities[0])}
         else:
-            probs = {cls: 1.0 if cls == pred else 0.0 for cls in classes}
-        comparison_predictions = {name: str(model.predict(X)[0]) for name, model in all_models.items()
-                                  if model is not primary_model}
+            raise ValueError("Class probabilities are required for provisional uncertainty rejection")
     except Exception:
         app.logger.exception("Model prediction failed")
         raise APIError("The loaded model could not produce a valid prediction. Contact the operator.", 503, "model_error") from None
+
+    threshold = app.config["MIN_CLASS_PROBABILITY"]
+    top_probability = float(probabilities.max())
+    if top_probability < threshold:
+        return jsonify({
+            "outcome": "uncertain", "message": "Uncertain / unsupported input",
+            "detail": "The highest model class probability is below the provisional threshold. Retake a clearer photo or seek independent assessment; a passing mask does not verify leaf identity.",
+            "prediction": None, "visual_stress_indicator": None,
+            "top_probability": top_probability, "probability_threshold": threshold,
+            "threshold_provisional": True, "quality": quality, "visualizations": visualizations,
+        })
+    try:
+        comparison_predictions = {name: str(model.predict(X)[0]) for name, model in all_models.items()
+                                  if model is not primary_model}
+    except Exception:
+        app.logger.exception("Comparison model prediction failed")
+        raise APIError("A comparison model failed. Contact the operator.", 503, "model_error") from None
 
     # Experimental heuristic and descriptive measurements; no physiological claims.
     indicator = compute_visual_stress_indicator(features, pred, probs)
@@ -233,6 +263,10 @@ def predict():
     feature_comparisons = compare_feature_measurements(features)
 
     return jsonify({
+        "outcome": "classified",
+        "quality": quality,
+        "probability_threshold": threshold,
+        "threshold_provisional": True,
         "prediction": pred,
         "probabilities": probs,
         "best_model_name": bundle.get("best_model_name", "Primary Model") if bundle else "Primary Model",

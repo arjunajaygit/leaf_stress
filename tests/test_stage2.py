@@ -7,8 +7,9 @@ import pandas as pd
 import pytest
 
 import app as web
+import config
 from feature_extraction import (
-    compute_visual_stress_indicator, extract_all_features, generate_agronomic_advisory,
+    compute_visual_stress_indicator, extract_all_features, generate_agronomic_advisory, analyze_leaf_full,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +38,7 @@ def test_guidance_asks_for_independent_checks(label):
 
 @pytest.mark.parametrize('label', ['Healthy', 'Disease_Confounded'])
 def test_prediction_contract(label, monkeypatch):
+    monkeypatch.setattr(web, "bundle", {**web.bundle, "preprocessing": config.preprocessing_signature()})
     class FixedModel:
         classes_ = web.classes
         def predict(self, X):
@@ -70,13 +72,18 @@ def test_comparisons_are_pooled_descriptions_not_importance(monkeypatch):
     assert 'not a healthy reference' in comparison['interpretation']
 
 
-def test_production_features_unchanged():
+def test_shared_standardized_features_and_rejections():
+    # Stage 3 intentionally changes preprocessing; compare training with inference,
+    # rather than expecting equality with the now-incompatible original CSV.
     df = pd.read_csv(ROOT / 'leaf_features.csv')
     for row in df.to_dict('records'):
-        features = extract_all_features(str(ROOT / 'dataset' / row['label'] / row['filename']))
-        assert len(features) == 15
-        for name, value in features.items():
-            assert value == pytest.approx(row[name], abs=1e-9)
+        path = ROOT / 'dataset' / row['label'] / row['filename']
+        features = extract_all_features(str(path))
+        full, _, _, quality = analyze_leaf_full(str(path))
+        assert features == full
+        assert (features is not None) == quality['passed']
+        if features:
+            assert set(features) == set(df.columns) - {'filename', 'label'}
 
 
 def test_visible_copy_and_srs_suggestions():
