@@ -26,6 +26,7 @@ const context = vm.createContext({
   alert(message) {alerts.push(message);},
 });
 vm.runInContext(script, context);
+const realRenderOutput = context.renderOutput;
 let rendered = 0;
 context.renderOutput = () => {rendered++; element('resultsWrap').style.display = 'block';};
 const run = code => vm.runInContext(code, context);
@@ -62,5 +63,30 @@ const run = code => vm.runInContext(code, context);
   assert.deepEqual(revoked, ['blob:1', 'blob:2']);
   assert.equal(element('imagePreview').src, undefined);
   assert.equal(element('resultsWrap').style.display, 'none');
+  const result = {
+    prediction: 'Healthy', visual_stress_indicator: 26, best_model_name: 'Test model',
+    probabilities: {Healthy: .8, Disease_Confounded: .2},
+    multi_model_predictions: {Other: 'Disease_Confounded'},
+    tissue_stats: {healthy_pct: 80, chlorosis_pct: 10, necrosis_pct: 10},
+    advisory: {guidance: 'Check soil moisture directly.', action_items: []},
+    features: {solidity: .8},
+    feature_comparisons: [{label: 'Solidity', value: .8, dataset_mean: .7, z_score: 1,
+      interpretation: 'Compared with the pooled dataset across all classes.'}],
+  };
+  realRenderOutput(result);
+  assert.equal(element('indicatorValue').textContent, '26');
+  assert.equal(element('indicatorWrap').hidden, false);
+  assert.equal(element('indicatorUnavailable').hidden, true);
+  assert.match(element('measurementsContainer').innerHTML, /Dataset average: 0.7/);
+  assert.match(element('probabilityBars').innerHTML, /Disease-like or other confounding symptoms suspected/);
+  assert.match(element('consensusEntries').innerHTML, /Disease-like or other confounding symptoms suspected/);
+  realRenderOutput({...result, prediction: 'Disease_Confounded', visual_stress_indicator: null});
+  assert.equal(element('indicatorValue').textContent, '');
+  assert.equal(element('indicatorWrap').hidden, true);
+  assert.equal(element('indicatorUnavailable').hidden, false);
+  assert.equal(element('diagBadge').textContent, 'Disease-like or other confounding symptoms suspected');
+  realRenderOutput(result);
+  assert.equal(element('indicatorWrap').hidden, false);
+  console.log('PASS: Stage 2 integer indicator, disease suppression, descriptive comparisons and disease labels');
   console.log('PASS: frontend stale results, reset lock, URL cleanup, non-JSON/JSON errors, successful completion');
 })().catch(error => {console.error(error); process.exitCode = 1;});

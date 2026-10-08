@@ -1,11 +1,7 @@
-"""
-feature_extraction.py
-----------------------
-Extracts biophysical computer vision features from leaf photos:
-  - Color features (HSV distributions + vegetation indices EXG, GLI)
-  - Morphometric / curl features (solidity, aspect ratio, extent, compactness)
-  - Visual pipeline generators (segmented mask, tissue pathology map, GLI heatmap)
-  - Agronomic decision support (Crop Water Stress Index, tissue necrosis stats)
+"""Shared RGB/HSV feature extraction and 2D projected shape descriptors.
+
+Also produces color-threshold visualizations and an experimental heuristic
+indicator. None of these outputs measures physiological water status.
 """
 
 import base64
@@ -48,7 +44,7 @@ def extract_color_features(img_bgr, mask):
     h, s, v = hsv_pixels[:, 0], hsv_pixels[:, 1], hsv_pixels[:, 2]
     b, g, r = bgr_pixels[:, 0], bgr_pixels[:, 1], bgr_pixels[:, 2]
 
-    # Vegetation indices commonly used in plant-stress literature
+    # RGB greenness indices; not direct measurements of water or chlorophyll content
     exg = 2 * g - r - b
     gli = (2 * g - r - b) / (2 * g + r + b + 1e-6)
 
@@ -63,7 +59,7 @@ def extract_color_features(img_bgr, mask):
 
 
 def extract_shape_features(contour):
-    """Extract geometric shape and curling descriptors."""
+    """Extract 2D projected shape descriptors; these do not directly measure curl."""
     area = cv2.contourArea(contour)
     hull = cv2.convexHull(contour)
     hull_area = cv2.contourArea(hull)
@@ -114,8 +110,8 @@ def generate_visual_pipeline(img_bgr, mask, contour):
     """
     Generates computer vision pipeline stages for visual inspection:
     1. Segmented leaf cutout with contour border
-    2. Tissue pathology map (Chlorosis / Necrosis / Healthy green decomposition)
-    3. GLI (Green Leaf Index) spectral heatmap
+    2. Color-threshold map (yellow-toned, dark/brown-toned and remaining pixels)
+    3. GLI (Green Leaf Index) RGB greenness heatmap
     """
     h, w = img_bgr.shape[:2]
     # Resize large images for fast web response while preserving aspect ratio
@@ -133,10 +129,10 @@ def generate_visual_pipeline(img_bgr, mask, contour):
     if contour is not None:
         cv2.drawContours(segmented, [contour], -1, (0, 255, 128), 2)
 
-    # 2. Tissue Pathology Analysis
-    # Healthy green: H in [36, 85]
-    # Chlorosis (Yellowing): H in [18, 35], S > 50
-    # Necrosis (Browning/drying): H < 18 or (V < 70 and S > 30)
+    # 2. Heuristic color grouping; these are not tissue diagnoses.
+    # Legacy variable names below refer only to color groups.
+    # Yellow-toned: H in [18, 35], S >= 45, excluding dark/brown group.
+    # Dark/brown-toned: H < 18 or (V < 75 and S > 35).
     hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
     leaf_indices = np.where(mask == 255)
     total_leaf_pixels = len(leaf_indices[0])
@@ -151,7 +147,7 @@ def generate_visual_pipeline(img_bgr, mask, contour):
         s_chan = hsv[:, :, 1]
         v_chan = hsv[:, :, 2]
 
-        # Necrosis takes priority (most severe), then chlorosis, then healthy
+        # Dark/brown group takes precedence; remaining pixels are not necessarily healthy.
         necrosis_mask = (mask == 255) & ((h_chan < 18) | ((v_chan < 75) & (s_chan > 35)))
         chlorosis_mask = (mask == 255) & (~necrosis_mask) & (h_chan >= 18) & (h_chan <= 35) & (s_chan >= 45)
         healthy_mask = (mask == 255) & (~chlorosis_mask) & (~necrosis_mask)
@@ -160,10 +156,10 @@ def generate_visual_pipeline(img_bgr, mask, contour):
         necrosis_pixels = int(np.sum(necrosis_mask))
         healthy_pixels = int(np.sum(healthy_mask))
 
-        # Color overlay for pathology map
-        # Chlorosis -> Bright Gold/Yellow highlight (0, 220, 255) BGR
-        # Necrosis -> Crimson/Red highlight (0, 0, 240) BGR
-        # Healthy -> Natural or tinted green (0, 220, 0)
+        # Color overlay for threshold groups
+        # Yellow-toned -> Bright Gold/Yellow highlight (0, 220, 255) BGR
+        # Dark/brown-toned -> Crimson/Red highlight (0, 0, 240) BGR
+        # Remaining pixels retain their original color.
         if chlorosis_pixels:
             pathology_vis[chlorosis_mask] = cv2.addWeighted(
                 pathology_vis[chlorosis_mask], 0.35,
@@ -175,12 +171,12 @@ def generate_visual_pipeline(img_bgr, mask, contour):
                 np.full_like(pathology_vis[necrosis_mask], (40, 40, 255)), 0.7, 0
             )
 
-    # 3. Spectral Heatmap (Green Leaf Index - GLI)
+    # 3. RGB greenness heatmap (Green Leaf Index - GLI)
     bgr_f = img_bgr.astype(np.float32)
     b, g, r = bgr_f[:, :, 0], bgr_f[:, :, 1], bgr_f[:, :, 2]
     gli_map = (2.0 * g - r - b) / (2.0 * g + r + b + 1e-6)
 
-    # Clip GLI to [-0.2, 0.4] and normalize to 0..255
+    # Clip GLI to [-0.15, 0.35] and normalize to 0..255 for display only
     gli_clipped = np.clip(gli_map, -0.15, 0.35)
     gli_norm = ((gli_clipped - (-0.15)) / (0.35 - (-0.15)) * 255.0).astype(np.uint8)
     gli_colored = cv2.applyColorMap(gli_norm, cv2.COLORMAP_TURBO)
@@ -203,100 +199,51 @@ def generate_visual_pipeline(img_bgr, mask, contour):
     return visualizations, tissue_stats
 
 
-def compute_cwsi(features, prediction, probabilities):
-    """
-    Computes Crop Water Stress Index (CWSI, 0% to 100%) by fusing model
-    prediction probabilities with physical morphology (solidity/extent)
-    and vegetation index (GLI).
-    """
-    p_healthy = probabilities.get("Healthy", 0.0)
-    p_moderate = probabilities.get("Moderate_Water_Stress", 0.0)
-    p_severe = probabilities.get("Severe_Water_Stress", 0.0)
-    p_disease = probabilities.get("Disease_Confounded", 0.0)
+def compute_visual_stress_indicator(features, prediction, probabilities):
+    """Return an integer heuristic on 0–100, or None for confounded results.
 
-    # Base stress from class probabilities
-    base_cwsi = (p_moderate * 55.0) + (p_severe * 92.0) + (p_healthy * 10.0) + (p_disease * 45.0)
-
-    # Morphological curl adjustment (wilting leaves lose solidity and compactness)
+    Original arbitrary weights are retained for continuity, not validated as a
+    physiological scale. Class probabilities are not water-stress severity.
+    """
+    if prediction == "Disease_Confounded":
+        return None
+    base = (probabilities.get("Healthy", 0.0) * 10.0
+            + probabilities.get("Moderate_Water_Stress", 0.0) * 55.0
+            + probabilities.get("Severe_Water_Stress", 0.0) * 92.0
+            + probabilities.get("Disease_Confounded", 0.0) * 45.0)
+    # Unvalidated shape and greenness adjustments retained from the prototype.
     solidity = features.get("solidity", 0.9)
     compactness = features.get("compactness", 0.5)
-    curl_penalty = max(0.0, (0.95 - solidity) * 30.0) + max(0.0, (0.50 - compactness) * 20.0)
-
-    # Spectral drop adjustment (GLI < 0.15 indicates chlorophyll degradation)
+    shape_adjustment = max(0.0, (0.95 - solidity) * 30.0) + max(0.0, (0.50 - compactness) * 20.0)
     gli = features.get("gli_mean", 0.15)
-    spectral_penalty = max(0.0, (0.20 - gli) * 50.0)
+    color_adjustment = max(0.0, (0.20 - gli) * 50.0)
+    value = min(100.0, max(0.0, base + 0.25 * shape_adjustment + 0.25 * color_adjustment))
+    return int(round(value))
 
-    cwsi = min(100.0, max(0.0, base_cwsi + (0.25 * curl_penalty) + (0.25 * spectral_penalty)))
-    return round(float(cwsi), 1)
 
-
-def generate_agronomic_advisory(prediction, cwsi, tissue_stats):
-    """
-    Generates tailored agronomic prescriptions for field management.
-    """
-    chlorosis = tissue_stats.get("chlorosis_pct", 0)
-    necrosis = tissue_stats.get("necrosis_pct", 0)
-
-    if prediction == "Healthy":
-        status = "Optimal Plant Turgor"
-        alert_level = "success"
-        irrigation = "Maintain standard baseline irrigation schedule (approx. 1.0 - 1.5 L/m²/day)."
-        actions = [
-            "Soil moisture levels appear optimal; avoid over-saturation.",
-            "Continue periodic leaf visual inspection twice weekly.",
-            "Maintain current nutrient fertigation cycle.",
-        ]
-        recovery_time = "N/A (Healthy canopy)"
-
-    elif prediction == "Moderate_Water_Stress":
-        status = "Early / Moderate Abiotic Drought"
-        alert_level = "warning"
-        irrigation = "Apply 2.5 - 3.5 L/m² via drip irrigation during early morning hours (6:00 AM - 8:00 AM)."
-        actions = [
-            "Incipient turgor loss detected; hydrate before stomatal closure impacts photosynthesis.",
-            "Apply 2-3 inches of organic straw mulch around root zones to suppress soil evaporation.",
-            "Verify drip emitter flow rates and inspect for clogged lateral lines.",
-            f"Monitor chlorotic margins (currently {chlorosis}% of leaf surface).",
-        ]
-        recovery_time = "24 to 48 hours following root-zone hydration"
-
-    elif prediction == "Severe_Water_Stress":
-        status = "Critical Moisture Deficit / Wilting"
-        alert_level = "danger"
-        irrigation = "Immediate root-zone pulse watering required (4.0 - 5.0 L/m² split into 2 applications)."
-        actions = [
-            "Severe turgor depression and cellular flaccidity observed.",
-            "Split watering into morning and late afternoon pulses to avoid waterlogging suffocated roots.",
-            "Erect temporary shade netting if ambient temperature exceeds 32°C to reduce vapor pressure deficit.",
-            f"Necrotic lesion spread detected on {necrosis}% of leaf lamina.",
-        ]
-        recovery_time = "3 to 5 days with gradual soil re-saturation"
-
-    else:  # Disease_Confounded
-        status = "Pathological / Biotic Stress Suspected"
-        alert_level = "secondary"
-        irrigation = "Hold excessive overhead watering; maintain regulated sub-surface drip only."
-        actions = [
-            "CAUTION: Foliar symptoms (necrosis/yellowing) resemble drought but stem from biotic pathology.",
-            "Refrain from overhead sprinkler irrigation to prevent dispersing bacterial/fungal spores.",
-            "Inspect abaxial (underside) leaf surface for fungal hyphae, bacterial lesions, or insect vectors.",
-            "Isolate heavily afflicted plants and apply targeted organic copper fungicide or bio-fungicide.",
-        ]
-        recovery_time = "Dependent on prompt phytosanitary intervention"
-
+def generate_agronomic_advisory(prediction):
+    """Suggest independent checks, without diagnosing a cause or prescribing treatment."""
+    guidance = {
+        "Healthy": "The image resembles the dataset's Healthy category. This does not rule out water stress or other problems.",
+        "Moderate_Water_Stress": "The image resembles the dataset's Moderate Water Stress category. Confirm plant and soil conditions directly.",
+        "Severe_Water_Stress": "The image resembles the dataset's Severe Water Stress category. Inspect the plant promptly; this image does not establish the cause.",
+        "Disease_Confounded": "Disease-like or other confounding symptoms suspected. Water-stress severity is not reported for this result.",
+    }
     return {
-        "status": status,
-        "alert_level": alert_level,
-        "irrigation_plan": irrigation,
-        "action_items": actions,
-        "recovery_time": recovery_time,
+        "guidance": guidance.get(prediction, "The visual result is unsupported. Inspect the plant directly."),
+        "action_items": [
+            "Inspect the whole plant and both sides of affected leaves.",
+            "Check soil moisture directly before deciding whether watering is needed.",
+            "Consider disease, pests, nutrient problems, heat and other possible causes; visual symptoms can overlap.",
+            "Consult a qualified agricultural expert if symptoms persist, worsen or remain unclear. Do not choose a treatment from this image alone.",
+        ],
     }
 
 
 def analyze_leaf_full(image_path):
     """
     Comprehensive pipeline returning extracted features, intermediate CV stages,
-    and biophysical tissue stats.
+    and heuristic color-group pixel fractions.
     """
     img = cv2.imread(image_path)
     if img is None:

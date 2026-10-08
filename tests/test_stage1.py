@@ -186,7 +186,7 @@ def test_probability_schema_failure(client, monkeypatch):
 def test_unexpected_exception(client, monkeypatch):
     def fail(*args):
         raise RuntimeError('private internals')
-    monkeypatch.setattr(web, 'compute_cwsi', fail)
+    monkeypatch.setattr(web, 'compute_visual_stress_indicator', fail)
     assert_error(upload(client), 500, 'internal_error')
 
 

@@ -268,18 +268,18 @@
     .badge-severe { background: var(--rose-subtle); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.3); }
     .badge-disease { background: var(--purple-subtle); color: var(--purple); border: 1px solid rgba(139, 92, 246, 0.3); }
 
-    .cwsi-metric {
+    .indicator-metric {
       text-align: right;
     }
 
-    .cwsi-value {
+    .indicator-value {
       font-size: 1.8rem;
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
       line-height: 1;
     }
 
-    .cwsi-caption {
+    .indicator-caption {
       font-size: 0.72rem;
       color: var(--text-dim);
       text-transform: uppercase;
@@ -452,8 +452,8 @@
       font-weight: 600;
     }
 
-    /* XAI Card */
-    .xai-card {
+    /* Dataset comparison cards */
+    .measurements-card {
       padding: 12px 14px;
       background: var(--surface-elevated);
       border: 1px solid var(--border);
@@ -461,7 +461,7 @@
       margin-bottom: 8px;
     }
 
-    .xai-top {
+    .measurements-top {
       display: flex;
       justify-content: space-between;
       font-size: 0.82rem;
@@ -469,7 +469,7 @@
       margin-bottom: 4px;
     }
 
-    .xai-sub {
+    .measurements-sub {
       font-size: 0.78rem;
       color: var(--text-muted);
     }
@@ -503,15 +503,15 @@
         <div class="brand-mark">L</div>
         <div>
           <h1>Lecor</h1>
-          <p>Foliar Phenotyping & Diagnostic System</p>
+          <p>Experimental Visual Leaf Assessment</p>
         </div>
       </div>
 
       <!-- Clean Tabs -->
       <nav class="nav-tabs no-print">
-        <button class="nav-btn active" onclick="setTab('scanner')">Diagnostics</button>
+        <button class="nav-btn active" onclick="setTab('scanner')">Scan</button>
         <button class="nav-btn" onclick="setTab('pipeline')">Pipeline</button>
-        <button class="nav-btn" onclick="setTab('xai')">Explainability</button>
+        <button class="nav-btn" onclick="setTab('measurements')">Measurements</button>
       </nav>
     </div>
   </header>
@@ -548,7 +548,7 @@
 
           <!-- Multi-Model Consensus -->
           <div class="card" id="consensusBox" style="display: none;">
-            <div class="card-title">Multi-Model Cross-Validation</div>
+            <div class="card-title">Predictions from other models on this image</div>
             <div id="consensusEntries" style="display: grid; gap: 6px;"></div>
           </div>
         </div>
@@ -567,7 +567,7 @@
             <div class="diagnosis-header">
               <div>
                 <div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">
-                  Diagnosis
+                  Predicted visual category
                 </div>
                 <div id="diagBadge" class="badge">--</div>
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;" id="modelUsedText">
@@ -575,33 +575,42 @@
                 </div>
               </div>
 
-              <div class="cwsi-metric">
-                <div class="cwsi-value" id="cwsiValue">--%</div>
-                <div class="cwsi-caption">Stress Index (CWSI)</div>
+              <div class="indicator-metric" id="indicatorWrap">
+                <div class="indicator-value" id="indicatorValue">--</div>
+                <div class="indicator-caption">Experimental relative visual-stress indicator</div>
+                <p style="font-size: 0.75rem; max-width: 280px;">0–100 heuristic; not a physiological measurement or a probability.</p>
               </div>
+            </div>
+
+            <p id="indicatorUnavailable" hidden>Indicator not reported: disease-like or other confounding symptoms require independent assessment.</p>
+            <div class="card" style="margin: 16px 0;" id="limitationsNote">
+              <strong>Prototype limitations</strong>
+              <p>Small dataset; visual-only assessment. Not a replacement for soil or laboratory testing. Labels and disease-versus-drought discrimination are not independently validated. Shape features are 2D projected shape descriptors, not measurements of curl, turgor or water content.</p>
             </div>
 
             <!-- Class Probabilities -->
             <div class="card" style="margin-bottom: 20px;">
-              <div class="card-title">Class Probabilities</div>
+              <div class="card-title">Model class probabilities</div>
+              <p style="font-size: 0.78rem;">Calibration is unverified. These probabilities do not measure water-stress severity.</p>
               <div id="probabilityBars"></div>
             </div>
 
-            <!-- Tissue Composition -->
+            <!-- Color-group fractions -->
             <div class="card" style="margin-bottom: 20px;">
-              <div class="card-title">Lamina Tissue Breakdown</div>
+              <div class="card-title">Heuristic color-group pixel fractions</div>
+              <p style="font-size: 0.78rem;">Fixed color thresholds within the displayed mask; not diagnosed healthy, chlorotic or necrotic tissue. Shadows and background can affect these fractions.</p>
               <div class="grid-3">
                 <div class="stat-cell">
                   <div class="metric" id="healthyVal" style="color: var(--emerald);">--%</div>
-                  <div class="label">Healthy</div>
+                  <div class="label">Remaining pixels</div>
                 </div>
                 <div class="stat-cell">
                   <div class="metric" id="chlorosisVal" style="color: var(--amber);">--%</div>
-                  <div class="label">Chlorosis</div>
+                  <div class="label">Yellow-toned pixels</div>
                 </div>
                 <div class="stat-cell">
                   <div class="metric" id="necrosisVal" style="color: var(--rose);">--%</div>
-                  <div class="label">Necrosis</div>
+                  <div class="label">Dark/brown-toned pixels</div>
                 </div>
               </div>
             </div>
@@ -609,22 +618,20 @@
             <!-- Recommended Actions -->
             <div class="card">
               <div class="card-title">
-                <span>Agronomic Advisory</span>
+                <span>Suggested checks</span>
                 <button class="btn btn-secondary no-print" onclick="window.print()" style="padding: 4px 10px; font-size: 0.75rem;">
                   Export PDF
                 </button>
               </div>
 
               <div class="plan-box">
-                <div class="caption">Irrigation Recommendation</div>
-                <div class="content" id="irrigationText">--</div>
+                <div class="caption">Independent verification</div>
+                <div class="content" id="guidanceText">--</div>
               </div>
 
               <div id="actionItems" style="margin-top: 10px;"></div>
 
-              <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 12px;">
-                Estimated Recovery: <span id="recoveryTime" style="color: var(--text); font-weight: 500;">--</span>
-              </div>
+
             </div>
           </div>
         </div>
@@ -644,22 +651,22 @@
           <div class="pipeline-card">
             <img id="pipeSource" src="" alt="Source">
             <div class="title">1. Raw Input</div>
-            <div class="desc">Original camera capture</div>
+            <div class="desc">Original uploaded image</div>
           </div>
           <div class="pipeline-card">
             <img id="pipeSegmented" src="" alt="Mask">
             <div class="title">2. Segmentation</div>
-            <div class="desc">Otsu + morphological mask</div>
+            <div class="desc">Fixed HSV threshold + opening/closing</div>
           </div>
           <div class="pipeline-card">
-            <img id="pipePathology" src="" alt="Pathology">
-            <div class="title">3. Tissue Map</div>
-            <div class="desc">Chlorosis & necrosis separation</div>
+            <img id="pipePathology" src="" alt="Color-threshold map">
+            <div class="title">3. Color-threshold Map</div>
+            <div class="desc">Heuristic color groups; not tissue diagnosis</div>
           </div>
           <div class="pipeline-card">
-            <img id="pipeHeatmap" src="" alt="Spectral">
+            <img id="pipeHeatmap" src="" alt="RGB greenness heatmap">
             <div class="title">4. GLI Heatmap</div>
-            <div class="desc">Vegetative index reflectance</div>
+            <div class="desc">RGB greenness; not calibrated reflectance</div>
           </div>
         </div>
       </div>
@@ -671,16 +678,16 @@
       </div>
     </section>
 
-    <!-- ==================== TAB 3: EXPLAINABILITY ==================== -->
-    <section id="tab-xai" class="tab-content">
+    <!-- ==================== TAB 3: DATASET COMPARISONS ==================== -->
+    <section id="tab-measurements" class="tab-content">
       <div class="card">
-        <div class="card-title">Feature Attribution (Z-Score Deviation)</div>
+        <div class="card-title">Feature measurements vs. dataset averages</div>
         <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-          Statistical divergence of current leaf features relative to the training population mean.
+          Measurements compared with pooled averages across all dataset classes. These deviations are not contributions to the prediction, biological causes, or comparisons with a healthy reference.
         </p>
-        <div id="xaiContainer">
+        <div id="measurementsContainer">
           <p style="color: var(--text-dim); font-size: 0.82rem; text-align: center; padding: 30px;">
-            Run a scan in the Diagnostics tab to generate feature attributions.
+            Run a scan to compare feature measurements with dataset averages.
           </p>
         </div>
       </div>
@@ -714,7 +721,7 @@
       document.getElementById('resultsWrap').style.display = 'none';
       document.getElementById('emptyState').style.display = 'block';
       document.getElementById('consensusBox').style.display = 'none';
-      for (const id of ['probabilityBars', 'consensusEntries', 'actionItems', 'featuresGrid', 'xaiContainer']) {
+      for (const id of ['probabilityBars', 'consensusEntries', 'actionItems', 'featuresGrid', 'measurementsContainer']) {
         document.getElementById(id).replaceChildren();
       }
       for (const id of ['pipeSource', 'pipeSegmented', 'pipePathology', 'pipeHeatmap']) {
@@ -815,14 +822,17 @@
       document.getElementById('resultsWrap').style.display = 'block';
       document.getElementById('consensusBox').style.display = 'block';
 
-      // Badge & CWSI
+      // Badge & experimental visual indicator
       const badge = document.getElementById('diagBadge');
-      badge.textContent = data.prediction.replace(/_/g, ' ');
+      badge.textContent = getClassLabel(data.prediction);
       badge.className = 'badge ' + getBadgeStyle(data.prediction);
 
-      const cwsiEl = document.getElementById('cwsiValue');
-      cwsiEl.textContent = data.cwsi + '%';
-      cwsiEl.style.color = getMetricColor(data.cwsi);
+      const indicatorEl = document.getElementById('indicatorValue');
+      const showIndicator = data.prediction !== 'Disease_Confounded' && Number.isInteger(data.visual_stress_indicator);
+      document.getElementById('indicatorWrap').hidden = !showIndicator;
+      document.getElementById('indicatorUnavailable').hidden = showIndicator;
+      indicatorEl.textContent = showIndicator ? String(data.visual_stress_indicator) : '';
+      indicatorEl.style.color = showIndicator ? getMetricColor(data.visual_stress_indicator) : '';
 
       document.getElementById('modelUsedText').textContent = `Model: ${data.best_model_name}`;
 
@@ -835,7 +845,7 @@
         pContainer.innerHTML += `
           <div class="progress-row">
             <div class="progress-labels">
-              <span>${cls.replace(/_/g, ' ')}</span>
+              <span>${getClassLabel(cls)}</span>
               <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">${pct}%</span>
             </div>
             <div class="progress-bg">
@@ -845,25 +855,25 @@
         `;
       }
 
-      // Consensus
+      // Independent predictions for this image (not a voting rule)
       const cBox = document.getElementById('consensusEntries');
       cBox.innerHTML = '';
       for (const [mName, mPred] of Object.entries(data.multi_model_predictions)) {
         cBox.innerHTML += `
           <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 4px 8px; background: var(--surface-elevated); border-radius: 4px;">
             <span style="color: var(--text-muted);">${mName}</span>
-            <span style="font-weight: 500;">${mPred.replace(/_/g, ' ')}</span>
+            <span style="font-weight: 500;">${getClassLabel(mPred)}</span>
           </div>
         `;
       }
 
-      // Tissue Stats
+      // Fractions of heuristic color groups; legacy internal keys retained
       document.getElementById('healthyVal').textContent = data.tissue_stats.healthy_pct + '%';
       document.getElementById('chlorosisVal').textContent = data.tissue_stats.chlorosis_pct + '%';
       document.getElementById('necrosisVal').textContent = data.tissue_stats.necrosis_pct + '%';
 
-      // Prescriptions
-      document.getElementById('irrigationText').textContent = data.advisory.irrigation_plan;
+      // Cautious inspection guidance
+      document.getElementById('guidanceText').textContent = data.advisory.guidance;
       const actContainer = document.getElementById('actionItems');
       actContainer.innerHTML = '';
       data.advisory.action_items.forEach(item => {
@@ -874,7 +884,6 @@
           </div>
         `;
       });
-      document.getElementById('recoveryTime').textContent = data.advisory.recovery_time;
 
       // Pipeline Images
       if (data.visualizations) {
@@ -896,24 +905,28 @@
         `;
       }
 
-      // XAI
-      const xWrap = document.getElementById('xaiContainer');
+      // Dataset comparisons
+      const xWrap = document.getElementById('measurementsContainer');
       xWrap.innerHTML = '';
-      data.xai_attributions.forEach((attr, i) => {
-        const sign = attr.z_score >= 0 ? `+${attr.z_score}` : `${attr.z_score}`;
-        const zColor = Math.abs(attr.z_score) > 1.5 ? 'var(--rose)' : (Math.abs(attr.z_score) > 0.8 ? 'var(--amber)' : 'var(--emerald)');
+      data.feature_comparisons.forEach((attr) => {
+        const sign = attr.z_score === null ? 'Unavailable' : `${attr.z_score >= 0 ? '+' : ''}${attr.z_score}σ`;
+        const zColor = 'var(--text-muted)';
         xWrap.innerHTML += `
-          <div class="xai-card">
-            <div class="xai-top">
+          <div class="measurements-card">
+            <div class="measurements-top">
               <span>${attr.label}</span>
-              <span style="font-family: 'JetBrains Mono', monospace; color: ${zColor};">${sign}σ</span>
+              <span style="font-family: 'JetBrains Mono', monospace; color: ${zColor};">${sign}</span>
             </div>
-            <div class="xai-sub">
-              ${attr.interpretation} (Observed: ${attr.value} | Baseline: ${attr.baseline_mean})
+            <div class="measurements-sub">
+              ${attr.interpretation} (Observed: ${attr.value} | Dataset average: ${attr.dataset_mean})
             </div>
           </div>
         `;
       });
+    }
+
+    function getClassLabel(cls) {
+      return cls === 'Disease_Confounded' ? 'Disease-like or other confounding symptoms suspected' : cls.replace(/_/g, ' ');
     }
 
     function getBadgeStyle(cls) {
@@ -930,9 +943,9 @@
       return 'var(--purple)';
     }
 
-    function getMetricColor(cwsi) {
-      if (cwsi < 25) return 'var(--emerald)';
-      if (cwsi < 60) return 'var(--amber)';
+    function getMetricColor(indicator) {
+      if (indicator < 25) return 'var(--emerald)';
+      if (indicator < 60) return 'var(--amber)';
       return 'var(--rose)';
     }
 

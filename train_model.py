@@ -10,9 +10,9 @@ using Stratified 5-Fold Cross-Validation:
   5. K-Nearest Neighbors (Metric Space Classifier)
 
 Exports:
-  - leaf_stress_model.pkl: Model bundle with best estimator, all trained models,
+  - leaf_stress_model_v1_<run>.pkl: Model bundle with best estimator, all trained models,
     feature baselines, and benchmark metadata.
-  - model_benchmark.json: Cross-validation comparison metrics, confusion matrices,
+  - model_benchmark_v1_<run>.json: Cross-validation comparison metrics, confusion matrices,
     and feature importance rankings for academic reporting and UI visualization.
 """
 
@@ -55,7 +55,7 @@ def run_benchmarks():
     print(f"Features Analyzed: {len(feature_cols)}")
     print(f"Class Distribution: {class_counts}\n")
 
-    # Feature baseline stats for Explainable AI (XAI)
+    # Pooled dataset statistics for descriptive feature comparisons
     feature_stats = {}
     for col in feature_cols:
         feature_stats[col] = {
@@ -137,7 +137,7 @@ def run_benchmarks():
     }
     sorted_importances = dict(sorted(importances.items(), key=lambda item: item[1], reverse=True))
 
-    print("\nTop 8 Discriminative Biophysical Features (Random Forest MDI):")
+    print("\nTop 8 Random Forest Feature Importances (development data) (Random Forest MDI):")
     for col, imp in list(sorted_importances.items())[:8]:
         print(f"   - {col:15s}: {imp:.4f}")
 
@@ -166,8 +166,8 @@ def run_benchmarks():
         json.dump(benchmark_payload, f, indent=2)
     print(f"Saved benchmark report to {benchmark_path}")
 
-    # Save complete bundle into leaf_stress_model.pkl
-    # Keeps backward compatibility so model.predict() works directly if unpickled as pipeline
+    # Save a new versioned bundle; preserve the original artifact.
+    # Bundle contains fitted estimators and descriptive metadata.
     bundle = {
         "best_model_name": best_model_name,
         "primary_model": trained_models[best_model_name],
@@ -182,7 +182,7 @@ def run_benchmarks():
 
     with open(model_path, "xb") as stream:
         joblib.dump(bundle, stream)
-    print(f"Saved complete model & XAI bundle to {model_path}\n")
+    print(f"Saved complete model and dataset-statistics bundle to {model_path}\n")
 
 
 if __name__ == "__main__":

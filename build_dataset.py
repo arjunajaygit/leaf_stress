@@ -2,9 +2,9 @@
 build_dataset.py
 -----------------
 Walks your labeled image folders, extracts features from each photo,
-and saves everything to leaf_features.csv for training.
+and saves a new versioned leaf_features_v1_<run>.csv for training.
 
-Expected folder layout (change DATASET_DIR below to point at yours):
+Expected folder layout (DATASET_DIR is defined in config.py):
 
     dataset/
         Healthy/

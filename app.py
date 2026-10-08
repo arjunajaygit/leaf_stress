@@ -1,13 +1,7 @@
-"""
-app.py (v2)
------------
-Advanced Crop Water Stress & Foliar Pathology Diagnostic Web System.
-Features:
-  - Multi-model inference (SVM RBF, Random Forest, Gradient Boosting, Logistic Regression, KNN)
-  - Interactive Computer Vision Pipeline (Segmented Leaf, Pathology Decomposition, GLI Heatmap)
-  - Explainable AI (XAI) feature attribution with biophysical anomaly scores
-  - Crop Water Stress Index (CWSI 0-100%) and Agronomic Action Advisory
-  - Comprehensive Model Benchmarking dashboard with 5-Fold Cross-Validation metrics
+"""Flask interface for experimental visual leaf classification.
+
+Uses a saved classifier, shared image features, heuristic visualizations and
+comparisons with dataset averages. Outputs do not establish physiological status.
 """
 
 import json
@@ -28,7 +22,7 @@ from config import (
     MODEL_PATH, BENCHMARK_PATH, MAX_CONTENT_LENGTH, MAX_IMAGE_PIXELS,
     ALLOWED_EXTENSIONS, server_options,
 )
-from feature_extraction import analyze_leaf_full, compute_cwsi, generate_agronomic_advisory
+from feature_extraction import analyze_leaf_full, compute_visual_stress_indicator, generate_agronomic_advisory
 
 app = Flask(__name__)
 app.config.update(MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH, MAX_IMAGE_PIXELS=MAX_IMAGE_PIXELS)
@@ -133,70 +127,36 @@ def validate_image(path):
         raise APIError("The file is not a readable image. Please re-upload a JPEG, PNG or WebP photo.", 400, "invalid_image") from None
 
 
-def compute_xai_attributions(features):
-    """
-    Computes Explainable AI feature anomaly scores relative to the training baseline.
-    Highlights specific morphological and spectral traits that influenced the model.
-    """
-    if not feature_stats:
-        return []
-
-    feature_descriptions = {
-        "h_std": "Hue Dispersion (Foliar color variance & spot irregularity)",
-        "v_std": "Brightness Contrast (Dark necrotic lesions vs light canopy)",
-        "extent": "Contour Extent (Bounding rectangle fill ratio)",
-        "h_mean": "Mean Hue Angle (Chlorophyll green vs chlorosis yellow/brown)",
-        "s_mean": "Color Saturation (Vividness of foliage pigmentation)",
-        "s_std": "Saturation Variance (Spotting and irregular drying)",
-        "b_mean": "Blue Channel Reflection (Pathology reflectance)",
-        "gli_mean": "Green Leaf Index (Photosynthetic vegetative vitality)",
-        "compactness": "Outline Compactness (Leaf curling and edge involution)",
-        "solidity": "Convex Hull Solidity (Edge margin wilting & concavity)",
-        "aspect_ratio": "Leaf Aspect Ratio (Width-to-length elongation)",
-        "exg_mean": "Excess Green Index (Green vegetation contrast)",
-        "r_mean": "Red Channel Reflectance (Carotenoid / anthocyanin expression)",
-        "g_mean": "Green Channel Reflectance (Chlorophyll content)",
-        "v_mean": "Visual Brightness (Surface reflection)",
+def compare_feature_measurements(features):
+    """Describe deviations from pooled dataset averages, not prediction contributions."""
+    descriptions = {
+        "h_mean": "Mean hue (OpenCV units)", "h_std": "Hue standard deviation",
+        "s_mean": "Mean saturation", "s_std": "Saturation standard deviation",
+        "v_mean": "Mean brightness", "v_std": "Brightness standard deviation",
+        "r_mean": "Mean red channel", "g_mean": "Mean green channel",
+        "b_mean": "Mean blue channel", "exg_mean": "Mean excess green index",
+        "gli_mean": "Mean green leaf index", "solidity": "Projected shape solidity",
+        "aspect_ratio": "Axis-aligned projected width/height ratio",
+        "extent": "Projected contour bounding-box occupancy",
+        "compactness": "Projected shape circularity",
     }
-
-    attributions = []
-    importances = bundle.get("feature_importance", {}) if bundle else {}
-
-    for col in feature_names:
-        val = features.get(col, 0.0)
-        baseline = feature_stats.get(col, {"mean": val, "std": 1.0})
-        mean = baseline["mean"]
-        std = baseline["std"] if baseline["std"] > 1e-5 else 1.0
-
-        z_score = (val - mean) / std
-        weight = importances.get(col, 1.0 / len(feature_names))
-        impact_score = abs(z_score) * weight
-
-        # Interpret biological meaning of anomaly
-        if col in ("solidity", "compactness") and z_score < -0.5:
-            interpretation = f"Leaf edge curling and wilting detected ({abs(z_score):.1f}σ below normal)"
-        elif col in ("gli_mean", "exg_mean") and z_score < -0.5:
-            interpretation = f"Photosynthetic index degradation ({abs(z_score):.1f}σ below healthy baseline)"
-        elif col in ("h_std", "v_std") and z_score > 0.5:
-            interpretation = f"High color irregularity indicative of localized lesion/spotting (+{z_score:.1f}σ)"
-        elif col == "h_mean" and z_score < -0.5:
-            interpretation = f"Shift from green towards chlorotic yellow/amber hue ({abs(z_score):.1f}σ)"
-        else:
-            interpretation = f"Trait measurement: {val:.2f} (Baseline: {mean:.2f})"
-
-        attributions.append({
-            "feature": col,
-            "label": feature_descriptions.get(col, col),
-            "value": round(float(val), 3),
-            "baseline_mean": round(float(mean), 3),
-            "z_score": round(float(z_score), 2),
-            "impact_score": round(float(impact_score), 4),
-            "interpretation": interpretation,
+    comparisons = []
+    for name in feature_names:
+        baseline = feature_stats.get(name)
+        if baseline is None:
+            continue
+        value = float(features[name])
+        mean, std = float(baseline["mean"]), float(baseline["std"])
+        z_score = (value - mean) / std if std > 1e-5 else None
+        comparisons.append({
+            "feature": name,
+            "label": descriptions.get(name, name),
+            "value": round(value, 3),
+            "dataset_mean": round(mean, 3),
+            "z_score": round(z_score, 2) if z_score is not None else None,
+            "interpretation": "Compared with the pooled dataset across all classes; not a healthy reference or a contribution to the prediction.",
         })
-
-    # Sort by impact score descending
-    attributions.sort(key=lambda x: x["impact_score"], reverse=True)
-    return attributions
+    return comparisons
 
 
 @app.route("/")
@@ -206,7 +166,7 @@ def index():
 
 @app.route("/api/benchmark")
 def get_benchmark():
-    """Provides model comparison metrics and 5-fold cross-validation results."""
+    """Provides saved image-level development CV metrics, not an independent test estimate."""
     return jsonify(benchmark_data)
 
 
@@ -261,26 +221,27 @@ def predict():
             probs = {cls: round(float(p), 3) for cls, p in zip(model_classes, probabilities[0])}
         else:
             probs = {cls: 1.0 if cls == pred else 0.0 for cls in classes}
-        comparison_predictions = {name: str(model.predict(X)[0]) for name, model in all_models.items()}
+        comparison_predictions = {name: str(model.predict(X)[0]) for name, model in all_models.items()
+                                  if model is not primary_model}
     except Exception:
         app.logger.exception("Model prediction failed")
         raise APIError("The loaded model could not produce a valid prediction. Contact the operator.", 503, "model_error") from None
 
-    # Crop Water Stress Index (CWSI) and Agronomic Prescriptions
-    cwsi = compute_cwsi(features, pred, probs)
-    advisory = generate_agronomic_advisory(pred, cwsi, tissue_stats)
-    xai_attributions = compute_xai_attributions(features)
+    # Experimental heuristic and descriptive measurements; no physiological claims.
+    indicator = compute_visual_stress_indicator(features, pred, probs)
+    advisory = generate_agronomic_advisory(pred)
+    feature_comparisons = compare_feature_measurements(features)
 
     return jsonify({
         "prediction": pred,
         "probabilities": probs,
         "best_model_name": bundle.get("best_model_name", "Primary Model") if bundle else "Primary Model",
         "multi_model_predictions": comparison_predictions,
-        "cwsi": cwsi,
+        "visual_stress_indicator": indicator,
         "tissue_stats": tissue_stats,
         "visualizations": visualizations,
         "advisory": advisory,
-        "xai_attributions": xai_attributions[:6],  # Top 6 most influential biophysical features
+        "feature_comparisons": feature_comparisons,
         "features": {k: round(v, 3) for k, v in features.items()},
     })
 
