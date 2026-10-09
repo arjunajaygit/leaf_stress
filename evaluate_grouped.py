@@ -37,7 +37,7 @@ def candidate_models(include_baselines=False, legacy=False):
     def lr(c):
         return Pipeline([('scaler', StandardScaler()), ('lr', LogisticRegression(C=c, max_iter=1000, random_state=SEED))])
     def svm(c):
-        return Pipeline([('scaler', StandardScaler()), ('svc', SVC(C=c, kernel='rbf', probability=legacy, random_state=SEED))])
+        return Pipeline([('scaler', StandardScaler()), ('svc', SVC(C=c, kernel='rbf', random_state=SEED, **({'probability': True} if legacy else {})))])
     if legacy:
         candidates = [('Logistic Regression (L2)', lr(1.5), {'C': 1.5}),
                       ('Support Vector Machine (RBF)', svm(2.5), {'C': 2.5, 'gamma': 'scale'}),
@@ -124,9 +124,9 @@ def selection_key(record):
     return (-record['macro_f1'], -record['balanced_accuracy'], record['priority'], record['candidate_index'])
 
 
-def evaluate_nested(frame, candidates):
+def evaluate_nested(frame, candidates, feature_columns=FEATURE_NAMES):
     plan = nested_plan(frame)
-    X, y = frame[list(FEATURE_NAMES)], frame.label.to_numpy()
+    X, y = frame[list(feature_columns)], frame.label.to_numpy()
     names = list(dict.fromkeys(c[0] for c in candidates))
     per_model_predictions = {name: np.empty(len(frame), dtype=object) for name in names}
     selected_predictions = np.empty(len(frame), dtype=object)

@@ -348,3 +348,20 @@ def analyze_leaf_full(image_path):
         return None, previews, {}, quality
     visualizations, tissue_stats = generate_visual_pipeline(image, mask, contour)
     return features, {**visualizations, **previews}, tissue_stats, quality
+
+
+def extract_experimental_features(img_bgr, mask, contour):
+    """Ablation-only descriptors; never added to production extract_all_features."""
+    pixels = img_bgr[mask == 255].astype(float)
+    if not len(pixels) or contour is None:
+        raise ValueError('Experimental features require a nonempty mask and contour')
+    sums = pixels.sum(axis=1)
+    chromaticity = np.divide(pixels, sums[:, None], out=np.zeros_like(pixels), where=sums[:, None] > 0)
+    # Float OpenCV conversion yields physical CIELAB a*/b*, not uint8 offsets.
+    lab = cv2.cvtColor(img_bgr.astype(np.float32) / 255., cv2.COLOR_BGR2LAB)[mask == 255]
+    width, height = cv2.minAreaRect(contour)[1]
+    return {'chrom_r_mean': float(chromaticity[:, 2].mean()),
+            'chrom_g_mean': float(chromaticity[:, 1].mean()),
+            'lab_a_mean': float(lab[:, 1].mean()), 'lab_a_std': float(lab[:, 1].std()),
+            'lab_b_mean': float(lab[:, 2].mean()), 'lab_b_std': float(lab[:, 2].std()),
+            'oriented_axis_ratio': float(min(width, height) / max(width, height)) if max(width, height) > 0 else 0.}

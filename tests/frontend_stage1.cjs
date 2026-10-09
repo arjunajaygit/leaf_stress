@@ -12,6 +12,7 @@ function element(id) {
     classList: {add() {}, remove() {}}, listeners: {},
     addEventListener(name, fn) { this.listeners[name] = fn; },
     removeAttribute(name) { delete this[name]; },
+    appendChild(child) { (this.children ||= []).push(child); },
     replaceChildren() { this.innerHTML = ''; },
   });
   return elements.get(id);
@@ -19,7 +20,7 @@ function element(id) {
 const revoked = [], alerts = [];
 let counter = 0;
 const context = vm.createContext({
-  document: {getElementById: element},
+  document: {getElementById: element, createElement() { return {}; }},
   window: {addEventListener() {}},
   URL: {createObjectURL() {return `blob:${++counter}`;}, revokeObjectURL(url) {revoked.push(url);}},
   FormData: class {append() {}},
@@ -73,7 +74,13 @@ const run = code => vm.runInContext(code, context);
     feature_comparisons: [{label: 'Solidity', value: .8, dataset_mean: .7, z_score: 1,
       interpretation: 'Compared with the pooled dataset across all classes.'}],
   };
+  realRenderOutput({...result, model_explanation: {available: true, message: 'Model explanation, not a biological cause.',
+    predicted_class: 'Healthy', intercept: .1, decision_score: .7,
+    contributions: [{feature: 'gli_mean', coefficient: .2, standardized_value: 3, contribution: .6}]}});
+  assert.match(element('modelExplanation').textContent, /not a biological cause/);
+  assert.match(element('modelExplanation').children[1].textContent, /0.2000.*3.0000.*0.6000/);
   realRenderOutput(result);
+  assert.equal(element('modelExplanation').textContent, 'Model explanation unavailable.');
   assert.equal(element('indicatorValue').textContent, '26');
   assert.equal(element('indicatorWrap').hidden, false);
   assert.equal(element('indicatorUnavailable').hidden, true);
@@ -116,6 +123,7 @@ const run = code => vm.runInContext(code, context);
     assert.equal(element('qualityFeedback').hidden, true);
     assert.equal(element('qualityMask').src, undefined);
   }
+  console.log('PASS: Stage 5 coefficient explanation and unavailable fallback');
   console.log('PASS: Stage 3 mask preview, all rejection reasons, uncertainty, incompatible-model feedback and reset');
   console.log('PASS: Stage 2 integer indicator, disease suppression, descriptive comparisons and disease labels');
   console.log('PASS: frontend stale results, reset lock, URL cleanup, non-JSON/JSON errors, successful completion');

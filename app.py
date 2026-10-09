@@ -5,6 +5,7 @@ comparisons with dataset averages. Outputs do not establish physiological status
 """
 
 import config
+from model_contract import validate_bundle, explain_logistic
 import json
 import tempfile
 import warnings
@@ -46,6 +47,7 @@ def load_model_bundle(path=MODEL_PATH):
     feature_names, classes, feature_stats = [], [], {}
     try:
         loaded = joblib.load(path)
+        validate_bundle(loaded)
         candidate = loaded["primary_model"] if isinstance(loaded, dict) else loaded
         names = list(loaded["feature_names_in_"] if isinstance(loaded, dict) else candidate.feature_names_in_)
         labels = list(loaded["classes_"] if isinstance(loaded, dict) else candidate.classes_)
@@ -62,8 +64,6 @@ def load_model_bundle(path=MODEL_PATH):
         all_models = bundle.get("all_models", {"Primary": candidate}) if bundle else {"Default Model": candidate}
         feature_stats = bundle.get("feature_stats", {}) if bundle else {}
         model_load_error = None
-        if not bundle or bundle.get("preprocessing") != config.preprocessing_signature():
-            app.logger.warning("Model preprocessing is incompatible with the current extractor; classification will be refused. A versioned model trained with matching preprocessing is required.")
         return True
     except Exception as exc:
         model_load_error = f"Cannot load model at {path}: {exc}"
@@ -176,8 +176,6 @@ def get_benchmark():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    if primary_model is None:
-        raise APIError("The model is unavailable. Ask the operator to check the startup model error.", 503, "model_unavailable")
     if "image" not in request.files:
         raise APIError("No image uploaded. Please select a photo.", 400, "missing_image")
     file = request.files["image"]
@@ -204,10 +202,10 @@ def predict():
             "prediction": None, "visual_stress_indicator": None,
             "quality": quality, "visualizations": visualizations,
         }), 422
-    if not bundle or bundle.get("preprocessing") != config.preprocessing_signature():
+    if primary_model is None or not bundle or bundle.get("preprocessing") != config.preprocessing_signature():
         return jsonify({
-            "outcome": "model_update_required", "code": "preprocessing_mismatch",
-            "error": "This image passed the provisional mask checks, but the saved model uses older preprocessing. Compatible retraining is required before classification.",
+            "outcome": "model_update_required", "code": "model_unavailable" if primary_model is None else "preprocessing_mismatch",
+            "error": "This image passed the provisional mask checks, but no compatible model is loaded. The operator must check the startup schema/version error and supply a compatible trained model.",
             "prediction": None, "visual_stress_indicator": None,
             "quality": quality, "visualizations": visualizations,
         }), 503
@@ -276,6 +274,7 @@ def predict():
         "visualizations": visualizations,
         "advisory": advisory,
         "feature_comparisons": feature_comparisons,
+        "model_explanation": explain_logistic(primary_model, X, pred),
         "features": {k: round(v, 3) for k, v in features.items()},
     })
 

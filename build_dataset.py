@@ -7,6 +7,7 @@ import pandas as pd
 import config
 from dataset_manifest import CLASSES, FEATURE_NAMES, deduplicate, load_manifest, resolve_groups, sha256
 from feature_extraction import prepare_leaf
+from model_contract import SCHEMA_VERSION, EXTRACTOR_VERSION
 
 MIN_BUILD_SAMPLES_PER_CLASS = 2  # Feasibility guard only, not a sufficiency claim.
 
@@ -50,7 +51,8 @@ def build_dataset(manifest_path, dataset_dir, output):
     output.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(output, index=False, mode='x')
     with output.with_suffix('.metadata.json').open('x') as stream:
-        json.dump({'preprocessing': config.preprocessing_signature(), 'mask_quality': config.mask_quality_settings(),
+        json.dump({'schema_version': SCHEMA_VERSION, 'extractor_version': EXTRACTOR_VERSION,
+                   'preprocessing_version': config.preprocessing_signature()['version'], 'preprocessing': config.preprocessing_signature(), 'mask_quality': config.mask_quality_settings(),
                    'csv_sha256': sha256(output), 'audit': audit,
                    'feature_names': FEATURE_NAMES, 'groups_available': bool(frame['group_id'].ne('').all())}, stream, indent=2)
     if frame['group_id'].eq('').any():

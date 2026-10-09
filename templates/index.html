@@ -692,6 +692,10 @@
     <!-- ==================== TAB 3: DATASET COMPARISONS ==================== -->
     <section id="tab-measurements" class="tab-content">
       <div class="card">
+        <div class="card-title">Logistic Regression model explanation</div>
+        <div id="modelExplanation">Run a compatible model to view its explanation.</div>
+      </div>
+      <div class="card">
         <div class="card-title">Feature measurements vs. dataset averages</div>
         <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
           Measurements compared with pooled averages across all dataset classes. These deviations are not contributions to the prediction, biological causes, or comparisons with a healthy reference.
@@ -735,7 +739,7 @@
       document.getElementById('resultsWrap').style.display = 'none';
       document.getElementById('emptyState').style.display = 'block';
       document.getElementById('consensusBox').style.display = 'none';
-      for (const id of ['probabilityBars', 'consensusEntries', 'actionItems', 'featuresGrid', 'measurementsContainer']) {
+      for (const id of ['probabilityBars', 'consensusEntries', 'actionItems', 'featuresGrid', 'measurementsContainer', 'modelExplanation']) {
         document.getElementById(id).replaceChildren();
       }
       for (const id of ['pipeSource', 'pipeSegmented', 'pipePathology', 'pipeHeatmap']) {
@@ -939,6 +943,19 @@
         `;
       }
 
+      const explanation = data.model_explanation;
+      const panel = document.getElementById('modelExplanation');
+      panel.textContent = explanation?.message || 'Model explanation unavailable.';
+      if (explanation?.available) {
+        const summary = document.createElement('p');
+        summary.textContent = `Class: ${getClassLabel(explanation.predicted_class)} | Intercept: ${explanation.intercept.toFixed(4)} | Decision score: ${explanation.decision_score.toFixed(4)}`;
+        panel.appendChild(summary);
+        for (const row of explanation.contributions) {
+          const item = document.createElement('p');
+          item.textContent = `${row.feature}: coefficient ${row.coefficient.toFixed(4)} × standardized value ${row.standardized_value.toFixed(4)} = ${row.contribution.toFixed(4)}`;
+          panel.appendChild(item);
+        }
+      }
       // Dataset comparisons
       const xWrap = document.getElementById('measurementsContainer');
       xWrap.innerHTML = '';

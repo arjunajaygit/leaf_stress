@@ -204,7 +204,7 @@ def test_http_errors_json(client):
 
 def test_cwd_independent_model_loading(tmp_path):
     env = dict(os.environ, PYTHONPATH=str(ROOT), PYTHONDONTWRITEBYTECODE='1')
-    result = subprocess.run([sys.executable, '-c', 'import app, config; assert app.primary_model is not None; assert config.CSV_PATH.is_file(); assert app.benchmark_data'], cwd=tmp_path, env=env, capture_output=True, text=True)
+    result = subprocess.run([sys.executable, '-c', 'import app, config; assert app.primary_model is None; assert "schema_version" in app.model_load_error; assert config.CSV_PATH.is_file(); assert app.benchmark_data'], cwd=tmp_path, env=env, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
 
 

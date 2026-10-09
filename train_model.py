@@ -18,6 +18,7 @@ Exports:
 
 from config import CSV_PATH, versioned_path
 from dataset_manifest import FEATURE_NAMES
+from model_contract import training_metadata, validate_bundle, SCHEMA_VERSION, EXTRACTOR_VERSION
 
 import json
 import hashlib
@@ -53,6 +54,10 @@ def run_benchmarks():
     metadata = json.loads(metadata_path.read_text())
     if metadata.get("preprocessing") != config.preprocessing_signature() or metadata.get("csv_sha256") != hashlib.sha256(CSV_PATH.read_bytes()).hexdigest():
         raise ValueError("Feature CSV preprocessing metadata or content hash does not match. Rebuild the dataset.")
+    if (metadata.get('schema_version') != SCHEMA_VERSION or metadata.get('extractor_version') != EXTRACTOR_VERSION
+            or metadata.get('preprocessing_version') != config.preprocessing_signature()['version']
+            or metadata.get('feature_names') != list(FEATURE_NAMES)):
+        raise ValueError('Feature CSV schema/extractor version mismatch; rebuild a versioned dataset')
     df = pd.read_csv(CSV_PATH)
     required_classes = {"Healthy", "Moderate_Water_Stress", "Severe_Water_Stress", "Disease_Confounded"}
     if set(df.get("label", [])) != required_classes:
@@ -186,6 +191,8 @@ def run_benchmarks():
     # Save a new versioned bundle; preserve the original artifact.
     # Bundle contains fitted estimators and descriptive metadata.
     bundle = {
+        **training_metadata(metadata["csv_sha256"], {"split": "StratifiedKFold", "folds": int(n_splits), "seed": 42, "group_independent": False, "selection": "same image-level development CV; not unbiased performance"}),
+        "source_manifest_sha256": metadata.get("audit", {}).get("manifest_sha256"),
         "preprocessing": metadata["preprocessing"],
         "mask_quality": metadata["mask_quality"],
         "best_model_name": best_model_name,
@@ -199,6 +206,7 @@ def run_benchmarks():
         "benchmark": benchmark_results,
     }
 
+    validate_bundle(bundle)
     with open(model_path, "xb") as stream:
         joblib.dump(bundle, stream)
     print(f"Saved complete model and dataset-statistics bundle to {model_path}\n")

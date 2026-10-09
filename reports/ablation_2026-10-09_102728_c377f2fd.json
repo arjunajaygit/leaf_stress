@@ -1,0 +1,379 @@
+{
+  "library_versions": {
+    "python": "3.14.5",
+    "numpy": "2.4.6",
+    "scipy": "1.18.0",
+    "scikit-learn": "1.9.0",
+    "joblib": "1.5.3",
+    "opencv-python": "5.0.0.93",
+    "pandas": "3.0.6",
+    "Pillow": "12.3.0"
+  },
+  "protocol": {
+    "outer_folds": 3,
+    "inner_folds": 3,
+    "seed": 42,
+    "grouped": true
+  },
+  "synthetic": false,
+  "production_features_changed": false,
+  "variants": {
+    "baseline_15": [
+      "h_mean",
+      "h_std",
+      "s_mean",
+      "s_std",
+      "v_mean",
+      "v_std",
+      "r_mean",
+      "g_mean",
+      "b_mean",
+      "exg_mean",
+      "gli_mean",
+      "solidity",
+      "aspect_ratio",
+      "extent",
+      "compactness"
+    ],
+    "without_exg": [
+      "h_mean",
+      "h_std",
+      "s_mean",
+      "s_std",
+      "v_mean",
+      "v_std",
+      "r_mean",
+      "g_mean",
+      "b_mean",
+      "gli_mean",
+      "solidity",
+      "aspect_ratio",
+      "extent",
+      "compactness"
+    ],
+    "plus_chromaticity": [
+      "h_mean",
+      "h_std",
+      "s_mean",
+      "s_std",
+      "v_mean",
+      "v_std",
+      "r_mean",
+      "g_mean",
+      "b_mean",
+      "exg_mean",
+      "gli_mean",
+      "solidity",
+      "aspect_ratio",
+      "extent",
+      "compactness",
+      "chrom_r_mean",
+      "chrom_g_mean"
+    ],
+    "plus_lab": [
+      "h_mean",
+      "h_std",
+      "s_mean",
+      "s_std",
+      "v_mean",
+      "v_std",
+      "r_mean",
+      "g_mean",
+      "b_mean",
+      "exg_mean",
+      "gli_mean",
+      "solidity",
+      "aspect_ratio",
+      "extent",
+      "compactness",
+      "lab_a_mean",
+      "lab_a_std",
+      "lab_b_mean",
+      "lab_b_std"
+    ],
+    "oriented_ratio": [
+      "h_mean",
+      "h_std",
+      "s_mean",
+      "s_std",
+      "v_mean",
+      "v_std",
+      "r_mean",
+      "g_mean",
+      "b_mean",
+      "exg_mean",
+      "gli_mean",
+      "solidity",
+      "oriented_axis_ratio",
+      "extent",
+      "compactness"
+    ]
+  },
+  "results": null,
+  "interpretation": "Each variant tunes models only inside inner grouped folds and uses identical outer partitions. Comparing variants on outer results is exploratory, not an unbiased estimate after selecting a feature set. No feature or production-model selection is performed.",
+  "audit": {
+    "raw_image_files": 56,
+    "unique_images": 40,
+    "duplicates_removed": 16,
+    "rejected": [
+      {
+        "filename": "Disease_Confounded/IMG_4213(1).JPG",
+        "label": "Disease_Confounded",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Disease_Confounded/IMG_4214(1).JPG",
+        "label": "Disease_Confounded",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Disease_Confounded/IMG_4215(1).JPG",
+        "label": "Disease_Confounded",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Disease_Confounded/IMG_4218(1).JPG",
+        "label": "Disease_Confounded",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Disease_Confounded/IMG_4219(1).JPG",
+        "label": "Disease_Confounded",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Healthy/healthy_001.PNG",
+        "label": "Healthy",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Healthy/healthy_002.JPG",
+        "label": "Healthy",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Healthy/healthy_003.JPG",
+        "label": "Healthy",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Healthy/healthy_005.JPG",
+        "label": "Healthy",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_001.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_002.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_003.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_004.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_005.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_007.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_008.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Moderate_Water_Stress/moderate_009.JPG",
+        "label": "Moderate_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_001.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_002.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_003.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_004.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_005.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_006.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_007.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_008.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_009.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_010.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact",
+          "foreground_too_large"
+        ]
+      },
+      {
+        "filename": "Severe_Water_Stress/severe_011.JPG",
+        "label": "Severe_Water_Stress",
+        "reason_codes": [
+          "border_contact"
+        ]
+      }
+    ],
+    "manifest_sha256": "f5e0398640d14bfd760509c1a0cea19324a432b475d989fdfd2a0e1f15a043a2"
+  },
+  "per_class_readiness": {
+    "Healthy": {
+      "gate_passing_images": 4,
+      "documented_groups": 0,
+      "images_missing_group": 4,
+      "missing": [
+        "At least 1 more accepted images for protocol feasibility; independent groups still required",
+        "Fill plant_id or session_id for 4 accepted image(s)",
+        "At least 5 additional documented groups needed; currently unknown identities cannot be counted"
+      ]
+    },
+    "Moderate_Water_Stress": {
+      "gate_passing_images": 0,
+      "documented_groups": 0,
+      "images_missing_group": 0,
+      "missing": [
+        "No gate-passing unique images",
+        "At least 5 more accepted images for protocol feasibility; independent groups still required",
+        "At least 5 additional documented groups needed; currently unknown identities cannot be counted"
+      ]
+    },
+    "Severe_Water_Stress": {
+      "gate_passing_images": 0,
+      "documented_groups": 0,
+      "images_missing_group": 0,
+      "missing": [
+        "No gate-passing unique images",
+        "At least 5 more accepted images for protocol feasibility; independent groups still required",
+        "At least 5 additional documented groups needed; currently unknown identities cannot be counted"
+      ]
+    },
+    "Disease_Confounded": {
+      "gate_passing_images": 7,
+      "documented_groups": 0,
+      "images_missing_group": 7,
+      "missing": [
+        "Fill plant_id or session_id for 7 accepted image(s)",
+        "At least 5 additional documented groups needed; currently unknown identities cannot be counted"
+      ]
+    }
+  },
+  "status": "blocked",
+  "message": "insufficient classes/groups for a credible generalization estimate",
+  "detail": "insufficient classes/groups for a credible generalization estimate",
+  "generated_at": "2026-10-09T10:27:28.809917+05:30"
+}

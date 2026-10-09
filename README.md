@@ -48,7 +48,7 @@ The weights and color thresholds are arbitrary prototype choices, not fitted phy
 
 ### Measurements and visualizations
 
-**Feature measurements vs. dataset averages** shows all available feature values, pooled all-class means and standardized deviations `(value − mean) / std`. These are descriptive comparisons, not contributions to the prediction or biological causes. No Random Forest importance weighting is applied. The stored averages are not a healthy reference population. Model-specific explanations are planned for Stage 5.
+**Feature measurements vs. dataset averages** shows all available feature values, pooled all-class means and standardized deviations `(value − mean) / std`. These are descriptive comparisons, not contributions to the prediction or biological causes. No Random Forest importance weighting is applied. The stored averages are not a healthy reference population. A separate Logistic Regression model-explanation panel uses the fitted StandardScaler values and the predicted class coefficients. Each term is coefficient × standardized value; all terms plus the intercept reconstruct that class decision score. This is a model explanation, not a biological cause or a decomposition of probability. It is unavailable for other estimator types.
 
 The color map divides masked pixels using fixed HSV rules into yellow-toned, dark/brown-toned and remaining pixels. The fractions do not diagnose chlorosis, necrosis or healthy tissue; illumination, shadows and incorrect masks can change them. Legacy internal keys such as `healthy_pct` and `pathology` are retained for compatibility with the processing code, with corrected visible labels. Display images are resized to a maximum side of 640 pixels. The GLI heatmap is an RGB visualization.
 
@@ -81,7 +81,7 @@ Inside each outer training partition it compares scaled Logistic Regression, sca
 
 ## Stage 3 quality gate and model compatibility
 
-The original model was trained on original-resolution features. It is preserved but **cannot be used for classification with the new resized extractor**. A passing image currently receives “Model update required” (HTTP 503) rather than a silently mismatched prediction. Rejected images still receive a mask preview, all reason codes, and a retake message (HTTP 422). The application starts with a warning so users can review masks. No class/indicator is returned for rejected, uncertain or model-incompatible inputs.
+The original model was trained on original-resolution features. It is preserved but **cannot be used for classification with the new resized extractor**. The original artifact is now refused at load time because it lacks the versioned schema/provenance contract. Direct `python3 app.py` startup exits with a clear error until a compatible model is explicitly configured. When served through a WSGI/Flask runner, the UI remains available for mask review: passing images receive “Model update required” (HTTP 503), and rejected images receive a mask preview, all reason codes and a retake message (HTTP 422). No incompatible estimator is activated. No class/indicator is returned for rejected, uncertain or model-incompatible inputs.
 
 `reports/mask_quality_report.csv` contains one row per byte-unique image, duplicate aliases, both selected/candidate foreground fractions, border contact, component counts, contour area, working dimensions, pass/fail and all reason codes. `reports/mask_quality_summary.md` includes overlapping and primary failure counts, a threshold snapshot and the rejected-image list.
 
@@ -107,13 +107,16 @@ Reproduce the mask audit without overwriting earlier reports by choosing new fil
 python3 report_mask_quality.py --csv reports/mask_quality_report_review2.csv --summary reports/mask_quality_summary_review2.md
 ```
 
-The report script refuses existing output paths. Preprocessing settings are embedded in new model bundles; full schema/version/library provenance remains Stage 5 work.
+The report script refuses existing output paths. New model bundles include feature schema and schema version, extractor and preprocessing versions/settings, mask settings, exact feature-CSV SHA-256, library/Python versions, timezone-aware training date and CV protocol. Loading rejects missing/mismatched schemas, versions, estimator feature/class order or runtime library versions. The CSV hash records training provenance; deployment does not require the original training CSV. Only trusted local pickle files may be loaded; metadata validation is not a pickle security sandbox.
 
 ## Run locally
 
 ```sh
-python3 -m pip install -r requirements.txt
-python3 app.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+# Requires an explicitly configured compatible model; original model is refused:
+python app.py
 ```
 
 Open [localhost:5001](http://localhost:5001). Default binding is `127.0.0.1`; debug is off. For intentional LAN access, set `LECOR_HOST=0.0.0.0`. Camera availability through the file picker depends on the device/browser; there is no explicit webcam capture implementation. Camera capture, cross-browser operation and printed report completeness still need manual verification. Inactive tabs are not automatically included in printing.
@@ -155,4 +158,17 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
 node tests/frontend_stage1.cjs
 ```
 
-The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pinning, ablations and fuller academic test documents remain future approved stages.
+The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pins and ablation tooling are implemented. Fuller academic test documents remain Stage 6 work. See `docs/stage5_report.md` for the tested dependency environment and actual validation results.
+
+## Experimental feature ablations (Stage 5)
+
+```sh
+python ablate_features.py                 # real data: blocked, exit 2
+python ablate_features.py --synthetic     # software validation only
+```
+
+The script compares the unchanged 15-feature baseline, baseline without ExG, baseline plus pixelwise normalized r/g means, baseline plus CIELAB a*/b* mean/std, and an oriented short/long axis ratio replacing axis-aligned aspect ratio. Additions are separate experiments, not cumulative. All comparisons reuse identical grouped outer folds; scaling and algorithm tuning remain inside inner folds. No feature variant is selected or saved for production. Comparing outer results to choose features would need a new untouched final test for an unbiased estimate.
+
+The real dataset still lacks accepted Moderate/Severe images and documented groups. The synthetic report uses invented pixels, labels and plant IDs and is not evidence of project accuracy. No legacy-CSV ablation is offered because that CSV cannot recover the proposed pixel-level features.
+
+NumPy is pinned to 2.4.6 with joblib 1.5.3: the original artifact deserialized with zero warnings in that tested combination. Other direct dependencies retain installed versions (including scikit-learn 1.9.0). Deserialization compatibility does not make the original artifact compatible with the current extractor. Existing legacy SVM probability training produces a separate scikit-learn deprecation warning; warnings are not suppressed.
