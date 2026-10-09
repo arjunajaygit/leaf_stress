@@ -17,6 +17,7 @@ Exports:
 """
 
 from config import CSV_PATH, versioned_path
+from dataset_manifest import FEATURE_NAMES
 
 import json
 import hashlib
@@ -58,7 +59,10 @@ def run_benchmarks():
         raise ValueError("Quality-filtered dataset lacks one or more required classes. Collect acceptable images before four-class training.")
     if df["label"].value_counts().min() < 2:
         raise ValueError("At least two accepted samples per class are required even for provisional image-level CV.")
-    feature_cols = [c for c in df.columns if c not in ("label", "filename")]
+    feature_cols = list(FEATURE_NAMES)
+    if not set(feature_cols).issubset(df.columns):
+        raise ValueError("Feature schema is incomplete")
+    print("WARNING: this legacy trainer uses image-level development CV, even when group metadata is present. Use evaluate_grouped.py for grouped estimates. These selection scores are not final performance.")
     X = df[feature_cols]
     y = df["label"]
 

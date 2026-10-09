@@ -60,6 +60,28 @@ def segment_leaf(img_bgr):
     return mask, contour
 
 
+def border_contact_fraction(contour, shape):
+    """Euclidean contour length on frame edges / total external contour length.
+
+    A vertex-only contact contributes zero length. No contour or zero perimeter
+    returns 0. This diagnostic does not change the Boolean border rejection rule.
+    """
+    if contour is None:
+        return 0.0
+    points = contour.reshape(-1, 2).astype(float)
+    following = np.roll(points, -1, axis=0)
+    lengths = np.linalg.norm(following - points, axis=1)
+    perimeter = float(lengths.sum())
+    if perimeter == 0:
+        return 0.0
+    height, width = shape[:2]
+    on_frame = (((points[:, 0] == 0) & (following[:, 0] == 0))
+                | ((points[:, 0] == width - 1) & (following[:, 0] == width - 1))
+                | ((points[:, 1] == 0) & (following[:, 1] == 0))
+                | ((points[:, 1] == height - 1) & (following[:, 1] == height - 1)))
+    return float(lengths[on_frame].sum() / perimeter)
+
+
 def check_mask_quality(mask, contour, candidates):
     """Retain all failures, inspecting components before selecting/filling one outline."""
     pixels = mask.size
@@ -89,7 +111,8 @@ def check_mask_quality(mask, contour, candidates):
         "passed": not reasons, "reason_code": reasons[0] if reasons else "ok",
         "reason_codes": reasons,
         "message": "Mask passed provisional quality checks; leaf identity is not verified." if not reasons else " ".join(QUALITY_MESSAGES[r] for r in reasons),
-        "border_contact": border, "foreground_fraction": fraction,
+        "border_contact": border, "border_contact_fraction": border_contact_fraction(contour, mask.shape),
+        "foreground_fraction": fraction,
         "candidate_foreground_fraction": float(np.count_nonzero(candidates) / pixels),
         "components": int(count - 1), "large_components": large,
         "contour_area": area, "working_width": int(mask.shape[1]), "working_height": int(mask.shape[0]),

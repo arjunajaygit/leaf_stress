@@ -111,6 +111,7 @@ const run = code => vm.runInContext(code, context);
       assert.equal(element('qualityTitle').textContent, 'Retake photo');
       assert.match(element('qualityReasons').textContent, /border_contact, foreground_too_large/);
     }
+    assert.equal(element('qualityAction').textContent, outcome === 'model_update_required' ? 'Choose another photo' : 'Retake photo');
     run('clearScan()');
     assert.equal(element('qualityFeedback').hidden, true);
     assert.equal(element('qualityMask').src, undefined);

@@ -570,7 +570,7 @@
               <div><p>Selected mask</p><img id="qualityMask" alt="Selected foreground mask" style="max-width: 100%;"></div>
               <div><p>All foreground candidates</p><img id="qualityCandidates" alt="Candidate foreground mask before selection" style="max-width: 100%;"></div>
             </div>
-            <button class="btn btn-secondary" onclick="clearScan()">Retake photo</button>
+            <button class="btn btn-secondary" id="qualityAction" onclick="clearScan()">Retake photo</button>
             <p style="font-size: 0.78rem; margin-top: 10px;">Provisional image-quality and confidence checks cannot establish that the object is a leaf or identify the cause of symptoms.</p>
           </div>
           <div id="resultsWrap" style="display: none;">
@@ -836,6 +836,7 @@
     }
 
     function renderGateResponse(data) {
+      document.getElementById("qualityAction").textContent = data.outcome === "model_update_required" ? "Choose another photo" : "Retake photo";
       clearResults();
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('qualityFeedback').hidden = false;

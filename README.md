@@ -54,12 +54,30 @@ The color map divides masked pixels using fixed HSV rules into yellow-toned, dar
 
 ## Training and current evidence
 
-`build_dataset.py` removes byte-identical duplicates, excludes quality-rejected images from new feature rows, and writes a versioned CSV plus a content-hashed preprocessing metadata sidecar. Original images are never removed. It currently executes when imported; import safety and label-conflict handling are planned for Stage 4. Do not import it as a library yet.
+`build_dataset.py` is import-safe, validates the manifest against image hashes, reports cross-label duplicate conflicts, removes byte-identical duplicate rows, recomputes quality checks and excludes rejected images. It reads documented plant/session groups and writes a versioned feature CSV plus a content-hashed preprocessing metadata sidecar. It stops before writing if any class has fewer than two accepted samples. Original images are never removed.
 
 `train_model.py` compares Random Forest, scaled RBF SVM, Gradient Boosting, scaled Logistic Regression and scaled KNN using stratified image-level CV. It computes metrics from pooled out-of-fold predictions, selects the highest Macro F1, then fits all candidates on all development rows. Training does not occur during web requests. The trainer refuses CSVs with missing/mismatched preprocessing metadata, changed CSV content, missing classes or fewer than two accepted samples per class. This minimum only prevents invalid CV setup; it does not establish adequate sample size.
 
-The original saved winner (now incompatible with resized preprocessing) is Logistic Regression: accuracy **0.6250**, Macro F1 **0.6019**, on image-level development CV. These are **not independent final test estimates**: model selection used those same results, and plant/session independence is unknown. No grouped evaluation or new scientific performance result has been produced by the software fixes. Stage 3 has not retrained or activated a new production model. The saved benchmark is accessible at `GET /api/benchmark`; there is no benchmark dashboard in the current UI.
+The original saved winner (now incompatible with resized preprocessing) is Logistic Regression: accuracy **0.6250**, Macro F1 **0.6019**, on image-level development CV. These are **not independent final test estimates**: model selection used those same results, and plant/session independence is unknown. No grouped evaluation or new scientific performance result has been produced by the software fixes. Stages 3–4 have not retrained or activated a new production model. The optional legacy reproduction is not gate-checked and must not be reported as performance. The saved benchmark is accessible at `GET /api/benchmark`; there is no benchmark dashboard in the current UI.
 
+
+## Dataset manifest and grouped evaluation
+
+`dataset_manifest.csv` contains all 56 files, with 40 distinct hashes and 16 duplicate copies. It includes dimensions and Stage 3 gate status/foreground fraction. Border-contact fraction is an additional perimeter measurement from the same masks; it does not change the gate. See [the manifest guide](docs/dataset_manifest_guide.md) for its definition and safe regeneration.
+
+**Fill in plant/leaf/session IDs, source, device, background type and label method from actual records. These fields are currently blank. Do not infer identities or labels from filenames.** The [collection protocol](docs/data_collection_protocol.md) provides suggested per-class targets and a collector table.
+
+```sh
+python3 evaluate_grouped.py
+# Optional historical diagnostics only — NEVER report as performance:
+python3 evaluate_grouped.py --legacy-development-only --include-baselines
+```
+
+The default evaluation uses only gate-passing, byte-unique images. It currently exits with status 2 and **“insufficient classes/groups for a credible generalization estimate”**, records per-class deficits, and fits no models: Healthy 4, Moderate 0, Severe 0, Disease Confounded 7, with no documented groups. JSON and Markdown reports use unique `grouped_eval_<date>_...` filenames. Legacy diagnostics use separate `legacy_development_only_<date>_...` filenames and the unchanged original 40-row CSV; they are image-level, not group-independent and not gate-checked.
+
+When sufficient documented data exists, the evaluator preflights all partitions of 3-fold outer / 3-fold inner StratifiedGroupKFold. It requires at least five documented groups per class as a feasibility guard, not a statistically derived sample-size recommendation. Grouping prefers plant IDs with conservative session fallback; missing IDs block evaluation. Session fallback cannot establish independence of unknown plants across sessions.
+
+Inside each outer training partition it compares scaled Logistic Regression, scaled RBF SVM and a regularized Random Forest. KNN and Gradient Boosting are optional baselines. Scalers are fitted inside pipelines. Inner selection uses full-precision mean Macro F1, then balanced accuracy, fixed model priority and candidate order. Outer predictions estimate the entire selection procedure; they must not be reused to select a production winner and claim an unbiased final result. No production model is saved. Reports include class metrics, confusion matrices and specified error counts when evaluation is feasible. Training/evaluation never runs during requests.
 
 ## Stage 3 quality gate and model compatibility
 
@@ -113,7 +131,7 @@ LECOR_MODEL_PATH=leaf_stress_model_v1_REPLACE_WITH_RUN_ID.pkl \
 LECOR_BENCHMARK_PATH=model_benchmark_v1_REPLACE_WITH_RUN_ID.json python3 app.py
 ```
 
-Training is currently blocked by missing accepted Moderate/Severe examples; the commands above describe the workflow once suitable data is available. Generated filenames contain timestamps and UUIDs; creation is exclusive. Relative configured paths resolve against the project directory, not the shell working directory. Defaults still read the original artifacts. `backup_original/` contains copies and a SHA-256 manifest; do not edit these or the original dataset/artifacts.
+The legacy `train_model.py` command uses image-level CV even when group columns exist; use `evaluate_grouped.py` for the grouped methodology. Training is currently blocked by missing accepted Moderate/Severe examples; the commands above describe the workflow once suitable data is available. Generated filenames contain timestamps and UUIDs; creation is exclusive. Relative configured paths resolve against the project directory, not the shell working directory. Defaults still read the original artifacts. `backup_original/` contains copies and a SHA-256 manifest; do not edit these or the original dataset/artifacts.
 
 ## Files and tests
 
@@ -123,7 +141,9 @@ Training is currently blocked by missing accepted Moderate/Severe examples; the 
 | `feature_extraction.py` | Shared features, mask, color visualizations, heuristic and guidance |
 | `config.py` | Paths, upload limits, preprocessing, quality thresholds and server settings |
 | `report_mask_quality.py` | Read-only unique-image mask report and failure counts |
-| `build_dataset.py` | Deduplication and versioned feature CSV |
+| `dataset_manifest.py` | Provenance template, hash validation, duplicate and group resolution |
+| `build_dataset.py` | Import-safe, gate-passing versioned feature CSV and group metadata |
+| `evaluate_grouped.py` | Guarded nested grouped evaluation and separate legacy diagnostics |
 | `train_model.py` | Image-level development benchmark and fitted bundles |
 | `templates/index.html` | Scan, pipeline, measurements and browser printing |
 | `tests/` | Automated regression checks; not device acceptance evidence |
@@ -135,4 +155,4 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
 node tests/frontend_stage1.cjs
 ```
 
-The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pinning, grouped evaluation, ablations and fuller academic test documents remain future approved stages.
+The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pinning, ablations and fuller academic test documents remain future approved stages.

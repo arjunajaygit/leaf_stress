@@ -239,19 +239,9 @@ def test_originals_and_backups_unchanged():
             assert hashlib.sha256((base / name).read_bytes()).hexdigest() == expected, name
 
 
-def test_regeneration_uses_new_artifact_names(tmp_path, monkeypatch):
-    import runpy
-    monkeypatch.setattr(config, 'BASE_DIR', tmp_path)
-    runpy.run_path(str(ROOT / 'build_dataset.py'), run_name='__main__')
-    csv_files = list(tmp_path.glob('leaf_features_v1_*.csv'))
-    assert len(csv_files) == 1
-    monkeypatch.setattr(config, 'CSV_PATH', csv_files[0])
-    # New gate leaves no Moderate/Severe examples: do not fit a misleading two-class model.
-    with pytest.raises(ValueError, match='lacks one or more required classes'):
-        runpy.run_path(str(ROOT / 'train_model.py'), run_name='__main__')
-    assert csv_files[0].with_suffix('.metadata.json').exists()
-    assert not list(tmp_path.glob('leaf_stress_model_v1_*.pkl'))
-    assert not list(tmp_path.glob('model_benchmark_v1_*.json'))
-    assert not (tmp_path / 'leaf_features.csv').exists()
-    assert not (tmp_path / 'leaf_stress_model.pkl').exists()
-    assert not (tmp_path / 'model_benchmark.json').exists()
+def test_insufficient_dataset_does_not_write_artifacts(tmp_path):
+    import build_dataset
+    output = tmp_path / 'leaf_features_v1_test.csv'
+    with pytest.raises(ValueError, match='Too few gate-passing samples'):
+        build_dataset.build_dataset(ROOT / 'dataset_manifest.csv', config.DATASET_DIR, output)
+    assert not list(tmp_path.iterdir())

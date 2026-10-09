@@ -1,0 +1,42 @@
+{
+  "preprocessing": {
+    "version": "working-resolution-v1",
+    "working_longest_side": 800,
+    "resize": "area-down-linear-up",
+    "morph_reference_side": 800,
+    "morph_kernel_at_reference": 5,
+    "hsv_lower": [
+      10,
+      20,
+      20
+    ],
+    "hsv_upper": [
+      100,
+      255,
+      255
+    ]
+  },
+  "mask_quality": {
+    "min_foreground_fraction": 0.02,
+    "max_foreground_fraction": 0.95,
+    "min_contour_area_fraction": 0.005,
+    "min_contour_area_pixels": 128,
+    "large_component_min_fraction": 0.01,
+    "large_component_relative_fraction": 0.2,
+    "max_large_components": 1,
+    "reject_border_contact": true
+  },
+  "stage3_report": "/Users/arjun/Desktop/leaf_stress_app/reports/mask_quality_report.csv",
+  "stage3_report_sha256": "dc79a0bf7f30a3ebd88e1b335a9312025843fb729c080b92e3352e46c921421c",
+  "border_contact_fraction_definition": "Sum of external contour segment lengths lying entirely on an image edge divided by total closed contour length; vertex-only contact contributes zero; absent/zero contour has fraction zero. Diagnostic only, not a gate threshold.",
+  "human_fields_left_blank": [
+    "plant_id",
+    "leaf_id",
+    "session_id",
+    "source",
+    "device",
+    "background_type",
+    "label_method",
+    "notes"
+  ]
+}
