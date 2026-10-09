@@ -1,0 +1,861 @@
+{
+  "mode": "preview_only",
+  "classification_measured": false,
+  "limitation": "In-process Flask client on this machine, one warm-up excluded. No network/browser/classification. Does not verify REQ-013 classification within 10 seconds.",
+  "python": "3.14.5",
+  "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "numpy": "2.4.6",
+  "unique_images": 40,
+  "repeats": 3,
+  "requests": 120,
+  "p50_seconds": 0.012650145567022264,
+  "p95_seconds": 0.10498600615537726,
+  "max_seconds": 0.12224137503653765,
+  "outcome_counts": {
+    "preview_only": 33,
+    "rejected": 87
+  },
+  "samples": [
+    {
+      "filename": "Disease_Confounded/IMG_4207.JPG",
+      "repeat": 1,
+      "seconds": 0.10095975000876933,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4209(1).JPG",
+      "repeat": 1,
+      "seconds": 0.08631787507329136,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4211(1).JPG",
+      "repeat": 1,
+      "seconds": 0.07013716700021178,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4212(1).JPG",
+      "repeat": 1,
+      "seconds": 0.054422250017523766,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4213(1).JPG",
+      "repeat": 1,
+      "seconds": 0.009691167040728033,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4214(1).JPG",
+      "repeat": 1,
+      "seconds": 0.00922466698102653,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4215(1).JPG",
+      "repeat": 1,
+      "seconds": 0.009518333012238145,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4216(1).JPG",
+      "repeat": 1,
+      "seconds": 0.10590137494727969,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4217(1).JPG",
+      "repeat": 1,
+      "seconds": 0.10720204201061279,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4218(1).JPG",
+      "repeat": 1,
+      "seconds": 0.010238499962724745,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4219(1).JPG",
+      "repeat": 1,
+      "seconds": 0.00915512500796467,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4221(1).JPG",
+      "repeat": 1,
+      "seconds": 0.10655279201455414,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_001.PNG",
+      "repeat": 1,
+      "seconds": 0.018917165929451585,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_002.JPG",
+      "repeat": 1,
+      "seconds": 0.010527625097893178,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_003.JPG",
+      "repeat": 1,
+      "seconds": 0.010370249976404011,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_005.JPG",
+      "repeat": 1,
+      "seconds": 0.022118916967883706,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_006.JPG",
+      "repeat": 1,
+      "seconds": 0.08444820798467845,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_007.JPG",
+      "repeat": 1,
+      "seconds": 0.10172433301340789,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_008.JPG",
+      "repeat": 1,
+      "seconds": 0.06691612501163036,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_010.JPG",
+      "repeat": 1,
+      "seconds": 0.08433849993161857,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_001.JPG",
+      "repeat": 1,
+      "seconds": 0.01193145802244544,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_002.JPG",
+      "repeat": 1,
+      "seconds": 0.010874542058445513,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_003.JPG",
+      "repeat": 1,
+      "seconds": 0.010314333019778132,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_004.JPG",
+      "repeat": 1,
+      "seconds": 0.009351999964565039,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_005.JPG",
+      "repeat": 1,
+      "seconds": 0.009519957937300205,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+      "repeat": 1,
+      "seconds": 0.02532949997112155,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_007.JPG",
+      "repeat": 1,
+      "seconds": 0.006898042047396302,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_008.JPG",
+      "repeat": 1,
+      "seconds": 0.01042545901145786,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_009.JPG",
+      "repeat": 1,
+      "seconds": 0.012673875084146857,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_001.JPG",
+      "repeat": 1,
+      "seconds": 0.05236779199913144,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_002.JPG",
+      "repeat": 1,
+      "seconds": 0.040415790979750454,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_003.JPG",
+      "repeat": 1,
+      "seconds": 0.04681758303195238,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_004.JPG",
+      "repeat": 1,
+      "seconds": 0.045131583930924535,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_005.JPG",
+      "repeat": 1,
+      "seconds": 0.0120041249319911,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_006.JPG",
+      "repeat": 1,
+      "seconds": 0.03199591604061425,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_007.JPG",
+      "repeat": 1,
+      "seconds": 0.013737417059019208,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_008.JPG",
+      "repeat": 1,
+      "seconds": 0.010525417048484087,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_009.JPG",
+      "repeat": 1,
+      "seconds": 0.011054583010263741,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_010.JPG",
+      "repeat": 1,
+      "seconds": 0.010901167057454586,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_011.JPG",
+      "repeat": 1,
+      "seconds": 0.011006916058249772,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4207.JPG",
+      "repeat": 2,
+      "seconds": 0.09970345895271748,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4209(1).JPG",
+      "repeat": 2,
+      "seconds": 0.08690520795062184,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4211(1).JPG",
+      "repeat": 2,
+      "seconds": 0.07005991600453854,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4212(1).JPG",
+      "repeat": 2,
+      "seconds": 0.054147667018696666,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4213(1).JPG",
+      "repeat": 2,
+      "seconds": 0.00972854089923203,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4214(1).JPG",
+      "repeat": 2,
+      "seconds": 0.008540417067706585,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4215(1).JPG",
+      "repeat": 2,
+      "seconds": 0.009216959006153047,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4216(1).JPG",
+      "repeat": 2,
+      "seconds": 0.10496237489860505,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4217(1).JPG",
+      "repeat": 2,
+      "seconds": 0.10543500003404915,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4218(1).JPG",
+      "repeat": 2,
+      "seconds": 0.009449707926250994,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4219(1).JPG",
+      "repeat": 2,
+      "seconds": 0.00905158300884068,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4221(1).JPG",
+      "repeat": 2,
+      "seconds": 0.1037257919088006,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_001.PNG",
+      "repeat": 2,
+      "seconds": 0.012439916958101094,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_002.JPG",
+      "repeat": 2,
+      "seconds": 0.010935583035461605,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_003.JPG",
+      "repeat": 2,
+      "seconds": 0.010144250001758337,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_005.JPG",
+      "repeat": 2,
+      "seconds": 0.021861790912225842,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_006.JPG",
+      "repeat": 2,
+      "seconds": 0.08494795905426145,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_007.JPG",
+      "repeat": 2,
+      "seconds": 0.1012997089419514,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_008.JPG",
+      "repeat": 2,
+      "seconds": 0.06625229096971452,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_010.JPG",
+      "repeat": 2,
+      "seconds": 0.085288375033997,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_001.JPG",
+      "repeat": 2,
+      "seconds": 0.012435375014320016,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_002.JPG",
+      "repeat": 2,
+      "seconds": 0.010356417042203248,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_003.JPG",
+      "repeat": 2,
+      "seconds": 0.009834291064180434,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_004.JPG",
+      "repeat": 2,
+      "seconds": 0.009413541993126273,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_005.JPG",
+      "repeat": 2,
+      "seconds": 0.009631291031837463,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+      "repeat": 2,
+      "seconds": 0.01009525009430945,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_007.JPG",
+      "repeat": 2,
+      "seconds": 0.007035207934677601,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_008.JPG",
+      "repeat": 2,
+      "seconds": 0.01000349991954863,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_009.JPG",
+      "repeat": 2,
+      "seconds": 0.012936042039655149,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_001.JPG",
+      "repeat": 2,
+      "seconds": 0.05338758404832333,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_002.JPG",
+      "repeat": 2,
+      "seconds": 0.04092433396726847,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_003.JPG",
+      "repeat": 2,
+      "seconds": 0.04782337509095669,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_004.JPG",
+      "repeat": 2,
+      "seconds": 0.0426020419690758,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_005.JPG",
+      "repeat": 2,
+      "seconds": 0.011626082938164473,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_006.JPG",
+      "repeat": 2,
+      "seconds": 0.03210916696116328,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_007.JPG",
+      "repeat": 2,
+      "seconds": 0.01356408407445997,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_008.JPG",
+      "repeat": 2,
+      "seconds": 0.010551291983574629,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_009.JPG",
+      "repeat": 2,
+      "seconds": 0.011020125006325543,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_010.JPG",
+      "repeat": 2,
+      "seconds": 0.011158459004946053,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_011.JPG",
+      "repeat": 2,
+      "seconds": 0.011252750060521066,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4207.JPG",
+      "repeat": 3,
+      "seconds": 0.10085079201962799,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4209(1).JPG",
+      "repeat": 3,
+      "seconds": 0.08609620796050876,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4211(1).JPG",
+      "repeat": 3,
+      "seconds": 0.06919541698880494,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4212(1).JPG",
+      "repeat": 3,
+      "seconds": 0.054003958008252084,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4213(1).JPG",
+      "repeat": 3,
+      "seconds": 0.009500041021965444,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4214(1).JPG",
+      "repeat": 3,
+      "seconds": 0.00879737501963973,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4215(1).JPG",
+      "repeat": 3,
+      "seconds": 0.009355042013339698,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4216(1).JPG",
+      "repeat": 3,
+      "seconds": 0.10478399996645749,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4217(1).JPG",
+      "repeat": 3,
+      "seconds": 0.10663520905654877,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4218(1).JPG",
+      "repeat": 3,
+      "seconds": 0.010155958007089794,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4219(1).JPG",
+      "repeat": 3,
+      "seconds": 0.009344959049485624,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4221(1).JPG",
+      "repeat": 3,
+      "seconds": 0.12224137503653765,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_001.PNG",
+      "repeat": 3,
+      "seconds": 0.013706375029869378,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_002.JPG",
+      "repeat": 3,
+      "seconds": 0.011683583026751876,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_003.JPG",
+      "repeat": 3,
+      "seconds": 0.010849709040485322,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_005.JPG",
+      "repeat": 3,
+      "seconds": 0.022194167017005384,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Healthy/healthy_006.JPG",
+      "repeat": 3,
+      "seconds": 0.08594899997115135,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_007.JPG",
+      "repeat": 3,
+      "seconds": 0.10160883306525648,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_008.JPG",
+      "repeat": 3,
+      "seconds": 0.06651337502989918,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Healthy/healthy_010.JPG",
+      "repeat": 3,
+      "seconds": 0.08509341697208583,
+      "status": 200,
+      "outcome": "preview_only"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_001.JPG",
+      "repeat": 3,
+      "seconds": 0.012759958044625819,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_002.JPG",
+      "repeat": 3,
+      "seconds": 0.010270082973875105,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_003.JPG",
+      "repeat": 3,
+      "seconds": 0.009804749977774918,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_004.JPG",
+      "repeat": 3,
+      "seconds": 0.009356792084872723,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_005.JPG",
+      "repeat": 3,
+      "seconds": 0.009550124988891184,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+      "repeat": 3,
+      "seconds": 0.010202250094152987,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_007.JPG",
+      "repeat": 3,
+      "seconds": 0.006846875068731606,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_008.JPG",
+      "repeat": 3,
+      "seconds": 0.010044916067272425,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_009.JPG",
+      "repeat": 3,
+      "seconds": 0.01262641604989767,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_001.JPG",
+      "repeat": 3,
+      "seconds": 0.052102459012530744,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_002.JPG",
+      "repeat": 3,
+      "seconds": 0.03977112495340407,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_003.JPG",
+      "repeat": 3,
+      "seconds": 0.04572550009470433,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_004.JPG",
+      "repeat": 3,
+      "seconds": 0.04110087500885129,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_005.JPG",
+      "repeat": 3,
+      "seconds": 0.01179270795546472,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_006.JPG",
+      "repeat": 3,
+      "seconds": 0.031838292023167014,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_007.JPG",
+      "repeat": 3,
+      "seconds": 0.013131249928846955,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_008.JPG",
+      "repeat": 3,
+      "seconds": 0.010227958904579282,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_009.JPG",
+      "repeat": 3,
+      "seconds": 0.01124158303719014,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_010.JPG",
+      "repeat": 3,
+      "seconds": 0.010766207939013839,
+      "status": 422,
+      "outcome": "rejected"
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_011.JPG",
+      "repeat": 3,
+      "seconds": 0.011019625002518296,
+      "status": 422,
+      "outcome": "rejected"
+    }
+  ],
+  "generated_at": "2026-10-09T11:36:14.471231+05:30"
+}

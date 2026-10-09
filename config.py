@@ -6,6 +6,7 @@ from pathlib import Path
 from uuid import uuid4
 
 BASE_DIR = Path(__file__).resolve().parent
+PREVIEW_ONLY = os.environ.get("LECOR_PREVIEW_ONLY", "false").lower() in {"1", "true", "yes"}
 
 
 def project_path(variable, default):

@@ -2,6 +2,8 @@
 
 Lecor is an academic prototype for **visual leaf classification** using OpenCV, scikit-learn and Flask. Its goal is to investigate whether RGB color and projected shape features can help flag possible water-stress symptoms. It does not establish the cause of symptoms, physiological water status or validated early-warning performance.
 
+**No validated classifier exists yet. Classification results cannot be presented as performance.** Use the explicit preview-only demo described below; it shows image processing and quality checks without a class, probability or stress indicator.
+
 ## Current scope and limitations
 
 The supplied dataset contains 56 image files and 40 byte-unique images: Healthy 8, Moderate Water Stress 9, Severe Water Stress 11 and Disease Confounded 12. Plant/session identities, label provenance and independent physiological measurements are missing. Background and framing vary with class, so the model may learn acquisition conditions instead of relevant symptoms.
@@ -17,7 +19,7 @@ This is a small-dataset, visual-only prototype, not a replacement for direct soi
 1. Validates an uploaded JPEG, PNG or WebP, request size and image dimensions.
 2. Resizes with preserved aspect ratio to longest side 800 px (area interpolation for reduction, linear for enlargement), then segments with a fixed HSV range and resolution-scaled opening/closing (5×5 at 800 px). It selects/fills the largest external contour and checks all candidate components before allowing feature extraction. Upsampling smaller photos does not add detail.
 3. Uses one shared implementation to extract 15 numerical features for training and inference.
-4. Requires a model with matching preprocessing metadata, then runs the selected classifier and applies provisional confidence rejection. Predictions from other fitted models are shown separately only for classified results.
+4. In preview-only mode, skips model loading/classification and returns masks plus processing images. Outside preview, requires matching model schema, preprocessing and runtime metadata, then runs the selected classifier and applies provisional confidence rejection. Predictions from other fitted models are shown separately only for classified results.
 5. Produces an optional experimental heuristic indicator, color-threshold visualizations, descriptive feature comparisons and cautious inspection guidance.
 6. Displays results in the browser; the print button opens the browser print dialog.
 
@@ -33,7 +35,7 @@ These shape descriptors do not directly measure curl, turgor or water content. P
 
 ### Experimental relative visual-stress indicator
 
-For non-confounded predictions, the app reports a rounded integer on 0–100. It is a **heuristic, not a physiological measurement or a class probability**. It has no established agronomic interpretation or validated severity cutoffs.
+Only when a future compatible classifier produces a non-confounded prediction, the app reports a rounded integer on 0–100. It is a **heuristic, not a physiological measurement or a class probability**. It has no established agronomic interpretation or validated severity cutoffs.
 
 The existing formula is retained for continuity:
 
@@ -58,7 +60,7 @@ The color map divides masked pixels using fixed HSV rules into yellow-toned, dar
 
 `train_model.py` compares Random Forest, scaled RBF SVM, Gradient Boosting, scaled Logistic Regression and scaled KNN using stratified image-level CV. It computes metrics from pooled out-of-fold predictions, selects the highest Macro F1, then fits all candidates on all development rows. Training does not occur during web requests. The trainer refuses CSVs with missing/mismatched preprocessing metadata, changed CSV content, missing classes or fewer than two accepted samples per class. This minimum only prevents invalid CV setup; it does not establish adequate sample size.
 
-The original saved winner (now incompatible with resized preprocessing) is Logistic Regression: accuracy **0.6250**, Macro F1 **0.6019**, on image-level development CV. These are **not independent final test estimates**: model selection used those same results, and plant/session independence is unknown. No grouped evaluation or new scientific performance result has been produced by the software fixes. Stages 3–4 have not retrained or activated a new production model. The optional legacy reproduction is not gate-checked and must not be reported as performance. The saved benchmark is accessible at `GET /api/benchmark`; there is no benchmark dashboard in the current UI.
+The original saved winner (now incompatible with resized preprocessing) is Logistic Regression: accuracy **0.6250**, Macro F1 **0.6019**, on image-level development CV. These are **not independent final test estimates**: model selection used those same results, and plant/session independence is unknown. No grouped evaluation or new scientific performance result has been produced by the software fixes. Stages 3–6 have not retrained or activated a new production model. The optional legacy reproduction is not gate-checked and must not be reported as performance. Outside preview mode, the historical saved benchmark is accessible at `GET /api/benchmark`; preview mode withholds these numbers; there is no benchmark dashboard in the current UI.
 
 
 ## Dataset manifest and grouped evaluation
@@ -109,19 +111,36 @@ python3 report_mask_quality.py --csv reports/mask_quality_report_review2.csv --s
 
 The report script refuses existing output paths. New model bundles include feature schema and schema version, extractor and preprocessing versions/settings, mask settings, exact feature-CSV SHA-256, library/Python versions, timezone-aware training date and CV protocol. Loading rejects missing/mismatched schemas, versions, estimator feature/class order or runtime library versions. The CSV hash records training provenance; deployment does not require the original training CSV. Only trusted local pickle files may be loaded; metadata validation is not a pickle security sandbox.
 
-## Run locally
+## Run the current preview-only demo
+
+Known working software-test environments on **macOS 26.5.1 arm64**: **CPython 3.13.0** (clean virtual environment) and **CPython 3.14.5** (inherited-package environment). Both passed **134 pytest cases**, frontend checks and `pip check`. Node **24.15.0** was used for frontend tests only. These are software compatibility results, not classification performance or cross-browser evidence.
+
+| Direct package | Tested version in both environments |
+|---|---|
+| NumPy / joblib | 2.4.6 / 1.5.3 |
+| scikit-learn / SciPy | 1.9.0 / 1.18.0 |
+| OpenCV / pandas | 5.0.0.93 / 3.0.6 |
+| Flask / Pillow | 3.1.3 / 12.3.0 |
+| matplotlib / pytest | 3.11.2 / 9.1.1 |
+
+Exact transitive versions and environment details are in [environment.md](docs/environment.md), `requirements-py313.lock.txt` and `requirements-py314.lock.txt`. Other Python versions, OSes and devices have not been established as working. Recreate the independently tested Python 3.13 environment from the repository root:
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-# Requires an explicitly configured compatible model; original model is refused:
-python app.py
+python3.13 --version                 # recorded version: 3.13.0
+python3.13 -m venv .venv-py313
+source .venv-py313/bin/activate
+python -m pip install -r requirements-py313.lock.txt
+python -m pip check
+LECOR_PREVIEW_ONLY=true python app.py
 ```
 
-Open [localhost:5001](http://localhost:5001). Default binding is `127.0.0.1`; debug is off. For intentional LAN access, set `LECOR_HOST=0.0.0.0`. Camera availability through the file picker depends on the device/browser; there is no explicit webcam capture implementation. Camera capture, cross-browser operation and printed report completeness still need manual verification. Inactive tabs are not automatically included in printing.
+Open [localhost:5001](http://localhost:5001). Preview mode skips loading the model, starts even if it is missing/corrupt, and disables classification even if an estimator is available. The banner states that classification is unavailable until a compatible model is trained. A passing image shows mask previews and the Pipeline tab's segmented/color/GLI images; a rejection shows reasons and masks. No classification, probabilities or indicator are returned. `/api/benchmark` withholds historical numbers in preview mode. This is the supported current demonstration.
 
-Configuration is in `config.py`. Upload defaults are 10 MiB per request and 16 million decoded pixels, configurable through `LECOR_MAX_UPLOAD_BYTES` and `LECOR_MAX_IMAGE_PIXELS`. Uploads receive UUID names in temporary directories and are removed after processing. Model failures produce startup logs and prediction-service errors. Direct CLI startup stops if the model cannot load. Only load trusted joblib artifacts.
+Without `LECOR_PREVIEW_ONLY=true`, direct startup still refuses the original incompatible model. Model compatibility does not itself mean validation. Do not bypass the contract or use synthetic fixtures for a real classification demonstration.
+
+Defaults bind to `127.0.0.1` with debug off. `PORT` changes the local port; intentional LAN access uses `LECOR_HOST=0.0.0.0`. Camera capture (REQ-001), printing and cross-browser behavior are marked **needs manual verification on device**. The file picker may offer a phone camera, but there is no explicit laptop webcam implementation. The upload control supports a keyboard tab stop and Enter/Space; real device/focus behavior remains manual. Print CSS exposes all tabs; pagination and completeness are unverified.
+
+Configuration is in `config.py`. Upload defaults are 10 MiB per request and 16 million decoded pixels, configurable through `LECOR_MAX_UPLOAD_BYTES` and `LECOR_MAX_IMAGE_PIXELS`. UUID temporary files are removed after processing. Only trusted joblib artifacts may be loaded.
 
 ### Generate new artifacts without replacing originals
 
@@ -158,7 +177,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider
 node tests/frontend_stage1.cjs
 ```
 
-The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pins and ablation tooling are implemented. Fuller academic test documents remain Stage 6 work. See `docs/stage5_report.md` for the tested dependency environment and actual validation results.
+The JavaScript check uses a minimal DOM and the actual inline script. Node is needed only for this check, not to run the Flask app. Dependency pins and ablation tooling are implemented. The SDD, STD, limitations, requirements traceability and actual test results are now under `docs/`. See `docs/environment.md` for current tested environments; earlier stage reports are historical snapshots.
 
 ## Experimental feature ablations (Stage 5)
 
@@ -172,3 +191,18 @@ The script compares the unchanged 15-feature baseline, baseline without ExG, bas
 The real dataset still lacks accepted Moderate/Severe images and documented groups. The synthetic report uses invented pixels, labels and plant IDs and is not evidence of project accuracy. No legacy-CSV ablation is offered because that CSV cannot recover the proposed pixel-level features.
 
 NumPy is pinned to 2.4.6 with joblib 1.5.3: the original artifact deserialized with zero warnings in that tested combination. Other direct dependencies retain installed versions (including scikit-learn 1.9.0). Deserialization compatibility does not make the original artifact compatible with the current extractor. Existing legacy SVM probability training produces a separate scikit-learn deprecation warning; warnings are not suppressed.
+
+## Evidence, timing and manual acceptance
+
+```sh
+python record_test_run.py
+# Render records printed by the command above (supply actual filenames):
+python generate_test_results.py reports/test_run_pyVERSION_DATE_ID.json
+python timing_preview.py --repeats 3
+```
+
+The test recorder writes versioned JUnit XML, logs and environment/frontend/dependency records. [test_results.md](docs/test_results.md) lists actual per-test outcomes. Preview timing over 40 unique images × 3 repetitions measured p50 0.0127 s and p95 0.1050 s on the recorded host. This is Flask's in-process preview endpoint, not browser/network/classification timing; REQ-013 remains unverified for a classification result within 10 seconds.
+
+Read [SDD](docs/SDD.md), [STD](docs/STD.md), [requirements traceability](docs/requirements_traceability.md), [limitations](docs/limitations.md), and complete the [manual device checklist](docs/manual_verification_checklist.md). No manual device pass is implied by pytest or DOM checks. No course-service minimum is claimed accepted without evaluator confirmation.
+
+For the demo: show a valid mask/pipeline preview, a rejected image and readable upload errors. Say: “This demonstrates the processing and quality safeguards. No validated classifier exists yet. We need independently labelled images and documented plant/session groups before reporting stress-classification performance.” See [the final implementation report](docs/final_report.md) for the file-by-file changes and remaining work.

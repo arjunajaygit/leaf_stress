@@ -28,7 +28,7 @@ from feature_extraction import analyze_leaf_full, compute_visual_stress_indicato
 
 app = Flask(__name__)
 app.config.update(MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH, MAX_IMAGE_PIXELS=MAX_IMAGE_PIXELS,
-                  MIN_CLASS_PROBABILITY=config.MIN_CLASS_PROBABILITY)
+                  MIN_CLASS_PROBABILITY=config.MIN_CLASS_PROBABILITY, PREVIEW_ONLY=config.PREVIEW_ONLY)
 
 bundle = None
 primary_model = None
@@ -71,7 +71,8 @@ def load_model_bundle(path=MODEL_PATH):
         return False
 
 
-load_model_bundle()
+if not config.PREVIEW_ONLY:
+    load_model_bundle()
 try:
     with open(BENCHMARK_PATH, encoding="utf-8") as stream:
         benchmark_data = json.load(stream)
@@ -165,12 +166,14 @@ def compare_feature_measurements(features):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", preview_only=app.config["PREVIEW_ONLY"], classifier_available=primary_model is not None)
 
 
 @app.route("/api/benchmark")
 def get_benchmark():
     """Provides saved image-level development CV metrics, not an independent test estimate."""
+    if app.config["PREVIEW_ONLY"]:
+        return jsonify(available=False, message="Preview-only mode: historical classification numbers are not demonstration performance.")
     return jsonify(benchmark_data)
 
 
@@ -202,6 +205,10 @@ def predict():
             "prediction": None, "visual_stress_indicator": None,
             "quality": quality, "visualizations": visualizations,
         }), 422
+    if app.config["PREVIEW_ONLY"]:
+        return jsonify(outcome="preview_only", code="classification_disabled",
+                       message="Mask preview only. Classification is unavailable until a compatible model is trained. No validated classifier exists yet.",
+                       prediction=None, visual_stress_indicator=None, quality=quality, visualizations=visualizations)
     if primary_model is None or not bundle or bundle.get("preprocessing") != config.preprocessing_signature():
         return jsonify({
             "outcome": "model_update_required", "code": "model_unavailable" if primary_model is None else "preprocessing_mismatch",
@@ -279,7 +286,11 @@ def predict():
     })
 
 
-if __name__ == "__main__":
-    if model_load_error:
+def main():
+    if model_load_error and not app.config["PREVIEW_ONLY"]:
         raise SystemExit("Startup error: " + model_load_error)
     app.run(**server_options())
+
+
+if __name__ == "__main__":
+    main()

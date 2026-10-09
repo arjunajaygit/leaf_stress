@@ -488,6 +488,7 @@
     @keyframes spinning { to { transform: rotate(360deg); } }
 
     @media print {
+      .tab-content { display: block !important; }
       body { background: #fff !important; color: #000 !important; }
       header, .nav-tabs, .upload-box, #scanBtn, .no-print { display: none !important; }
       .card, .diagnosis-header { border: 1px solid #ddd !important; background: transparent !important; }
@@ -517,6 +518,14 @@
   </header>
 
   <main class="container">
+    {% if preview_only or not classifier_available %}
+    <div class="card" role="status" id="classificationNotice">
+      <strong>{{ 'Preview-only demo' if preview_only else 'Classification unavailable' }}</strong>
+      <p>No validated classifier exists yet. Classification is unavailable until a compatible model is trained.
+      This demo shows image processing, mask previews and provisional quality checks only. It does not measure water stress.</p>
+      <button class="btn btn-secondary no-print" onclick="window.print()">Print preview</button>
+    </div>
+    {% endif %}
 
     <!-- ==================== TAB 1: DIAGNOSTICS ==================== -->
     <section id="tab-scanner" class="tab-content active">
@@ -527,9 +536,9 @@
           <div class="card" style="margin-bottom: 20px;">
             <div class="card-title">Image Input</div>
             
-            <div class="upload-box" id="dropArea" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-box" id="dropArea" role="button" tabindex="0" aria-label="Choose a leaf image" onkeydown="if (event.target === this &amp;&amp; (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); document.getElementById('fileInput').click(); }" onclick="document.getElementById('fileInput').click()">
               <p class="primary">Select or drop leaf image</p>
-              <p class="secondary">JPG, PNG, or mobile camera capture</p>
+              <p class="secondary">JPEG, PNG or WebP; camera availability depends on device</p>
               <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp">
             </div>
 
@@ -818,7 +827,7 @@
         if (!data || typeof data !== 'object') {
           throw new Error('The server returned an incomplete result. Please try again.');
         }
-        if (['rejected', 'uncertain', 'model_update_required'].includes(data.outcome)) {
+        if (['rejected', 'uncertain', 'model_update_required', 'preview_only'].includes(data.outcome)) {
           renderGateResponse(data);
           return;
         }
@@ -840,17 +849,25 @@
     }
 
     function renderGateResponse(data) {
-      document.getElementById("qualityAction").textContent = data.outcome === "model_update_required" ? "Choose another photo" : "Retake photo";
+      document.getElementById("qualityAction").textContent = ["model_update_required", "preview_only"].includes(data.outcome) ? "Choose another photo" : "Retake photo";
       clearResults();
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('qualityFeedback').hidden = false;
       document.getElementById('qualityTitle').textContent = data.outcome === 'rejected' ? 'Retake photo' :
-        (data.outcome === 'uncertain' ? 'Uncertain / unsupported input' : 'Model update required');
+        (data.outcome === 'preview_only' ? 'Mask preview only — classification unavailable' : (data.outcome === 'uncertain' ? 'Uncertain / unsupported input' : 'Model update required'));
+      if (data.outcome === 'preview_only') setPipelineImages(data);
       document.getElementById('qualityMessage').textContent = data.error || data.detail || data.message;
       document.getElementById('qualityReasons').textContent = data.outcome === 'uncertain' ?
         `Highest class probability: ${data.top_probability.toFixed(4)}; provisional threshold: ${data.probability_threshold.toFixed(4)}. Calibration is unverified.` :
         `Reason codes: ${(data.quality?.reason_codes?.length ? data.quality.reason_codes : [data.code]).join(', ')}`;
       for (const [id, key] of [['qualityMask', 'mask'], ['qualityCandidates', 'candidate_mask']]) {
+        if (data.visualizations?.[key]) document.getElementById(id).src = data.visualizations[key];
+      }
+    }
+
+    function setPipelineImages(data) {
+      document.getElementById('pipeSource').src = imagePreview.src;
+      for (const [id, key] of [['pipeSegmented', 'segmented'], ['pipePathology', 'pathology'], ['pipeHeatmap', 'gli_heatmap']]) {
         if (data.visualizations?.[key]) document.getElementById(id).src = data.visualizations[key];
       }
     }
@@ -925,10 +942,7 @@
 
       // Pipeline Images
       if (data.visualizations) {
-        document.getElementById('pipeSource').src = imagePreview.src;
-        document.getElementById('pipeSegmented').src = data.visualizations.segmented;
-        document.getElementById('pipePathology').src = data.visualizations.pathology;
-        document.getElementById('pipeHeatmap').src = data.visualizations.gli_heatmap;
+        setPipelineImages(data);
       }
 
       // Features

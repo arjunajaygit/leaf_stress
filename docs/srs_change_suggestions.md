@@ -1,6 +1,6 @@
 # Proposed SRS wording changes — Stage 2
 
-Date: 2026-10-08. These are proposed edits only. The supplied PDF has not been modified. The project owner must approve/apply the document changes and update its revision history.
+Originally drafted: 2026-10-08; implementation-status notes updated 2026-10-09 after Stage 6. These are proposed edits only. The supplied PDF has not been modified. The project owner must approve/apply the document changes and update its revision history.
 
 ## Version discrepancy
 
@@ -26,7 +26,7 @@ Current: “The system shall handle invalid input (e.g. no leaf detected, or a f
 
 Replace with: “The system shall enforce permitted image formats, a request-size limit and a decoded-pixel limit; verify that the submitted file decodes as an image; and return a structured JSON error for invalid input or processing, model or feature-schema failures. The web UI shall clear previous results and display a readable error, asking for another photo when appropriate or operator assistance for server/model failures. Successful decoding shall not be represented as proof that the image contains a leaf.”
 
-Stage 3 extension, not yet implemented: “Inputs failing mask-quality checks shall receive a reason and a retake request without a class or indicator.”
+Stage 3 extension, now implemented as provisional mask checks: “Inputs failing mask-quality checks shall receive a reason and a retake request without a class or indicator.”
 
 ## REQ-009 (page 8)
 
@@ -40,7 +40,7 @@ Current: “The system shall generate a plain-language explanation of the result
 
 Replace with: “The system shall display ‘Feature measurements vs. dataset averages’, comparing available feature values with pooled all-class dataset means and standardized deviations. These comparisons shall not be labelled as contributions to the classifier's prediction, biological causes, or deviations from a healthy reference population. Guidance shall recommend independent inspection and verification without prescribing irrigation quantities, recovery times or chemical treatments.”
 
-Stage 5 may add a separately labelled model-specific explanation; this is not currently implemented.
+Stage 5 added a separately labelled Logistic Regression coefficient explanation. Suggested addition: “When supported by the loaded model, the UI may show coefficient × standardized feature-value terms reconstructing the predicted class decision score, explicitly described as a model explanation, not a biological cause.” No validated classifier is currently available.
 
 ## Section 1.3.4 — replace the limitations list (page 6)
 
@@ -54,7 +54,7 @@ Proposed exact replacement:
 - “Disease-like symptoms can overlap with drought, nutrient problems, pests, heat and other causes. Drought and disease may coexist. The system does not establish symptom cause or prescribe treatment.”
 - “Color-threshold maps show pixel groups, not confirmed healthy, chlorotic or necrotic tissue. Feature comparisons use pooled dataset averages, not a healthy reference or prediction contributions.”
 - “The system is not a replacement for direct soil assessment, laboratory testing or qualified agricultural advice. Early-warning effectiveness has not been validated.”
-- “The system checks file format, request size, image dimensions and decodability. These checks do not establish that an image contains a valid single leaf. Automatic mask-quality rejection and low-confidence abstention remain pending Stage 3.”
+- “The system checks file format, request size, image dimensions and decodability. These checks do not establish that an image contains a valid single leaf. Provisional mask-quality rejection and low-confidence abstention are implemented; their operating thresholds remain unvalidated.”
 - “Scan history is not saved to a database. Uploaded files are temporary and are removed after processing. Camera capture, print completeness and cross-browser behavior require manual device verification.”
 - “The selected classifier can change after an explicitly reviewed retraining run. New artifacts use versioned filenames; the original data and artifacts are preserved.”
 
@@ -62,7 +62,7 @@ Proposed exact replacement:
 
 Section 1.3.4 currently says: “The system does not yet check whether an uploaded file is actually a photo before processing it.” REQ-008 simultaneously requires handling unreadable images and no-leaf inputs. This is a requirements-versus-implementation-status contradiction/ambiguity: error handling after attempted decoding is not the same as checking an upload before processing, and neither proves leaf identity.
 
-Stage 1 now validates permitted formats, dimensions and decoding before feature processing. Replace the outdated limitation with the proposed validation limitation above, and retain the distinction between a readable image and an acceptable leaf image. Do not mark the pending Stage 3 semantic/quality checks complete.
+Stage 1 now validates permitted formats, dimensions and decoding before feature processing. Replace the outdated limitation with the proposed validation limitation above, and retain the distinction between a readable image and an acceptable leaf image. Mask-quality checks are now implemented, but semantic leaf recognition and scientifically validated thresholds are not established.
 
 ## Consistency edits elsewhere
 
