@@ -1,5 +1,7 @@
 # Requirements traceability
 
+> Whole-plant extension, 2026-10-13: a separate experimental classifier now runs via `run_wholeplant.py`. No validated classifier exists yet, and development results cannot be presented as performance. [Current implementation, design, tests and limitations](wholeplant_implementation.md). The original Stage 1–6 single-leaf baseline below is retained as historical evidence; its blocked-classification statements describe that baseline.
+
 Status as of 2026-10-09. **No validated classifier exists yet. Classification results cannot be presented as performance.** Software tests using synthetic or legacy fixtures verify code paths, not agronomic validity. No compatible production classifier is active.
 
 Source: `Lecor_SRS_v0.3-4.pdf`, pages 8–9, read from the Downloads copy because the originally supplied WhatsApp temporary path no longer exists. The cover/version inconsistency and proposed wording corrections remain in `srs_change_suggestions.md`. The PDF was not changed. Summaries below preserve the original requirements; they do not silently replace physiological claims with validated ones.
@@ -37,3 +39,26 @@ Source: `Lecor_SRS_v0.3-4.pdf`, pages 8–9, read from the Downloads copy becaus
 ## Course alignment
 
 OpenCV is an explicitly permitted tool in the supplied course sheet. Implemented evidence includes image effects/visualization, UI design and temporary file storage. Camera is unverified, and there is no audio, synchronization, animation workflow or database. Whether temporary storage and these categories count as the course's minimum three distinct services requires evaluator confirmation; do not claim that minimum is already accepted. SRS suggestions, SDD, STD, test evidence and the manual checklist provide academic documentation, not marks or approval. Record final course acceptance separately.
+
+## Whole-plant scope extension — 2026-10-13
+
+The guide's changed input scope needs SRS approval; the PDF is unchanged.
+
+| Requirement | Current extension evidence | Status |
+|---|---|---|
+| REQ-001 | Whole-plant upload through existing validated route; no new webcam capture implementation | partial; camera **needs manual verification on device** |
+| REQ-002 | `app.predict`, whole-plant model, masks, category/uncertainty and indicator | partial; runnable experimental classifier, no validated predictive performance |
+| REQ-003 | `plant_features.analyze_plant_full`; real-dataset endpoint tests | complete for processing display; biological interpretation not verified |
+| REQ-004 | `plant_features.extract_features`, 24-feature schema and finite/color tests | complete for implemented RGB/HSV/GLI descriptors |
+| REQ-005 | No individual contour/curl measurement in whole-plant mode | partial; scope change requires guide approval |
+| REQ-006 | Four-category model; all labels exercised by endpoint verification | partial; dataset labels unverified and Severe recognition poor |
+| REQ-007 | Three fixed candidates; pipeline-contained preprocessing, full-precision development CV | partial; no independent grouped/test estimate |
+| REQ-008 | Existing upload checks plus foliage gate tests | partial; green non-plants/backgrounds can pass |
+| REQ-009 | `plant_features.relative_indicator`: arbitrary 10/50/90 mapping, no disease indicator | partial; no physiological meaning |
+| REQ-010 | Feature comparisons; LR-only contribution explanation retained | partial; selected RF has no coefficient explanation, clearly marked unavailable |
+| REQ-011 | Whole-plant instructions, mask/warnings and safe request lifecycle | not verified for real-user usability |
+| REQ-012 | Existing results UI with actual classifier responses | partial; printing and cross-browser behavior **need manual verification on device** |
+| REQ-013 | `verify_wholeplant.py`, recorded local p50/p95 including inference | partial; target-device/browser/network timings not verified |
+| REQ-014 | Shared OpenCV whole-plant extraction | complete as technology requirement |
+| REQ-015 | sklearn LR/SVM/RF pipelines and versioned bundle | complete as technology requirement |
+| REQ-016 | Existing Flask routes and separate launch configuration | complete as technology requirement |

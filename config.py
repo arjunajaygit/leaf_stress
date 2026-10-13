@@ -5,6 +5,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+ANALYSIS_MODE = os.environ.get("LECOR_ANALYSIS_MODE", "leaf")
+if ANALYSIS_MODE not in {"leaf", "wholeplant"}:
+    raise ValueError("LECOR_ANALYSIS_MODE must be leaf or wholeplant")
+
 BASE_DIR = Path(__file__).resolve().parent
 PREVIEW_ONLY = os.environ.get("LECOR_PREVIEW_ONLY", "false").lower() in {"1", "true", "yes"}
 

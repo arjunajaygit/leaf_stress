@@ -1,5 +1,7 @@
 # Limitations and scientific status
 
+> Whole-plant extension, 2026-10-13: a separate experimental classifier now runs via `run_wholeplant.py`. No validated classifier exists yet, and development results cannot be presented as performance. [Current implementation, design, tests and limitations](wholeplant_implementation.md). The original Stage 1–6 single-leaf baseline below is retained as historical evidence; its blocked-classification statements describe that baseline.
+
 **No validated classifier exists yet. Classification results cannot be presented as performance.** Preview-only mode demonstrates software and image processing, not stress detection accuracy.
 
 - Dataset size: 56 files represent 40 distinct image hashes, not 40 proven independent plants. There are 16 duplicate copies. The unchanged gate accepts only 11 unique images (Healthy 4, Disease Confounded 7). No Moderate or Severe images pass.

@@ -32,10 +32,17 @@ def training_metadata(dataset_hash, cv_protocol):
 def validate_bundle(bundle):
     if not isinstance(bundle, dict):
         raise ValueError('Versioned model bundle required')
-    expected = {'schema_version': SCHEMA_VERSION, 'extractor_version': EXTRACTOR_VERSION,
-                'preprocessing_version': config.preprocessing_signature()['version'],
-                'feature_schema': list(FEATURE_NAMES), 'feature_names_in_': list(FEATURE_NAMES),
-                'preprocessing': config.preprocessing_signature(), 'mask_quality': config.mask_quality_settings()}
+    schema, extractor, names = SCHEMA_VERSION, EXTRACTOR_VERSION, list(FEATURE_NAMES)
+    preprocessing, mask_quality = config.preprocessing_signature(), config.mask_quality_settings()
+    if bundle.get('analysis_mode') == 'wholeplant':
+        import plant_features as plant
+        schema, extractor, names = plant.SCHEMA_VERSION, plant.EXTRACTOR_VERSION, plant.FEATURE_NAMES
+        preprocessing = plant.preprocessing_signature()
+        mask_quality = preprocessing
+    expected = {'schema_version': schema, 'extractor_version': extractor,
+                'preprocessing_version': preprocessing['version'],
+                'feature_schema': names, 'feature_names_in_': names,
+                'preprocessing': preprocessing, 'mask_quality': mask_quality}
     for key, value in expected.items():
         if bundle.get(key) != value:
             raise ValueError(f'Model {key} missing or mismatched; compatible retraining required')
@@ -54,8 +61,8 @@ def validate_bundle(bundle):
     if not isinstance(models, dict) or not models:
         raise ValueError('Model comparison collection missing')
     for model in [bundle.get('primary_model'), *models.values()]:
-        if (list(getattr(model, 'feature_names_in_', [])) != list(FEATURE_NAMES)
-                or getattr(model, 'n_features_in_', None) != len(FEATURE_NAMES)
+        if (list(getattr(model, 'feature_names_in_', [])) != names
+                or getattr(model, 'n_features_in_', None) != len(names)
                 or list(getattr(model, 'classes_', [])) != labels
                 or not callable(getattr(model, 'predict', None))):
             raise ValueError('Estimator feature/class schema mismatch')

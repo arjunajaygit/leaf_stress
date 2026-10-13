@@ -58,3 +58,12 @@ Complete independently; do not copy one browser's results to others.
 | | | | | | |
 
 Course evaluator: confirm which implemented services count toward the minimum three-service requirement. Camera availability, UI design, image effects and temporary storage must be assessed as actually demonstrated; approval: __________.
+
+## Whole-plant extension
+
+- [ ] Launch with Python 3.13.0 and `run_wholeplant.py`; verify the experimental notice is visible.
+- [ ] Photograph one complete plant against a neutral background; inspect selected foliage before interpreting the category.
+- [ ] Check handling of dense/overlapping leaves, background greenery and foliage at the image border; warnings must remain visible.
+- [ ] Verify classified, uncertain and rejected screens on each target device/browser.
+- [ ] Verify printed classified results include mask, warnings, probabilities, limitations and every result section.
+- [ ] Record which demonstration images were part of training; do not present their results as evaluation accuracy.

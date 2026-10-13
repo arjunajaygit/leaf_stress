@@ -1,0 +1,333 @@
+{
+  "date": "2026-10-13T07:37:50.161054+00:00",
+  "deployment": {
+    "model": "artifacts/wholeplant_v1_20261013T073335Z_cbc353aa/model.joblib",
+    "report": "artifacts/wholeplant_v1_20261013T073335Z_cbc353aa/development_report.json",
+    "status": "experimental; no independent validation"
+  },
+  "requests": 44,
+  "warning": "Training images used for software verification, not independent prediction performance. Local Flask test client; excludes network/browser and model startup.",
+  "outcomes": {
+    "uncertain": 17,
+    "classified": 27
+  },
+  "predicted_classes": {
+    "null": 17,
+    "Disease_Confounded": 9,
+    "Healthy": 7,
+    "Moderate_Water_Stress": 6,
+    "Severe_Water_Stress": 5
+  },
+  "p50_seconds": 0.09945904149935814,
+  "p95_seconds": 0.19500578569786742,
+  "rows": [
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4829.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.26855499999510357
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4836.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.08354666599916527
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4839.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.09684870799537748
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4841.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.09733033299562521
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4844.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.09295987500081537
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4845.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.08155345900013344
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4846.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.18187795900303172
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4847.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.12013499999738997
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4849.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.19619454199710162
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4850.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Disease_Confounded",
+      "seconds": 0.09536749999824679
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Disease_Confounded/IMG_4851.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.07624083299742779
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_001.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.06953937499929452
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_002.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Healthy",
+      "seconds": 0.08469483299995773
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_003.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.09864283299975796
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_004.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Healthy",
+      "seconds": 0.15389104199857684
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_005.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Healthy",
+      "seconds": 0.17437504199915566
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_006.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.09817891699640313
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_007.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.10634050000226125
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_008.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Healthy",
+      "seconds": 0.18826950000220677
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_009.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Healthy",
+      "seconds": 0.096083208998607
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_010.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Healthy",
+      "seconds": 0.05373579199658707
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Healthy/healthy_011.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Healthy",
+      "seconds": 0.10027524999895832
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_001.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.08564758300053654
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_002.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Moderate_Water_Stress",
+      "seconds": 0.09679720800340874
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_003.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Moderate_Water_Stress",
+      "seconds": 0.09030295800039312
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_004.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.11395541700039757
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_005.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.10825395899883006
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_006.WEBP",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Moderate_Water_Stress",
+      "seconds": 0.06038841700501507
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_007.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.028690582999843173
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_008.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.08942358299827902
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_009.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Moderate_Water_Stress",
+      "seconds": 0.09298904199386016
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_010.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Moderate_Water_Stress",
+      "seconds": 0.11314433300140081
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Moderate_Water_Stress/moderate_011.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Moderate_Water_Stress",
+      "seconds": 0.12929233400063822
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_001.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.15280433299631113
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_002.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Severe_Water_Stress",
+      "seconds": 0.11379570799908834
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_003.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.16538012499950128
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_004.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.11925704200257314
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_005.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Severe_Water_Stress",
+      "seconds": 0.07887208399915835
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_006.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Severe_Water_Stress",
+      "seconds": 0.10058283400576329
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_007.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Severe_Water_Stress",
+      "seconds": 0.10746191700309282
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_008.JPG",
+      "status": 200,
+      "outcome": "classified",
+      "prediction": "Severe_Water_Stress",
+      "seconds": 0.10338383299676934
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_009.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.22104216699517565
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_011.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.10395808400062378
+    },
+    {
+      "filename": "dataset_wholeplant_v1_20261013/Severe_Water_Stress/severe_10.JPG",
+      "status": 200,
+      "outcome": "uncertain",
+      "prediction": null,
+      "seconds": 0.09377545799361542
+    }
+  ]
+}

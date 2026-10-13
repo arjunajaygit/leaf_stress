@@ -6,8 +6,10 @@ Actual host: macOS 26.5.1, Apple Silicon arm64. Node v24.15.0 was used only for 
 
 | Environment | Construction | Actual result |
 |---|---|---|
-| CPython 3.14.5 | `.venv-stage5` with system-site-packages; project-local NumPy 2.4.6, other packages inherited | 134 pytest cases passed; frontend and pip check passed |
-| CPython 3.13.0 | Fresh `.venv-py313` without system-site-packages; installed `requirements-dev.txt` | 134 pytest cases passed; frontend and pip check passed |
+| CPython 3.14.5 | `.venv-stage5` with system-site-packages; project-local NumPy 2.4.6, other packages inherited | 144 pytest cases passed, 2 saved whole-plant deployment tests skipped (Python mismatch); frontend and pip check passed |
+| CPython 3.13.0 | Fresh `.venv-py313` without system-site-packages; installed `requirements-dev.txt` | 146 pytest cases passed, including saved whole-plant deployment; frontend and pip check passed |
+
+Updated whole-plant test run: 2026-10-13. The active whole-plant artifact requires the exact Python 3.13.0 environment. Start it with `python run_wholeplant.py`. A trained experimental classifier now exists; it is not scientifically validated. `gdown==6.4.2` was used only to import the supplied public Drive dataset; it is not needed to run or train the app and is not part of the runtime lock.
 
 These exact combinations are known to work for the recorded software suite. Python 3.13 provides an independently installed second environment. Other patch/minor versions are not claimed tested. The strict saved-model contract includes exact Python/library versions; do not move a trained artifact between environments and assume compatibility.
 

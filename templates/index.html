@@ -504,7 +504,7 @@
         <div class="brand-mark">L</div>
         <div>
           <h1>Lecor</h1>
-          <p>Experimental Visual Leaf Assessment</p>
+          <p>Experimental Visual {{ 'Plant' if wholeplant else 'Leaf' }} Assessment</p>
         </div>
       </div>
 
@@ -527,6 +527,19 @@
     </div>
     {% endif %}
 
+    {% if wholeplant %}
+    <div class="card" role="status">
+      <strong>Experimental whole-plant / visible-foliage classifier</strong>
+      <p>Photograph one tomato plant at a time, preferably against a plain neutral background in diffuse light.
+      Keep the full plant in frame. The mask covers candidate foliage, not individually identified leaves;
+      hidden leaves and roots cannot be assessed. Check the mask before interpreting any result.</p>
+      <p>Trained on 44 folder-labelled photos. Labels, plant identities and drought-versus-disease discrimination
+      are unverified. No validated classifier exists yet. Development scores are not real-world performance.</p>
+      <p>The indicator is only an arbitrary category display: Healthy = 10, Moderate = 50, Severe = 90.
+      It is not a measured severity, calibrated probability, or irrigation recommendation.</p>
+    </div>
+    {% endif %}
+
     <!-- ==================== TAB 1: DIAGNOSTICS ==================== -->
     <section id="tab-scanner" class="tab-content active">
       <div class="grid-2">
@@ -536,8 +549,8 @@
           <div class="card" style="margin-bottom: 20px;">
             <div class="card-title">Image Input</div>
             
-            <div class="upload-box" id="dropArea" role="button" tabindex="0" aria-label="Choose a leaf image" onkeydown="if (event.target === this &amp;&amp; (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); document.getElementById('fileInput').click(); }" onclick="document.getElementById('fileInput').click()">
-              <p class="primary">Select or drop leaf image</p>
+            <div class="upload-box" id="dropArea" role="button" tabindex="0" aria-label="{{ 'Choose a whole-plant photo' if wholeplant else 'Choose a leaf image' }}" onkeydown="if (event.target === this &amp;&amp; (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); document.getElementById('fileInput').click(); }" onclick="document.getElementById('fileInput').click()">
+              <p class="primary">Select or drop {{ 'whole-plant photo' if wholeplant else 'leaf image' }}</p>
               <p class="secondary">JPEG, PNG or WebP; camera availability depends on device</p>
               <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp">
             </div>
@@ -546,7 +559,7 @@
               <img id="imagePreview" style="max-height: 220px; border-radius: 6px; border: 1px solid var(--border); max-width: 100%; object-fit: contain;">
               <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center;">
                 <button class="btn btn-primary" id="scanBtn" onclick="executeScan()">
-                  Analyze Leaf
+                  Analyze image
                 </button>
                 <button class="btn btn-secondary" id="resetBtn" onclick="clearScan()">
                   Reset
@@ -555,7 +568,7 @@
             </div>
           </div>
 
-          <!-- Multi-Model Consensus -->
+          <!-- Separate comparison model predictions -->
           <div class="card" id="consensusBox" style="display: none;">
             <div class="card-title">Predictions from other models on this image</div>
             <div id="consensusEntries" style="display: grid; gap: 6px;"></div>
@@ -602,6 +615,8 @@
               </div>
             </div>
 
+            <p id="scanWarnings" role="status" style="margin: 12px 0;"></p>
+            <img id="resultMask" hidden alt="Selected foliage mask: check for background inclusion or missing leaves" style="max-width: 100%; max-height: 240px;">
             <p id="indicatorUnavailable" hidden>Indicator not reported: disease-like or other confounding symptoms require independent assessment.</p>
             <div class="card" style="margin: 16px 0;" id="limitationsNote">
               <strong>Prototype limitations</strong>
@@ -664,7 +679,7 @@
       <div class="card" style="margin-bottom: 20px;">
         <div class="card-title">Computer Vision Pipeline Stages</div>
         <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
-          Aspect-preserving resize to longest side 800 px, followed by provisional mask-quality checks before model inference.
+          Aspect-preserving resize {{ 'down to a maximum of' if wholeplant else 'to longest side' }} 800 px, followed by provisional mask-quality checks before model inference.
         </p>
 
         <div class="pipeline-grid">
@@ -676,7 +691,7 @@
           <div class="pipeline-card">
             <img id="pipeSegmented" src="" alt="Mask">
             <div class="title">2. Segmentation</div>
-            <div class="desc">Fixed HSV threshold + opening/closing</div>
+            <div class="desc">{{ 'HSV candidate foliage, opening, small-component removal; retains multiple regions' if wholeplant else 'Fixed HSV threshold + opening/closing' }}</div>
           </div>
           <div class="pipeline-card">
             <img id="pipePathology" src="" alt="Color-threshold map">
@@ -693,7 +708,7 @@
 
       <!-- Feature Vector -->
       <div class="card">
-        <div class="card-title">Extracted Numeric Descriptors (15 Features)</div>
+        <div class="card-title">Extracted Numeric Descriptors ({{ '24' if wholeplant else '15' }} Features)</div>
         <div id="featuresGrid" class="grid-4" style="font-family: 'JetBrains Mono', monospace;"></div>
       </div>
     </section>
@@ -742,6 +757,9 @@
     let previewUrl = null;
 
     function clearResults() {
+      document.getElementById('scanWarnings').textContent = '';
+      document.getElementById('resultMask').removeAttribute('src');
+      document.getElementById('resultMask').hidden = true;
       document.getElementById('qualityFeedback').hidden = true;
       document.getElementById('qualityMask').removeAttribute('src');
       document.getElementById('qualityCandidates').removeAttribute('src');
@@ -844,7 +862,7 @@
       } finally {
         scanInFlight = false;
         scanBtn.disabled = resetBtn.disabled = fileInput.disabled = false;
-        scanBtn.innerHTML = 'Analyze Leaf';
+        scanBtn.innerHTML = 'Analyze image';
       }
     }
 
@@ -856,7 +874,7 @@
       document.getElementById('qualityTitle').textContent = data.outcome === 'rejected' ? 'Retake photo' :
         (data.outcome === 'preview_only' ? 'Mask preview only — classification unavailable' : (data.outcome === 'uncertain' ? 'Uncertain / unsupported input' : 'Model update required'));
       if (data.outcome === 'preview_only') setPipelineImages(data);
-      document.getElementById('qualityMessage').textContent = data.error || data.detail || data.message;
+      document.getElementById('qualityMessage').textContent = [data.error || data.detail || data.message, ...(data.quality?.warnings || [])].join(' ');
       document.getElementById('qualityReasons').textContent = data.outcome === 'uncertain' ?
         `Highest class probability: ${data.top_probability.toFixed(4)}; provisional threshold: ${data.probability_threshold.toFixed(4)}. Calibration is unverified.` :
         `Reason codes: ${(data.quality?.reason_codes?.length ? data.quality.reason_codes : [data.code]).join(', ')}`;
@@ -876,6 +894,11 @@
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('resultsWrap').style.display = 'block';
       document.getElementById('consensusBox').style.display = 'block';
+
+      document.getElementById('scanWarnings').textContent = (data.quality?.warnings || []).join(' ');
+      const resultMask = document.getElementById('resultMask');
+      if (data.visualizations?.mask) { resultMask.src = data.visualizations.mask; resultMask.hidden = false; }
+      else { resultMask.removeAttribute('src'); resultMask.hidden = true; }
 
       // Badge & experimental visual indicator
       const badge = document.getElementById('diagBadge');

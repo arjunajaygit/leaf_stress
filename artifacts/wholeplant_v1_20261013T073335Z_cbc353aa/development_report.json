@@ -1,0 +1,915 @@
+{
+  "warning": "EXPERIMENTAL DEVELOPMENT ONLY. Folder labels are unverified. Image-level CV is not plant/session-independent; near-duplicates and background/source confounding may inflate scores. Model selection uses the same CV, so the selected score is optimistic. No untouched test set or validated classifier exists. Do not present these numbers as real-world performance.",
+  "selected_model": "Random Forest",
+  "cv_protocol": {
+    "type": "image-level development-only stratified 5-fold CV",
+    "independent": false,
+    "seed": 42,
+    "selection": "Macro F1, balanced accuracy, fixed LR/SVM/RF priority; full precision",
+    "warning": "EXPERIMENTAL DEVELOPMENT ONLY. Folder labels are unverified. Image-level CV is not plant/session-independent; near-duplicates and background/source confounding may inflate scores. Model selection uses the same CV, so the selected score is optimistic. No untouched test set or validated classifier exists. Do not present these numbers as real-world performance.",
+    "test_set": null,
+    "groups_available": false,
+    "near_duplicate_candidates": [],
+    "grouping_status": "insufficient classes/groups for a credible generalization estimate"
+  },
+  "counts": {
+    "Healthy": 11,
+    "Moderate_Water_Stress": 11,
+    "Severe_Water_Stress": 11,
+    "Disease_Confounded": 11
+  },
+  "files": 44,
+  "accepted_unique": 44,
+  "features": 24,
+  "results": {
+    "Logistic Regression": {
+      "accuracy": 0.4318181818181818,
+      "macro_f1": 0.42486772486772484,
+      "balanced_accuracy": 0.4318181818181818,
+      "macro_precision": 0.4315972222222222,
+      "macro_recall": 0.43181818181818177,
+      "weighted_f1": 0.42486772486772484,
+      "per_class": {
+        "Healthy": {
+          "precision": 0.6666666666666666,
+          "recall": 0.5454545454545454,
+          "f1-score": 0.6,
+          "support": 11.0
+        },
+        "Moderate_Water_Stress": {
+          "precision": 0.4,
+          "recall": 0.36363636363636365,
+          "f1-score": 0.38095238095238093,
+          "support": 11.0
+        },
+        "Severe_Water_Stress": {
+          "precision": 0.2222222222222222,
+          "recall": 0.18181818181818182,
+          "f1-score": 0.2,
+          "support": 11.0
+        },
+        "Disease_Confounded": {
+          "precision": 0.4375,
+          "recall": 0.6363636363636364,
+          "f1-score": 0.5185185185185185,
+          "support": 11.0
+        }
+      },
+      "confusion_matrix_labels": [
+        "Healthy",
+        "Moderate_Water_Stress",
+        "Severe_Water_Stress",
+        "Disease_Confounded"
+      ],
+      "confusion_matrix": [
+        [
+          6,
+          3,
+          0,
+          2
+        ],
+        [
+          2,
+          4,
+          4,
+          1
+        ],
+        [
+          1,
+          2,
+          2,
+          6
+        ],
+        [
+          0,
+          1,
+          3,
+          7
+        ]
+      ],
+      "severe_to_healthy": 1,
+      "disease_to_water_stress": 4,
+      "healthy_false_alert_rate": 0.45454545454545453,
+      "healthy_false_alert_definition": "Any non-Healthy prediction among actual Healthy images, including Disease Confounded.",
+      "out_of_fold_predictions": [
+        {
+          "filename": "Healthy/healthy_001.JPG",
+          "actual": "Healthy",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Healthy/healthy_002.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_003.JPG",
+          "actual": "Healthy",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Healthy/healthy_004.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_005.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_006.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_007.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_008.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_009.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_010.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_011.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_001.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_002.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_003.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_004.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_005.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_007.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_008.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_009.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_010.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_011.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_001.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_002.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_003.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_004.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_005.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_006.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_007.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_008.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_009.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_011.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_10.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4829.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4836.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4839.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4841.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4844.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4845.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4846.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4847.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4849.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4850.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4851.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Severe_Water_Stress"
+        }
+      ]
+    },
+    "RBF SVM": {
+      "accuracy": 0.4090909090909091,
+      "macro_f1": 0.38899572649572656,
+      "balanced_accuracy": 0.40909090909090906,
+      "macro_precision": 0.3814407814407814,
+      "macro_recall": 0.40909090909090906,
+      "weighted_f1": 0.38899572649572645,
+      "per_class": {
+        "Healthy": {
+          "precision": 0.5384615384615384,
+          "recall": 0.6363636363636364,
+          "f1-score": 0.5833333333333334,
+          "support": 11.0
+        },
+        "Moderate_Water_Stress": {
+          "precision": 0.4444444444444444,
+          "recall": 0.36363636363636365,
+          "f1-score": 0.4,
+          "support": 11.0
+        },
+        "Severe_Water_Stress": {
+          "precision": 0.14285714285714285,
+          "recall": 0.09090909090909091,
+          "f1-score": 0.1111111111111111,
+          "support": 11.0
+        },
+        "Disease_Confounded": {
+          "precision": 0.4,
+          "recall": 0.5454545454545454,
+          "f1-score": 0.46153846153846156,
+          "support": 11.0
+        }
+      },
+      "confusion_matrix_labels": [
+        "Healthy",
+        "Moderate_Water_Stress",
+        "Severe_Water_Stress",
+        "Disease_Confounded"
+      ],
+      "confusion_matrix": [
+        [
+          7,
+          1,
+          1,
+          2
+        ],
+        [
+          3,
+          4,
+          3,
+          1
+        ],
+        [
+          1,
+          3,
+          1,
+          6
+        ],
+        [
+          2,
+          1,
+          2,
+          6
+        ]
+      ],
+      "severe_to_healthy": 1,
+      "disease_to_water_stress": 3,
+      "healthy_false_alert_rate": 0.36363636363636365,
+      "healthy_false_alert_definition": "Any non-Healthy prediction among actual Healthy images, including Disease Confounded.",
+      "out_of_fold_predictions": [
+        {
+          "filename": "Healthy/healthy_001.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_002.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_003.JPG",
+          "actual": "Healthy",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Healthy/healthy_004.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_005.JPG",
+          "actual": "Healthy",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_006.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_007.JPG",
+          "actual": "Healthy",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Healthy/healthy_008.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_009.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_010.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_011.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_001.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_002.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_003.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_004.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_005.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_007.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_008.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_009.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_010.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_011.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_001.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_002.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_003.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_004.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_005.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_006.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_007.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_008.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_009.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_011.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_10.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4829.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4836.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4839.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4841.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4844.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4845.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4846.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4847.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4849.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4850.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4851.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Severe_Water_Stress"
+        }
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.45454545454545453,
+      "macro_f1": 0.4324336482231219,
+      "balanced_accuracy": 0.45454545454545453,
+      "macro_precision": 0.43125,
+      "macro_recall": 0.4545454545454546,
+      "weighted_f1": 0.43243364822312186,
+      "per_class": {
+        "Healthy": {
+          "precision": 0.625,
+          "recall": 0.45454545454545453,
+          "f1-score": 0.5263157894736842,
+          "support": 11.0
+        },
+        "Moderate_Water_Stress": {
+          "precision": 0.35714285714285715,
+          "recall": 0.45454545454545453,
+          "f1-score": 0.4,
+          "support": 11.0
+        },
+        "Severe_Water_Stress": {
+          "precision": 0.14285714285714285,
+          "recall": 0.09090909090909091,
+          "f1-score": 0.1111111111111111,
+          "support": 11.0
+        },
+        "Disease_Confounded": {
+          "precision": 0.6,
+          "recall": 0.8181818181818182,
+          "f1-score": 0.6923076923076923,
+          "support": 11.0
+        }
+      },
+      "confusion_matrix_labels": [
+        "Healthy",
+        "Moderate_Water_Stress",
+        "Severe_Water_Stress",
+        "Disease_Confounded"
+      ],
+      "confusion_matrix": [
+        [
+          5,
+          4,
+          1,
+          1
+        ],
+        [
+          3,
+          5,
+          3,
+          0
+        ],
+        [
+          0,
+          5,
+          1,
+          5
+        ],
+        [
+          0,
+          0,
+          2,
+          9
+        ]
+      ],
+      "severe_to_healthy": 0,
+      "disease_to_water_stress": 2,
+      "healthy_false_alert_rate": 0.5454545454545454,
+      "healthy_false_alert_definition": "Any non-Healthy prediction among actual Healthy images, including Disease Confounded.",
+      "out_of_fold_predictions": [
+        {
+          "filename": "Healthy/healthy_001.JPG",
+          "actual": "Healthy",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_002.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_003.JPG",
+          "actual": "Healthy",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Healthy/healthy_004.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_005.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_006.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_007.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_008.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_009.JPG",
+          "actual": "Healthy",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Healthy/healthy_010.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Healthy/healthy_011.JPG",
+          "actual": "Healthy",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_001.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_002.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_003.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_004.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_005.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_007.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_008.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_009.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Healthy"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_010.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Moderate_Water_Stress/moderate_011.JPG",
+          "actual": "Moderate_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_001.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_002.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_003.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_004.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_005.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_006.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_007.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_008.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_009.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_011.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Severe_Water_Stress/severe_10.JPG",
+          "actual": "Severe_Water_Stress",
+          "predicted": "Moderate_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4829.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4836.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4839.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4841.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4844.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4845.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4846.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4847.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4849.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Disease_Confounded"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4850.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Severe_Water_Stress"
+        },
+        {
+          "filename": "Disease_Confounded/IMG_4851.JPG",
+          "actual": "Disease_Confounded",
+          "predicted": "Severe_Water_Stress"
+        }
+      ]
+    }
+  },
+  "rejected": [],
+  "library_versions": {
+    "python": "3.13.0",
+    "numpy": "2.4.6",
+    "scipy": "1.18.0",
+    "scikit-learn": "1.9.0",
+    "joblib": "1.5.3",
+    "opencv-python": "5.0.0.93",
+    "pandas": "3.0.6",
+    "Pillow": "12.3.0"
+  },
+  "missing_metadata": "Fill plant_id, session_id, source, label_method, device and background_type in manifest. IDs must describe real identities, not invented row numbers.",
+  "dataset_source": "https://drive.google.com/drive/folders/1JPmvvXO6p68wHXDrSWx2xE0-yXX7JUYt"
+}

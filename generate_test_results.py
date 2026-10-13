@@ -17,7 +17,7 @@ def render(records, output):
             cases[case.get('classname') + '::' + case.get('name')] = status
         runs.append((path, report, cases))
     lines = ['# Actual test results', '', '**No validated classifier exists yet. Classification results cannot be presented as performance.**', '',
-             'Generated from actual pytest JUnit records. Tests using synthetic/legacy estimators exercise code only; they do not validate physiological or classification claims. Camera, printing and cross-browser behavior: **needs manual verification on device**.', '',
+             'Generated from actual pytest JUnit records. Tests using synthetic, legacy and development-trained estimators exercise code only; they do not validate physiological or classification claims. Camera, printing and cross-browser behavior: **needs manual verification on device**.', '',
              '| Python | Recorded run start | Pass | Fail | Skip | Pytest exit | Warnings | Frontend | pip check |', '|---|---|---:|---:|---:|---:|---:|---|---|']
     for path, r, cases in runs:
         counts = {s: list(cases.values()).count(s) for s in ('PASS','FAIL','SKIP')}
@@ -30,7 +30,7 @@ def render(records, output):
     lines += ['', '## Per-test outcomes', '', '| Test | '+' | '.join(r['python'] for _,r,_ in runs)+' |', '|---|'+'---|'*len(runs)]
     for name in sorted(set().union(*(set(cases) for _,_,cases in runs))):
         lines.append('| `'+name.replace('|','\\|')+'` | '+' | '.join(cases.get(name,'NOT RUN') for _,_,cases in runs)+' |')
-    lines += ['', '## Interpretation', '', 'No executed automated failures in a PASS-only run does not imply scientific readiness. Real grouped evaluation/ablation remain blocked by missing accepted classes and group provenance. The original classifier remains incompatible. Frontend checks use a minimal DOM, not real browsers. Preview p50/p95 are documented separately and do not verify classification latency.', '']
+    lines += ['', '## Interpretation', '', 'No executed automated failures in a PASS-only run does not imply scientific readiness. Original single-leaf grouped evaluation remains blocked by missing accepted classes and group provenance. The new whole-plant dataset has all four classes but still lacks verified group/label provenance; its trained classifier is experimental, not validated. The original classifier remains incompatible. Python 3.14 skips the two saved whole-plant deployment tests because that artifact requires its exact Python 3.13 environment. Frontend checks use a minimal DOM, not real browsers. Whole-plant functional timing is documented separately in wholeplant_implementation.md; neither timing nor training-image inference establishes predictive validity.', '']
     Path(output).write_text('\n'.join(lines))
 
 

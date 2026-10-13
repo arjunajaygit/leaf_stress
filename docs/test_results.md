@@ -2,23 +2,23 @@
 
 **No validated classifier exists yet. Classification results cannot be presented as performance.**
 
-Generated from actual pytest JUnit records. Tests using synthetic/legacy estimators exercise code only; they do not validate physiological or classification claims. Camera, printing and cross-browser behavior: **needs manual verification on device**.
+Generated from actual pytest JUnit records. Tests using synthetic, legacy and development-trained estimators exercise code only; they do not validate physiological or classification claims. Camera, printing and cross-browser behavior: **needs manual verification on device**.
 
 | Python | Recorded run start | Pass | Fail | Skip | Pytest exit | Warnings | Frontend | pip check |
 |---|---|---:|---:|---:|---:|---:|---|---|
-| 3.14.5 | 2026-10-09T11:36:51.181204+05:30 | 134 | 0 | 0 | 0 | 11 | PASS | PASS |
-| 3.13.0 | 2026-10-09T11:36:52.411532+05:30 | 134 | 0 | 0 | 0 | 11 | PASS | PASS |
+| 3.13.0 | 2026-10-13T13:07:43.759919+05:30 | 146 | 0 | 0 | 0 | 11 | PASS | PASS |
+| 3.14.5 | 2026-10-13T13:09:08.223301+05:30 | 144 | 0 | 2 | 0 | 11 | PASS | PASS |
 
 ## Environment and raw evidence
 
 See `environment.md` for exact versions and recreation instructions. Plugin autoload was disabled, bytecode writes disabled and default preview flag false for the suite; individual tests explicitly enable preview. The application does not suppress warnings. Warning counts are read from the actual logs linked below; inspect those logs for warning categories. The per-test table includes NumPy/joblib deserialization checks.
 
-- Python 3.14.5; macOS-26.5.1-arm64-arm-64bit-Mach-O; Node v24.15.0. [Environment record](../reports/test_run_py3.14.5_2026-10-09_113651_5506f9c4.json), [JUnit XML](../reports/test_run_py3.14.5_2026-10-09_113651_5506f9c4.xml), [test log](../reports/test_run_py3.14.5_2026-10-09_113651_5506f9c4.log).
-- Python 3.13.0; macOS-26.5.1-arm64-arm-64bit-Mach-O; Node v24.15.0. [Environment record](../reports/test_run_py3.13.0_2026-10-09_113652_9a3d5f59.json), [JUnit XML](../reports/test_run_py3.13.0_2026-10-09_113652_9a3d5f59.xml), [test log](../reports/test_run_py3.13.0_2026-10-09_113652_9a3d5f59.log).
+- Python 3.13.0; macOS-26.5.1-arm64-arm-64bit-Mach-O; Node v24.15.0. [Environment record](../reports/test_run_py3.13.0_2026-10-13_130743_ff61c905.json), [JUnit XML](../reports/test_run_py3.13.0_2026-10-13_130743_ff61c905.xml), [test log](../reports/test_run_py3.13.0_2026-10-13_130743_ff61c905.log).
+- Python 3.14.5; macOS-26.5.1-arm64-arm-64bit-Mach-O; Node v24.15.0. [Environment record](../reports/test_run_py3.14.5_2026-10-13_130908_d98ce7fb.json), [JUnit XML](../reports/test_run_py3.14.5_2026-10-13_130908_d98ce7fb.xml), [test log](../reports/test_run_py3.14.5_2026-10-13_130908_d98ce7fb.log).
 
 ## Per-test outcomes
 
-| Test | 3.14.5 | 3.13.0 |
+| Test | 3.13.0 | 3.14.5 |
 |---|---|---|
 | `tests.test_stage1::test_bad_file` | PASS | PASS |
 | `tests.test_stage1::test_cli_startup_error` | PASS | PASS |
@@ -154,7 +154,19 @@ See `environment.md` for exact versions and recreation instructions. Plugin auto
 | `tests.test_stage6::test_tiny_color_visualizations_no_empty_overlay_crash[2-color1]` | PASS | PASS |
 | `tests.test_stage6::test_tiny_color_visualizations_no_empty_overlay_crash[2-color2]` | PASS | PASS |
 | `tests.test_stage6::test_truncated_image_json` | PASS | PASS |
+| `tests.test_wholeplant::test_empty_mask_and_decode_errors` | PASS | PASS |
+| `tests.test_wholeplant::test_extractor_reproducibility_and_empty_bands` | PASS | PASS |
+| `tests.test_wholeplant::test_identity_and_warm_background_limit` | PASS | PASS |
+| `tests.test_wholeplant::test_manifest_no_invented_identity_and_conflicts` | PASS | PASS |
+| `tests.test_wholeplant::test_multiple_foliage_regions_are_retained` | PASS | PASS |
+| `tests.test_wholeplant::test_reject_blank_accept_yellow_flag_clipped[blank]` | PASS | PASS |
+| `tests.test_wholeplant::test_reject_blank_accept_yellow_flag_clipped[clipped]` | PASS | PASS |
+| `tests.test_wholeplant::test_reject_blank_accept_yellow_flag_clipped[yellow]` | PASS | PASS |
+| `tests.test_wholeplant::test_saved_model_contract_and_coefficients` | PASS | SKIP |
+| `tests.test_wholeplant::test_tiny_uniform_green_rejected` | PASS | PASS |
+| `tests.test_wholeplant::test_training_requires_explicit_development_mode_and_samples` | PASS | PASS |
+| `tests.test_wholeplant::test_wholeplant_flask_all_images_and_preview` | PASS | SKIP |
 
 ## Interpretation
 
-No executed automated failures in a PASS-only run does not imply scientific readiness. Real grouped evaluation/ablation remain blocked by missing accepted classes and group provenance. The original classifier remains incompatible. Frontend checks use a minimal DOM, not real browsers. Preview p50/p95 are documented separately and do not verify classification latency.
+No executed automated failures in a PASS-only run does not imply scientific readiness. Original single-leaf grouped evaluation remains blocked by missing accepted classes and group provenance. The new whole-plant dataset has all four classes but still lacks verified group/label provenance; its trained classifier is experimental, not validated. The original classifier remains incompatible. Python 3.14 skips the two saved whole-plant deployment tests because that artifact requires its exact Python 3.13 environment. Frontend checks use a minimal DOM, not real browsers. Whole-plant functional timing is documented separately in wholeplant_implementation.md; neither timing nor training-image inference establishes predictive validity.

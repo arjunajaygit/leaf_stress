@@ -1,0 +1,11 @@
+........................................................................ [ 49%]
+........................................................................ [ 98%]
+ss                                                                       [100%]
+=============================== warnings summary ===============================
+tests/test_stage4.py: 5 warnings
+tests/test_stage5.py: 6 warnings
+  /Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/sklearn/svm/_base.py:239: FutureWarning: The `probability` parameter was deprecated in 1.9 and will be removed in version 1.11. Use `CalibratedClassifierCV(SVC(), ensemble=False)` instead of `SVC(probability=True)`
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+144 passed, 2 skipped, 11 warnings in 23.79s

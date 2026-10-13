@@ -1,5 +1,7 @@
 # Software Design Description — Lecor
 
+> Whole-plant extension, 2026-10-13: a separate experimental classifier now runs via `run_wholeplant.py`. No validated classifier exists yet, and development results cannot be presented as performance. [Current implementation, design, tests and limitations](wholeplant_implementation.md). The original Stage 1–6 single-leaf baseline below is retained as historical evidence; its blocked-classification statements describe that baseline.
+
 Version: Stage 6 implementation, 2026-10-09.
 
 **No validated classifier exists yet. Classification results cannot be presented as performance.** The current deliverable is a visual-processing and quality-review prototype. Classification code is retained and tested with fixtures; the original model is incompatible with current preprocessing and the model contract.

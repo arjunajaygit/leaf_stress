@@ -26,6 +26,13 @@ from config import (
 )
 from feature_extraction import analyze_leaf_full, compute_visual_stress_indicator, generate_agronomic_advisory
 
+if config.ANALYSIS_MODE == "wholeplant":
+    from plant_features import analyze_plant_full as analyze_leaf_full
+    from plant_features import relative_indicator as compute_visual_stress_indicator
+    from plant_features import preprocessing_signature as active_preprocessing_signature
+else:
+    active_preprocessing_signature = config.preprocessing_signature
+
 app = Flask(__name__)
 app.config.update(MAX_CONTENT_LENGTH=MAX_CONTENT_LENGTH, MAX_IMAGE_PIXELS=MAX_IMAGE_PIXELS,
                   MIN_CLASS_PROBABILITY=config.MIN_CLASS_PROBABILITY, PREVIEW_ONLY=config.PREVIEW_ONLY)
@@ -48,6 +55,8 @@ def load_model_bundle(path=MODEL_PATH):
     try:
         loaded = joblib.load(path)
         validate_bundle(loaded)
+        if loaded.get("analysis_mode", "leaf") != config.ANALYSIS_MODE:
+            raise ValueError("Model analysis mode differs from the selected application mode")
         candidate = loaded["primary_model"] if isinstance(loaded, dict) else loaded
         names = list(loaded["feature_names_in_"] if isinstance(loaded, dict) else candidate.feature_names_in_)
         labels = list(loaded["classes_"] if isinstance(loaded, dict) else candidate.classes_)
@@ -166,7 +175,7 @@ def compare_feature_measurements(features):
 
 @app.route("/")
 def index():
-    return render_template("index.html", preview_only=app.config["PREVIEW_ONLY"], classifier_available=primary_model is not None)
+    return render_template("index.html", preview_only=app.config["PREVIEW_ONLY"], classifier_available=primary_model is not None, wholeplant=config.ANALYSIS_MODE == "wholeplant")
 
 
 @app.route("/api/benchmark")
@@ -209,7 +218,7 @@ def predict():
         return jsonify(outcome="preview_only", code="classification_disabled",
                        message="Mask preview only. Classification is unavailable until a compatible model is trained. No validated classifier exists yet.",
                        prediction=None, visual_stress_indicator=None, quality=quality, visualizations=visualizations)
-    if primary_model is None or not bundle or bundle.get("preprocessing") != config.preprocessing_signature():
+    if primary_model is None or not bundle or bundle.get("preprocessing") != active_preprocessing_signature():
         return jsonify({
             "outcome": "model_update_required", "code": "model_unavailable" if primary_model is None else "preprocessing_mismatch",
             "error": "This image passed the provisional mask checks, but no compatible model is loaded. The operator must check the startup schema/version error and supply a compatible trained model.",
