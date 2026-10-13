@@ -19,9 +19,9 @@ def inspect_dataset(dataset_dir):
         path = paths[0]
         *_, quality = prepare_leaf(path)
         rows.append({
-            'filename': str(path.relative_to(dataset_dir)), 'label': path.parent.name,
+            'filename': path.relative_to(dataset_dir).as_posix(), 'label': path.parent.name,
             'sha256': digest,
-            'duplicate_filenames': ';'.join(str(p.relative_to(dataset_dir)) for p in paths[1:]),
+            'duplicate_filenames': ';'.join(p.relative_to(dataset_dir).as_posix() for p in paths[1:]),
             'border_contact': quality.get('border_contact', ''),
             'foreground_fraction': quality.get('foreground_fraction', ''),
             'candidate_foreground_fraction': quality.get('candidate_foreground_fraction', ''),

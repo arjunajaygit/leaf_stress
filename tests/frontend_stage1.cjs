@@ -14,6 +14,7 @@ function element(id) {
     removeAttribute(name) { delete this[name]; },
     appendChild(child) { (this.children ||= []).push(child); },
     replaceChildren() { this.innerHTML = ''; },
+    scrollIntoView() { this.scrolled = true; },
   });
   return elements.get(id);
 }
@@ -100,6 +101,7 @@ const run = code => vm.runInContext(code, context);
       code: outcome === 'rejected' ? 'border_contact' : 'preprocessing_mismatch',
       detail: 'Below the provisional threshold', top_probability: .5996, probability_threshold: .6,
       prediction: null, visual_stress_indicator: null,
+      probabilities: outcome === 'uncertain' ? {Healthy:.5996,Moderate_Water_Stress:.4004} : undefined,
       quality: {reason_codes: outcome === 'rejected' ? ['border_contact', 'foreground_too_large'] : []},
       visualizations: {mask: 'data:image/jpeg;base64,mask', candidate_mask: 'data:image/jpeg;base64,candidates', segmented: 'data:image/jpeg;base64,segmented'}};
     context.fetch = async () => ({status, ok: status === 200, headers: {get() {return 'application/json';}}, json: async () => body});
@@ -111,14 +113,20 @@ const run = code => vm.runInContext(code, context);
     assert.equal(element('qualityCandidates').src, body.visualizations.candidate_mask);
     assert.equal(element('resetBtn').disabled, false);
     if (outcome === 'uncertain') {
-      assert.equal(element('qualityTitle').textContent, 'Uncertain / unsupported input');
+      assert.equal(element('qualityTitle').textContent, 'Model ran; no confident classification');
       assert.match(element('qualityReasons').textContent, /0.5996/);
+      assert.match(element('qualityModelDetails').textContent, /Healthy: 60.0%/);
+      assert.match(element('qualityModelDetails').textContent, /No class or stress indicator/);
+      assert.equal(element('qualityModelDetails').hidden, false);
+      element('qualityAction').onclick();
+      assert.equal(element('fileInput').files.length, 1);
+      assert.equal(element('previewWrap').scrolled, true);
     }
     if (outcome === 'rejected') {
       assert.equal(element('qualityTitle').textContent, 'Retake photo');
       assert.match(element('qualityReasons').textContent, /border_contact, foreground_too_large/);
     }
-    assert.equal(element('qualityAction').textContent, ['model_update_required', 'preview_only'].includes(outcome) ? 'Choose another photo' : 'Retake photo');
+    assert.equal(element('qualityAction').textContent, outcome === 'uncertain' ? 'Review selected plant' : (['model_update_required', 'preview_only'].includes(outcome) ? 'Choose another photo' : 'Retake photo'));
     if (outcome === 'preview_only') {
       assert.match(element('qualityTitle').textContent, /classification unavailable/);
       assert.equal(element('pipeSegmented').src, body.visualizations.segmented);
@@ -126,6 +134,7 @@ const run = code => vm.runInContext(code, context);
     run('clearScan()');
     assert.equal(element('qualityFeedback').hidden, true);
     assert.equal(element('qualityMask').src, undefined);
+    assert.equal(element('qualityModelDetails').hidden, true);
   }
   console.log('PASS: Stage 6 preview-only response, pipeline images and reset');
   console.log('PASS: Stage 5 coefficient explanation and unavailable fallback');

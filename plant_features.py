@@ -51,7 +51,7 @@ def prepare_plant(path):
     if fraction < SETTINGS['min_foreground_fraction'] or pixels < SETTINGS['min_foreground_pixels']: reasons.append('insufficient_foliage')
     border = bool(np.any(mask[0]) or np.any(mask[-1]) or np.any(mask[:,0]) or np.any(mask[:,-1]))
     flags = []
-    if border: flags.append('Foliage touches the frame: assessment covers visible foliage only; the complete plant is not verified.')
+    if border: flags.append('Selected foliage reaches the image edge. This may include neighbouring plants or a partially visible target plant. Assessment covers selected visible foliage only.')
     if fraction > .95: flags.append('Foliage fills the image; background separation and full-plant framing cannot be verified.')
     flags.append('Inspect the mask: green backgrounds, supports, fruit and other plants can be included; brown or shaded foliage can be missed.')
     quality = dict(passed=not reasons, reason_codes=reasons, reason_code=reasons[0] if reasons else 'passed',

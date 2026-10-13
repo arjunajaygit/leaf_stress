@@ -1,5 +1,17 @@
 # Tested environment and recreation
 
+## Current Windows + SAM deployment
+
+The selected artifact is now `wholeplant_v1_20261013T144610Z_b344aa77`, trained with
+**CPython 3.13.15** on 54 accepted images. Use [team_setup.md](team_setup.md),
+`requirements-windows-sam.lock.txt` and `setup_project.py` for this version.
+The classifier's strict runtime contract includes the exact Python patch.
+
+The remaining sections below describe the earlier macOS experiments and their
+historical environments; they do not describe the current deployment.
+
+## Historical macOS experiments
+
 **No validated classifier exists yet. Classification results cannot be presented as performance.**
 
 Actual host: macOS 26.5.1, Apple Silicon arm64. Node v24.15.0 was used only for the frontend regression script. No Linux/Windows/browser compatibility is inferred.

@@ -139,6 +139,9 @@ assert b'whole-plant photo' in client.get('/').data
 outcomes=Counter(); first=None
 for path in sorted(Path('dataset_wholeplant_v1_20261013').rglob('*.*')):
  response=client.post('/predict',data={'image':(io.BytesIO(path.read_bytes()),'../../'+path.name)})
+ if path.suffix.lower() not in app.ALLOWED_EXTENSIONS:
+  assert response.status_code==415 and response.json['code']=='unsupported_extension'
+  continue
  assert response.status_code==200,(path,response.json)
  data=response.json;outcomes[data['outcome']]+=1
  assert data['quality']['passed'] and data['visualizations']['mask']
@@ -151,6 +154,11 @@ for path in sorted(Path('dataset_wholeplant_v1_20261013').rglob('*.*')):
 path,data=first
 again=client.post('/predict',data={'image':(io.BytesIO(path.read_bytes()),path.name)}).json
 assert again==data
+app.primary_model=None
+preview=client.post('/predict',data={'image':(io.BytesIO(path.read_bytes()),path.name),'mask_preview':'true'})
+assert preview.status_code==200 and preview.json['code']=='mask_review'
+assert preview.json['prediction'] is None and preview.json['visualizations']['mask']
+assert app.load_model_bundle()
 app.app.config['PREVIEW_ONLY']=True
 preview=client.post('/predict',data={'image':(io.BytesIO(path.read_bytes()),path.name)}).json
 assert preview['outcome']=='preview_only' and preview['prediction'] is None

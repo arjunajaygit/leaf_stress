@@ -186,6 +186,45 @@ def get_benchmark():
     return jsonify(benchmark_data)
 
 
+@app.route("/api/sam/status")
+def sam_status():
+    if config.ANALYSIS_MODE != "wholeplant":
+        raise APIError("SAM is available in whole-plant mode only.", 404, "wrong_mode")
+    import sam_segmentation
+    return jsonify(sam_segmentation.status())
+
+
+@app.route("/api/sam/segment", methods=["POST"])
+def sam_segment():
+    if config.ANALYSIS_MODE != "wholeplant":
+        raise APIError("SAM is available in whole-plant mode only.", 404, "wrong_mode")
+    import sam_segmentation
+    try:
+        points = json.loads(request.form.get("points", "null"))
+    except (ValueError, TypeError):
+        raise APIError("Point marks must be valid JSON.", 400, "invalid_points") from None
+    try:
+        sam_segmentation.validate_points(points)
+    except sam_segmentation.SAMError as exc:
+        raise APIError(str(exc), exc.status, exc.code) from None
+    file = request.files.get("image")
+    if file is None or not file.filename:
+        raise APIError("Select an image before marking the plant.", 400, "missing_image")
+    extension = Path(file.filename).suffix.lower()
+    if extension not in ALLOWED_EXTENSIONS:
+        raise APIError("Use a .jpg, .jpeg, .png or .webp file.", 415, "unsupported_extension")
+    with tempfile.TemporaryDirectory(prefix="lecor-sam-") as directory:
+        path = Path(directory) / (uuid4().hex + extension)
+        file.save(path)
+        validate_image(path)
+        try:
+            return jsonify(sam_segmentation.segment(path, points))
+        except sam_segmentation.SAMError as exc:
+            if exc.status >= 500:
+                app.logger.exception("SAM processing failed")
+            raise APIError(str(exc), exc.status, exc.code) from None
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
     if "image" not in request.files:
@@ -208,12 +247,20 @@ def predict():
             app.logger.exception("Image processing failed")
             raise APIError("Image processing failed. Please try another photo.", 500, "processing_error") from None
 
+    if config.ANALYSIS_MODE == "wholeplant" and request.form.get("input_preparation") == "sam":
+        quality["warnings"].append("SAM-assisted input: inspect the selected plant region. Current classifier training may use different backgrounds; retrain and evaluate with consistently SAM-prepared images.")
+        quality["analysis_scope"] = "colour-selected visible foliage in the user-reviewed SAM region"
+
     if not quality["passed"]:
         return jsonify({
             "outcome": "rejected", "error": quality["message"], "code": quality["reason_code"],
             "prediction": None, "visual_stress_indicator": None,
             "quality": quality, "visualizations": visualizations,
         }), 422
+    if config.ANALYSIS_MODE == "wholeplant" and request.form.get("mask_preview") == "true":
+        return jsonify(outcome="preview_only", code="mask_review",
+                       message="Inspect the selected foliage before analyzing. Neighbouring leaves inside the crop can still be included.",
+                       prediction=None, visual_stress_indicator=None, quality=quality, visualizations=visualizations)
     if app.config["PREVIEW_ONLY"]:
         return jsonify(outcome="preview_only", code="classification_disabled",
                        message="Mask preview only. Classification is unavailable until a compatible model is trained. No validated classifier exists yet.",
@@ -258,9 +305,11 @@ def predict():
     top_probability = float(probabilities.max())
     if top_probability < threshold:
         return jsonify({
-            "outcome": "uncertain", "message": "Uncertain / unsupported input",
-            "detail": "The highest model class probability is below the provisional threshold. Retake a clearer photo or seek independent assessment; a passing mask does not verify leaf identity.",
+            "outcome": "uncertain", "message": "Model ran; no confident classification",
+            "detail": "The image passed the provisional mask checks and the classifier ran. Its highest class probability is below the provisional threshold, so no category is assigned. If the mask correctly selects the plant, repeated marking may not help: the classifier needs evaluation and training on consistently prepared images. A passing mask does not verify plant identity or the cause of symptoms.",
             "prediction": None, "visual_stress_indicator": None,
+            "probabilities": probs,
+            "best_model_name": bundle.get("best_model_name", "Primary Model"),
             "top_probability": top_probability, "probability_threshold": threshold,
             "threshold_provisional": True, "quality": quality, "visualizations": visualizations,
         })

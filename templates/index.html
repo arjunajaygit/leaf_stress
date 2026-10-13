@@ -533,7 +533,7 @@
       <p>Photograph one tomato plant at a time, preferably against a plain neutral background in diffuse light.
       Keep the full plant in frame. The mask covers candidate foliage, not individually identified leaves;
       hidden leaves and roots cannot be assessed. Check the mask before interpreting any result.</p>
-      <p>Trained on 44 folder-labelled photos. Labels, plant identities and drought-versus-disease discrimination
+      <p>Trained on folder-labelled photos. Labels, plant identities and drought-versus-disease discrimination
       are unverified. No validated classifier exists yet. Development scores are not real-world performance.</p>
       <p>The indicator is only an arbitrary category display: Healthy = 10, Moderate = 50, Severe = 90.
       It is not a measured severity, calibrated probability, or irrigation recommendation.</p>
@@ -556,7 +556,52 @@
             </div>
 
             <div id="previewWrap" style="display: none; margin-top: 14px; text-align: center;">
+              {% if wholeplant %}
+              <div id="cropTools">
+                <p>Drag a rectangle around the target plant, leaving a little background. Overlapping neighbours inside the rectangle will remain.</p>
+                <canvas id="cropCanvas" aria-label="Drag to select target plant; alternatively use the percentage fields below" style="width:100%; touch-action:none; border:1px solid var(--border);"></canvas>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin:12px 0;">
+                  <label>Left % <input id="cropLeft" type="number" min="0" max="100" value="0" style="width:65px;"></label>
+                  <label>Top % <input id="cropTop" type="number" min="0" max="100" value="0" style="width:65px;"></label>
+                  <label>Right % <input id="cropRight" type="number" min="0" max="100" value="100" style="width:65px;"></label>
+                  <label>Bottom % <input id="cropBottom" type="number" min="0" max="100" value="100" style="width:65px;"></label>
+                </div>
+                <button class="btn btn-secondary" id="applyCrop" type="button">Apply crop</button>
+                <button class="btn btn-secondary" id="fullCrop" type="button">Use full photo</button>
+                <button class="btn btn-secondary" id="saveCrop" type="button">Download selected image</button>
+                <button class="btn btn-secondary" id="maskPreviewBtn" type="button" onclick="executeScan(true)">Preview foliage mask</button>
+                <p id="cropStatus" role="status" aria-live="polite">Full photo selected. Preview the mask before analysis.</p>
+              </div>
+              {% endif %}
               <img id="imagePreview" style="max-height: 220px; border-radius: 6px; border: 1px solid var(--border); max-width: 100%; object-fit: contain;">
+              {% if wholeplant %}
+              <div class="card" id="samTools" style="margin-top:16px; text-align:left;">
+                <div class="card-title">Separate the target plant with SAM</div>
+                <p id="samAvailability" role="status">Checking local SAM setup…</p>
+                <p>Click several leaves on your tomato plant with Keep. Switch to Exclude and click trees or neighbouring plants. SAM follows your marks; it does not identify tomato plants automatically.</p>
+                <label for="samMark">Mark type</label>
+                <select id="samMark"><option value="1">Keep plant (green)</option><option value="0">Exclude background (red)</option></select>
+                <canvas id="samCanvas" aria-label="Click to mark plant or background; percentage fields below provide keyboard input" style="width:100%; display:block; touch-action:none; margin-top:10px;"></canvas>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin:10px 0;">
+                  <label>X % <input id="samX" type="number" min="0" max="100" value="50" style="width:65px;"></label>
+                  <label>Y % <input id="samY" type="number" min="0" max="100" value="50" style="width:65px;"></label>
+                  <button class="btn btn-secondary" id="samAdd" type="button">Add mark</button>
+                  <button class="btn btn-secondary" id="samUndo" type="button">Undo mark</button>
+                  <button class="btn btn-secondary" id="samClear" type="button">Clear SAM / use crop</button>
+                </div>
+                <button class="btn btn-secondary" id="samRun" type="button">Generate SAM mask</button>
+                <button class="btn btn-primary" id="samApply" type="button" disabled>Use reviewed plant region</button>
+                <p id="samStatus" role="status" aria-live="polite">Apply a crop first if needed, then mark the plant below.</p>
+                <div id="samResult" hidden>
+                  <p>Green overlay above shows the SAM selection. Grey below is excluded background.</p>
+                  <img id="samIsolated" alt="Target plant with excluded background replaced by grey" style="max-width:100%; max-height:320px;">
+                  <button class="btn btn-secondary" id="samDownload" type="button">Download prepared training image</button>
+                  <button class="btn btn-secondary" id="samDownloadMask" type="button">Download SAM mask</button>
+                  <button class="btn btn-secondary" id="samDownloadMarks" type="button">Download selection record</button>
+                </div>
+                <p style="font-size:.78rem; margin-top:10px;">Review missing leaves and unwanted background before applying. Processing may take time on CPU. Classifier results remain experimental; prepare training images the same way.</p>
+              </div>
+              {% endif %}
               <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center;">
                 <button class="btn btn-primary" id="scanBtn" onclick="executeScan()">
                   Analyze image
@@ -588,6 +633,7 @@
             <div class="card-title" id="qualityTitle"></div>
             <p id="qualityMessage"></p>
             <p id="qualityReasons" style="font-size: 0.78rem; margin: 10px 0;"></p>
+            <p id="qualityModelDetails" hidden style="font-size: 0.82rem; margin-bottom: 12px;"></p>
             <div class="grid-2">
               <div><p>Selected mask</p><img id="qualityMask" alt="Selected foreground mask" style="max-width: 100%;"></div>
               <div><p>All foreground candidates</p><img id="qualityCandidates" alt="Candidate foreground mask before selection" style="max-width: 100%;"></div>
@@ -736,6 +782,7 @@
 
   </main>
 
+  {% if wholeplant %}<script src="{{ url_for('static', filename='plant_crop.js') }}"></script><script src="{{ url_for('static', filename='plant_sam.js') }}"></script>{% endif %}
   <script>
     function setTab(name) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -757,6 +804,8 @@
     let previewUrl = null;
 
     function clearResults() {
+      document.getElementById('qualityModelDetails').textContent = '';
+      document.getElementById('qualityModelDetails').hidden = true;
       document.getElementById('scanWarnings').textContent = '';
       document.getElementById('resultMask').removeAttribute('src');
       document.getElementById('resultMask').hidden = true;
@@ -781,11 +830,14 @@
     }
 
     function showSelectedFile() {
+      window.plantCrop?.reset();
+      window.plantSam?.reset();
       clearResults();
       releasePreview();
       if (fileInput.files && fileInput.files[0]) {
         previewUrl = URL.createObjectURL(fileInput.files[0]);
         imagePreview.src = previewUrl;
+        window.plantCrop?.load(fileInput.files[0]);
         previewWrap.style.display = 'block';
         dropArea.style.display = 'none';
       }
@@ -811,6 +863,8 @@
 
     function clearScan() {
       if (scanInFlight) return;
+      window.plantCrop?.reset();
+      window.plantSam?.reset();
       fileInput.value = '';
       releasePreview();
       previewWrap.style.display = 'none';
@@ -818,8 +872,16 @@
       clearResults();
     }
 
-    async function executeScan() {
+    async function executeScan(maskOnly = false) {
       if (scanInFlight) return;
+      if (window.plantCrop?.pending) {
+        alert('Apply your crop before previewing or analyzing.');
+        return;
+      }
+      if (window.plantSam?.pending) {
+        alert('Generate and review the SAM mask, then click Use reviewed plant region. Or clear SAM to use the crop.');
+        return;
+      }
       if (!fileInput.files || !fileInput.files[0]) {
         alert('Please choose an image first.');
         return;
@@ -831,7 +893,9 @@
       scanBtn.disabled = resetBtn.disabled = fileInput.disabled = true;
       scanBtn.innerHTML = '<span class="spin"></span> Analyzing…';
       const formData = new FormData();
-      formData.append('image', fileInput.files[0]);
+      formData.append('image', window.plantSam?.file || window.plantCrop?.file || fileInput.files[0]);
+      if (window.plantSam?.file) formData.append('input_preparation', 'sam');
+      if (maskOnly === true) formData.append('mask_preview', 'true');
 
       try {
         const res = await fetch('/predict', { method: 'POST', body: formData });
@@ -867,24 +931,33 @@
     }
 
     function renderGateResponse(data) {
-      document.getElementById("qualityAction").textContent = ["model_update_required", "preview_only"].includes(data.outcome) ? "Choose another photo" : "Retake photo";
+      const action = document.getElementById('qualityAction');
+      action.textContent = data.outcome === 'uncertain' ? 'Review selected plant' : (["model_update_required", "preview_only"].includes(data.outcome) ? "Choose another photo" : "Retake photo");
+      action.onclick = data.outcome === 'uncertain' ? () => document.getElementById('previewWrap').scrollIntoView({behavior:'smooth', block:'start'}) : clearScan;
       clearResults();
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('qualityFeedback').hidden = false;
       document.getElementById('qualityTitle').textContent = data.outcome === 'rejected' ? 'Retake photo' :
-        (data.outcome === 'preview_only' ? 'Mask preview only — classification unavailable' : (data.outcome === 'uncertain' ? 'Uncertain / unsupported input' : 'Model update required'));
+        (data.outcome === 'preview_only' ? (data.code === 'mask_review' ? 'Review selected foliage' : 'Mask preview only — classification unavailable') : (data.outcome === 'uncertain' ? 'Model ran; no confident classification' : 'Model update required'));
       if (data.outcome === 'preview_only') setPipelineImages(data);
       document.getElementById('qualityMessage').textContent = [data.error || data.detail || data.message, ...(data.quality?.warnings || [])].join(' ');
       document.getElementById('qualityReasons').textContent = data.outcome === 'uncertain' ?
         `Highest class probability: ${data.top_probability.toFixed(4)}; provisional threshold: ${data.probability_threshold.toFixed(4)}. Calibration is unverified.` :
         `Reason codes: ${(data.quality?.reason_codes?.length ? data.quality.reason_codes : [data.code]).join(', ')}`;
+      if (data.outcome === 'uncertain' && data.probabilities) {
+        const details = document.getElementById('qualityModelDetails');
+        details.textContent = `Experimental model scores (${data.best_model_name || 'classifier'}): ` +
+          Object.entries(data.probabilities).sort((a,b) => b[1]-a[1]).map(([name,p]) => `${getClassLabel(name)}: ${(p*100).toFixed(1)}%`).join('; ') +
+          '. These are unverified model probabilities, not diagnoses. No class or stress indicator has been assigned.';
+        details.hidden = false;
+      }
       for (const [id, key] of [['qualityMask', 'mask'], ['qualityCandidates', 'candidate_mask']]) {
         if (data.visualizations?.[key]) document.getElementById(id).src = data.visualizations[key];
       }
     }
 
     function setPipelineImages(data) {
-      document.getElementById('pipeSource').src = imagePreview.src;
+      document.getElementById('pipeSource').src = window.plantSam?.preview || imagePreview.src;
       for (const [id, key] of [['pipeSegmented', 'segmented'], ['pipePathology', 'pathology'], ['pipeHeatmap', 'gli_heatmap']]) {
         if (data.visualizations?.[key]) document.getElementById(id).src = data.visualizations[key];
       }

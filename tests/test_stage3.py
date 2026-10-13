@@ -160,6 +160,8 @@ def test_abstain_before_probability_rounding(fake_model, probability, expected):
         assert body['prediction'] is None and body['visual_stress_indicator'] is None
         assert 'multi_model_predictions' not in body
         assert body['top_probability'] == probability
+        assert body['probabilities']['Healthy'] == round(probability, 3)
+        assert set(body['probabilities']) == set(fake_model.classes_)
     else:
         assert body['prediction'] == 'Healthy'
 
