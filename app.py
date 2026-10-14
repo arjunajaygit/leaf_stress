@@ -6,6 +6,7 @@ comparisons with dataset averages. Outputs do not establish physiological status
 
 import config
 from model_contract import validate_bundle, explain_logistic
+from result_presentation import describe_result
 import json
 import tempfile
 import warnings
@@ -327,6 +328,7 @@ def predict():
 
     return jsonify({
         "outcome": "classified",
+        "result_summary": describe_result(pred, top_probability),
         "quality": quality,
         "probability_threshold": threshold,
         "threshold_provisional": True,

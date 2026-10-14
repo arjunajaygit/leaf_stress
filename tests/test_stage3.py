@@ -180,6 +180,19 @@ def test_legacy_preprocessing_refused(fake_model, monkeypatch):
     assert fake_model.calls == 0
 
 
+@pytest.mark.parametrize('probability,expected',[(.4996,'uncertain'),(.5,'classified'),(.503,'classified'),(.6,'classified')])
+def test_presentation_threshold_and_tentative_result(fake_model,monkeypatch,probability,expected):
+    monkeypatch.setitem(web.app.config,'MIN_CLASS_PROBABILITY',.5)
+    fake_model.probability=probability
+    body=post_image(leaf_image()).get_json()
+    assert body['outcome']==expected
+    if expected=='classified':
+        assert body['result_summary']['tentative']==(probability<.6)
+        assert body['result_summary']['title']=='Low visible stress'
+        assert 'soil' in body['result_summary']['next_check']
+    else: assert body['prediction'] is None
+
+
 def test_dataset_report_and_overlapping_counts(tmp_path):
     rows = inspect_dataset(config.DATASET_DIR)
     assert len(rows) == len({r['sha256'] for r in rows}) == 40

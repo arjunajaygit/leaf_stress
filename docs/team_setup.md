@@ -36,9 +36,42 @@ Check an existing installation without downloading or installing anything:
 .\.venv-py313\Scripts\python.exe setup_project.py --check-only
 ```
 
+For an existing checkout, stop the server and run:
+
+```powershell
+git switch advaith
+git pull --ff-only origin advaith
+.\.venv-py313\Scripts\python.exe setup_project.py
+.\.venv-py313\Scripts\python.exe run_wholeplant.py
+```
+
+## Camera and result display
+
+Choose **Take a plant photo**, allow browser camera access, capture, review, then
+choose **Use photo**. The captured JPEG follows the same crop, SAM and analysis
+workflow as an uploaded image. No microphone is requested, and capture alone does
+not send the photo for analysis. Camera capture adds no Python dependencies.
+
+Live browser camera access requires localhost or HTTPS. Opening the app on a phone
+using a plain HTTP LAN address may prevent live capture; use **Device camera /
+photo picker**, or serve the app through HTTPS. Real phone camera behaviour still
+needs testing on the target device; automated camera checks use simulated video.
+
+The whole-plant display threshold defaults to 0.50. Estimates below 0.60 are labelled
+tentative; below 0.50 the app shows no clear result. An existing
+`LECOR_MIN_CLASS_PROBABILITY` environment override changes this behaviour. These
+are experimental visual estimates, not measurements of plant water status.
+
+The deployment pointer still selects `wholeplant_v1_20261013T144610Z_b344aa77`.
+The newer `wholeplant_v1_20261014T071137Z_0f1f368f` training artifact is included
+for reference but is not automatically selected. Updating dataset images does not
+change the running classifier; retraining and an explicit deployment update are
+needed to change the model.
+
 ## What must be in the commit
 
-- Application changes, `static/plant_crop.js`, `static/plant_sam.js`, tests and docs.
+- Application changes, `result_presentation.py`, `static/plant_camera.js`,
+  `static/plant_crop.js`, `static/plant_sam.js`, tests and docs.
 - `sam_segmentation.py`, `setup_sam.py`, `setup_project.py`, `verify_sam.py` and both
   SAM requirements files, including `requirements-windows-sam.lock.txt`.
 - `wholeplant_deployment_v1.json` **and the entire artifact folder it names**:
@@ -53,7 +86,7 @@ downloads. The Git ignore rules exclude these runtime files.
 ## Verify the feature
 
 ```powershell
-.\.venv-py313\Scripts\python.exe -m pytest tests/test_stage3.py tests/test_sam.py tests/test_wholeplant.py -q
+.\.venv-py313\Scripts\python.exe -m pytest tests/test_stage3.py tests/test_presentation.py tests/test_sam.py tests/test_wholeplant.py -q
 node tests/frontend_stage1.cjs
 node tests/frontend_sam.cjs
 .\.venv-py313\Scripts\python.exe verify_sam.py
@@ -69,7 +102,7 @@ Use the same branch commit, selected classifier, Python/library versions, image,
 applied crop, and SAM keep/exclude points. Different clicks select different pixels
 and can change the classification; minor numerical variation across hardware is
 also possible. SAM exports include a selection record so image preparation can be
-documented. An uncertain result below the provisional 0.60 threshold is expected
+documented. An uncertain result below the provisional whole-plant 0.50 threshold is expected
 behaviour, not a setup failure. This classifier was trained on 54 accepted original
 photos, not a consistently SAM-prepared dataset; SAM does not automatically improve
 its diagnostic quality.

@@ -1,5 +1,48 @@
 # Lecor — experimental whole-plant visual assessment
 
+## Presentation view
+
+### Take a photo directly
+
+Choose **Take a plant photo**, allow camera access, frame the plant and click
+**Capture photo**. Review the still image, then **Use this photo** or **Retake**.
+The accepted JPEG enters the same crop/SAM/analysis path as a file upload; capture
+does not automatically upload or classify it. No microphone is requested. The
+camera stops after capture, Close, a new file selection, Reset, or leaving/hiding
+the page. Opening the camera does not discard the current photo until you accept
+the new capture. Captures are reduced to at most 1600 pixels on the longest side.
+
+Live preview requires a secure context: localhost/loopback for a local demo, or
+HTTPS for a hosted site. Opening a laptop's plain HTTP LAN address on a phone may
+disable live camera access; use **Device camera / photo picker** as a fallback
+(native capture availability depends on the browser/device). HEIC must be
+converted to JPEG/PNG/WebP. Permission denial, missing cameras and busy cameras
+show an explanation while keeping file upload available.
+
+Optional automated browser check, with Playwright available to Node and installed
+Microsoft Edge: `node tests/camera_browser.cjs`. It uses simulated video, never a
+physical webcam; camera capture/review/retake, API upload, permission denial and
+stream cleanup are checked. Actual phone cameras and device permission prompts
+still need manual verification.
+
+Reference: [browser camera requirements](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia).
+
+The main screen shows a plain-language visual stress category, an explanation and
+a next check. Cropping, SAM background selection, masks, model scores and research
+details are available on demand. Printing produces a concise plant report.
+Whole-plant mode now defaults to a **0.50** model-score threshold; results from
+0.50 up to (but below) 0.60 are visibly labelled **Tentative visual estimate**.
+Lowering the threshold increases the number of displayed categories and can also
+increase wrong classifications; it does not improve the trained model's accuracy.
+Below 0.50 remains uncertain. Disease/confounded results do not assign a water-stress
+level. The original leaf-mode default remains 0.60.
+
+Use `$env:LECOR_MIN_CLASS_PROBABILITY = '0.60'` before launching to restore the
+stricter threshold. Remove that environment variable to use the mode's default.
+The result is an experimental image-based screen, not a measurement of leaf water
+status or a confirmed diagnosis. Historical threshold references below describe
+the earlier configuration.
+
 A working **OpenCV + scikit-learn + Flask** demonstration now accepts a whole tomato-plant photo, extracts candidate foliage across the image, and returns a dataset-category prediction or an uncertainty outcome. It does not identify every leaf or assess hidden leaves/roots.
 
 **A classifier is trained and runnable, but no scientifically validated classifier exists yet.** The current classifier uses 54 accepted images from 55 supplied files. Plant/session identities and label provenance are unknown; image-level development scores must not be presented as independent performance. This is not a physiological water-stress measurement or a drought/disease diagnosis.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lecor</title>
+  <title>Lecor | Tomato water-stress screening</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -493,6 +493,46 @@
       header, .nav-tabs, .upload-box, #scanBtn, .no-print { display: none !important; }
       .card, .diagnosis-header { border: 1px solid #ddd !important; background: transparent !important; }
     }
+    /* Presentation view: concise results first, technical material on demand. */
+    :root { --bg:#f4f7f2; --surface:#ffffff; --surface-elevated:#edf3ee; --border:#dce5dd;
+      --text:#183528; --text-muted:#536a5b; --text-dim:#62786a; --emerald:#087d52;
+      --emerald-subtle:#e1f3e9; --amber:#986300; --amber-subtle:#fff2ce;
+      --rose:#bb3445; --rose-subtle:#fce7e9; --purple:#7550a5; --purple-subtle:#f0e9fb; }
+    body { background:radial-gradient(ellipse at top right,#e0efdc,transparent 55%),var(--bg); }
+    header { background:rgba(255,255,255,.94); }
+    .brand-mark { color:#fff; width:38px; height:38px; border-radius:12px; }
+    .nav-btn.active { color:var(--emerald); }
+    .container { max-width:1160px; }
+    .hero { padding:12px 0 28px; }
+    .eyebrow { color:var(--emerald); font-size:.75rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; }
+    .hero h2 { font-size:clamp(1.8rem,4vw,2.8rem); line-height:1.15; letter-spacing:-.04em; margin:10px 0; }
+    .hero p { max-width:680px; color:var(--text-muted); }
+    .steps { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+    .steps span { border:1px solid var(--border); background:#fff; padding:7px 12px; border-radius:30px; font-size:.8rem; }
+    .card { box-shadow:0 8px 32px rgba(25,60,35,.035); border-radius:16px; }
+    .upload-box { background:#f4f9f3; border:2px dashed #a8c6af; padding:50px 18px; }
+    .btn-primary { color:#fff; }
+    details { border:1px solid var(--border); border-radius:12px; padding:12px 16px; background:var(--surface); margin:12px 0; }
+    summary { cursor:pointer; color:var(--text-muted); font-weight:600; font-size:.85rem; }
+    details[open] > summary { margin-bottom:14px; }
+    .diagnosis-header { display:block; padding:26px; background:var(--emerald-subtle); border-radius:16px; }
+    .summary-Moderate_Water_Stress {background:var(--amber-subtle);}
+    .summary-Severe_Water_Stress {background:var(--rose-subtle);}
+    .summary-Disease_Confounded {background:var(--purple-subtle);}
+    .badge { font-size:1.3rem; margin:10px 0; }
+    .result-copy { font-size:.95rem; line-height:1.7; margin:10px 0; }
+    .estimate-note { display:inline-block; font-size:.78rem; font-weight:600; padding:5px 10px; border-radius:30px; background:#fff; color:var(--text-muted); }
+    .estimate-note.tentative { background:var(--amber-subtle); color:var(--amber); }
+    .result-scope { font-size:.78rem; color:var(--text-muted); margin-top:14px; }
+    input[type=number], select { border:1px solid #b7c9bc; border-radius:6px; padding:5px; background:#fff; color:var(--text); }
+    .prototype-copy { font-size:.8rem; color:var(--text-muted); }
+    @media(max-width:600px) { .card {padding:16px;} header {padding:12px 16px;} .hero {padding-top:4px;} }
+    @media print {
+      #tab-pipeline,#tab-measurements,#cropTools,#samTools,#resultDiagnostics,#consensusBox,.hero,.prototype-copy,#classificationNotice {display:none!important;}
+      #previewWrap .btn,#qualityFeedback details {display:none!important;}
+      .container {margin:0;max-width:none;} .grid-2 {grid-template-columns:1fr 1fr;}
+      .diagnosis-header {border:1px solid #aaa;background:#fff;} .estimate-note {border:1px solid #aaa;}
+    }
   </style>
 </head>
 <body>
@@ -504,20 +544,27 @@
         <div class="brand-mark">L</div>
         <div>
           <h1>Lecor</h1>
-          <p>Experimental Visual {{ 'Plant' if wholeplant else 'Leaf' }} Assessment</p>
+          <p>Tomato water-stress screening</p>
         </div>
       </div>
 
       <!-- Clean Tabs -->
       <nav class="nav-tabs no-print">
-        <button class="nav-btn active" onclick="setTab('scanner')">Scan</button>
-        <button class="nav-btn" onclick="setTab('pipeline')">Pipeline</button>
-        <button class="nav-btn" onclick="setTab('measurements')">Measurements</button>
+        <button class="nav-btn active" onclick="setTab('scanner')">Plant check</button>
+        <button class="nav-btn" onclick="setTab('pipeline')">How it works</button>
+        <button class="nav-btn" onclick="setTab('measurements')">Research details</button>
       </nav>
     </div>
   </header>
 
   <main class="container">
+    <div class="hero">
+      <div class="eyebrow">Lecor · Research prototype</div>
+      <h2>A clearer view of your plant.</h2>
+      <p>Upload a tomato photo to screen for visible signs associated with water stress. Get a visual category and a practical next check.</p>
+      <div class="steps"><span>01 &nbsp; Upload a photo</span><span>02 &nbsp; Select the plant if needed</span><span>03 &nbsp; Review your result</span></div>
+      <p class="prototype-copy" style="margin-top:14px;">Experimental image-based estimate. Confirm water status through plant inspection and soil-moisture checks.</p>
+    </div>
     {% if preview_only or not classifier_available %}
     <div class="card" role="status" id="classificationNotice">
       <strong>{{ 'Preview-only demo' if preview_only else 'Classification unavailable' }}</strong>
@@ -528,7 +575,8 @@
     {% endif %}
 
     {% if wholeplant %}
-    <div class="card" role="status">
+    <details class="prototype-copy">
+      <summary>About this research prototype</summary>
       <strong>Experimental whole-plant / visible-foliage classifier</strong>
       <p>Photograph one tomato plant at a time, preferably against a plain neutral background in diffuse light.
       Keep the full plant in frame. The mask covers candidate foliage, not individually identified leaves;
@@ -537,7 +585,7 @@
       are unverified. No validated classifier exists yet. Development scores are not real-world performance.</p>
       <p>The indicator is only an arbitrary category display: Healthy = 10, Moderate = 50, Severe = 90.
       It is not a measured severity, calibrated probability, or irrigation recommendation.</p>
-    </div>
+    </details>
     {% endif %}
 
     <!-- ==================== TAB 1: DIAGNOSTICS ==================== -->
@@ -547,7 +595,7 @@
         <!-- Input Column -->
         <div>
           <div class="card" style="margin-bottom: 20px;">
-            <div class="card-title">Image Input</div>
+            <div class="card-title">Your tomato plant</div>
             
             <div class="upload-box" id="dropArea" role="button" tabindex="0" aria-label="{{ 'Choose a whole-plant photo' if wholeplant else 'Choose a leaf image' }}" onkeydown="if (event.target === this &amp;&amp; (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); document.getElementById('fileInput').click(); }" onclick="document.getElementById('fileInput').click()">
               <p class="primary">Select or drop {{ 'whole-plant photo' if wholeplant else 'leaf image' }}</p>
@@ -555,9 +603,28 @@
               <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp">
             </div>
 
+            <div class="no-print" style="margin:12px 0;">
+              <button class="btn btn-secondary" id="openCamera" type="button">Take a plant photo</button>
+              <button class="btn btn-secondary" id="nativeCamera" type="button">Device camera / photo picker</button>
+              <input id="cameraFileInput" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
+              <p id="cameraStatus" role="status" aria-live="polite" style="font-size:.8rem; margin-top:8px;"></p>
+              <div id="cameraPanel" hidden style="margin-top:12px;">
+                <p>Frame the plant in good light. Capture a still photo, then review it before using it.</p>
+                <video id="cameraVideo" autoplay muted playsinline aria-label="Live camera preview" style="width:100%; max-height:380px; border-radius:12px; background:#111;"></video>
+                <img id="cameraReview" hidden alt="Captured plant photo for review" style="width:100%; max-height:380px; object-fit:contain; border-radius:12px;">
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+                  <button class="btn btn-primary" id="capturePhoto" type="button" disabled>Capture photo</button>
+                  <button class="btn btn-secondary" id="switchCamera" type="button">Switch camera</button>
+                  <button class="btn btn-primary" id="usePhoto" type="button" hidden>Use this photo</button>
+                  <button class="btn btn-secondary" id="retakePhoto" type="button" hidden>Retake</button>
+                  <button class="btn btn-secondary" id="closeCamera" type="button">Close camera</button>
+                </div>
+              </div>
+            </div>
             <div id="previewWrap" style="display: none; margin-top: 14px; text-align: center;">
               {% if wholeplant %}
-              <div id="cropTools">
+              <details id="cropTools">
+                <summary>Adjust framing · optional crop</summary>
                 <p>Drag a rectangle around the target plant, leaving a little background. Overlapping neighbours inside the rectangle will remain.</p>
                 <canvas id="cropCanvas" aria-label="Drag to select target plant; alternatively use the percentage fields below" style="width:100%; touch-action:none; border:1px solid var(--border);"></canvas>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin:12px 0;">
@@ -571,11 +638,12 @@
                 <button class="btn btn-secondary" id="saveCrop" type="button">Download selected image</button>
                 <button class="btn btn-secondary" id="maskPreviewBtn" type="button" onclick="executeScan(true)">Preview foliage mask</button>
                 <p id="cropStatus" role="status" aria-live="polite">Full photo selected. Preview the mask before analysis.</p>
-              </div>
+              </details>
               {% endif %}
-              <img id="imagePreview" style="max-height: 220px; border-radius: 6px; border: 1px solid var(--border); max-width: 100%; object-fit: contain;">
+              <img id="imagePreview" alt="Selected tomato photo" style="max-height: 340px; border-radius: 12px; border: 1px solid var(--border); max-width: 100%; object-fit: contain;">
               {% if wholeplant %}
-              <div class="card" id="samTools" style="margin-top:16px; text-align:left;">
+              <details class="card" id="samTools" style="margin-top:16px; text-align:left;">
+                <summary>Refine plant selection · remove background</summary>
                 <div class="card-title">Separate the target plant with SAM</div>
                 <p id="samAvailability" role="status">Checking local SAM setup…</p>
                 <p>Click several leaves on your tomato plant with Keep. Switch to Exclude and click trees or neighbouring plants. SAM follows your marks; it does not identify tomato plants automatically.</p>
@@ -600,7 +668,7 @@
                   <button class="btn btn-secondary" id="samDownloadMarks" type="button">Download selection record</button>
                 </div>
                 <p style="font-size:.78rem; margin-top:10px;">Review missing leaves and unwanted background before applying. Processing may take time on CPU. Classifier results remain experimental; prepare training images the same way.</p>
-              </div>
+              </details>
               {% endif %}
               <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center;">
                 <button class="btn btn-primary" id="scanBtn" onclick="executeScan()">
@@ -615,51 +683,63 @@
 
           <!-- Separate comparison model predictions -->
           <div class="card" id="consensusBox" style="display: none;">
+            <details><summary>Compare research models</summary>
             <div class="card-title">Predictions from other models on this image</div>
             <div id="consensusEntries" style="display: grid; gap: 6px;"></div>
+            </details>
           </div>
         </div>
 
         <!-- Results Column -->
         <div>
           <div class="card" id="emptyState" style="text-align: center; padding: 60px 20px;">
-            <p style="font-size: 0.95rem; font-weight: 500; margin-bottom: 4px;">Awaiting Input</p>
+            <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 8px;">Your plant’s result will appear here</p>
             <p style="font-size: 0.8rem; color: var(--text-dim); max-width: 320px; margin: 0 auto;">
-              Upload an image to perform computer vision segmentation and foliar stress analysis.
+              Choose a clear, well-lit tomato photo. Keep the target plant visible and avoid a busy background where possible.
             </p>
           </div>
 
           <div id="qualityFeedback" class="card" hidden role="status" aria-live="polite">
             <div class="card-title" id="qualityTitle"></div>
             <p id="qualityMessage"></p>
+            <details><summary>View image checks and model details</summary>
+            <p id="qualityTechnicalMessage" style="font-size:.78rem; margin:10px 0;"></p>
             <p id="qualityReasons" style="font-size: 0.78rem; margin: 10px 0;"></p>
             <p id="qualityModelDetails" hidden style="font-size: 0.82rem; margin-bottom: 12px;"></p>
             <div class="grid-2">
               <div><p>Selected mask</p><img id="qualityMask" alt="Selected foreground mask" style="max-width: 100%;"></div>
               <div><p>All foreground candidates</p><img id="qualityCandidates" alt="Candidate foreground mask before selection" style="max-width: 100%;"></div>
             </div>
+            </details>
             <button class="btn btn-secondary" id="qualityAction" onclick="clearScan()">Retake photo</button>
             <p style="font-size: 0.78rem; margin-top: 10px;">Provisional image-quality and confidence checks cannot establish that the object is a leaf or identify the cause of symptoms.</p>
           </div>
           <div id="resultsWrap" style="display: none;">
             <!-- Header Metric -->
-            <div class="diagnosis-header">
+            <div class="diagnosis-header" id="resultSummaryCard">
               <div>
                 <div style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">
-                  Predicted visual category
+                  Visual water-stress screening
                 </div>
                 <div id="diagBadge" class="badge">--</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;" id="modelUsedText">
-                  Model: --
-                </div>
+                <div><span id="estimateNote" class="estimate-note">Experimental visual estimate</span></div>
+                <p id="resultExplanation" class="result-copy"></p>
+                <p class="result-scope">Confirm with plant inspection and a soil-moisture check. This prototype does not measure water status.</p>
               </div>
-
+            </div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-title">What to check next</div>
+              <p id="resultNextCheck" class="result-copy"></p>
+              <button class="btn btn-secondary no-print" onclick="window.print()">Print plant report</button>
+            </div>
+            <details id="resultDiagnostics"><summary>View mask, model scores and research details</summary>
+              <div id="modelUsedText">Model: --</div>
+              <p id="decisionPolicy" style="font-size:.78rem; margin:10px 0;"></p>
               <div class="indicator-metric" id="indicatorWrap">
                 <div class="indicator-value" id="indicatorValue">--</div>
                 <div class="indicator-caption">Experimental relative visual-stress indicator</div>
                 <p style="font-size: 0.75rem; max-width: 280px;">0–100 heuristic; not a physiological measurement or a probability.</p>
               </div>
-            </div>
 
             <p id="scanWarnings" role="status" style="margin: 12px 0;"></p>
             <img id="resultMask" hidden alt="Selected foliage mask: check for background inclusion or missing leaves" style="max-width: 100%; max-height: 240px;">
@@ -695,9 +775,9 @@
                 </div>
               </div>
             </div>
-
+            </details>
             <!-- Recommended Actions -->
-            <div class="card">
+            <details class="card"><summary>More plant-care checks</summary>
               <div class="card-title">
                 <span>Suggested checks</span>
                 <button class="btn btn-secondary no-print" onclick="window.print()" style="padding: 4px 10px; font-size: 0.75rem;">
@@ -713,7 +793,7 @@
               <div id="actionItems" style="margin-top: 10px;"></div>
 
 
-            </div>
+            </details>
           </div>
         </div>
 
@@ -783,6 +863,7 @@
   </main>
 
   {% if wholeplant %}<script src="{{ url_for('static', filename='plant_crop.js') }}"></script><script src="{{ url_for('static', filename='plant_sam.js') }}"></script>{% endif %}
+  <script src="{{ url_for('static', filename='plant_camera.js') }}"></script>
   <script>
     function setTab(name) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -804,6 +885,7 @@
     let previewUrl = null;
 
     function clearResults() {
+      document.getElementById('resultDiagnostics').open=false;
       document.getElementById('qualityModelDetails').textContent = '';
       document.getElementById('qualityModelDetails').hidden = true;
       document.getElementById('scanWarnings').textContent = '';
@@ -830,6 +912,7 @@
     }
 
     function showSelectedFile() {
+      window.plantCamera?.close();
       window.plantCrop?.reset();
       window.plantSam?.reset();
       clearResults();
@@ -863,6 +946,7 @@
 
     function clearScan() {
       if (scanInFlight) return;
+      window.plantCamera?.close();
       window.plantCrop?.reset();
       window.plantSam?.reset();
       fileInput.value = '';
@@ -938,9 +1022,16 @@
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('qualityFeedback').hidden = false;
       document.getElementById('qualityTitle').textContent = data.outcome === 'rejected' ? 'Retake photo' :
-        (data.outcome === 'preview_only' ? (data.code === 'mask_review' ? 'Review selected foliage' : 'Mask preview only — classification unavailable') : (data.outcome === 'uncertain' ? 'Model ran; no confident classification' : 'Model update required'));
+        (data.outcome === 'preview_only' ? (data.code === 'mask_review' ? 'Review selected foliage' : 'Mask preview only — classification unavailable') : (data.outcome === 'uncertain' ? 'No clear result yet' : 'Model update required'));
       if (data.outcome === 'preview_only') setPipelineImages(data);
-      document.getElementById('qualityMessage').textContent = [data.error || data.detail || data.message, ...(data.quality?.warnings || [])].join(' ');
+      const messages={
+        uncertain:'The image does not give a clear enough result. Review the selected plant, try a clearer photo, and check soil moisture directly.',
+        rejected:data.error || 'We could not isolate enough clear foliage. Try another photo or adjust the plant selection.',
+        model_update_required:'A compatible classifier is not available. Please ask the project operator to check the model setup.',
+        preview_only:data.code==='mask_review' ? 'Review the selected foliage below. If it covers your plant correctly, choose Analyze image.' : 'Image preview is ready. Classification is currently unavailable.'
+      };
+      document.getElementById('qualityMessage').textContent=messages[data.outcome] || 'Please review this image.';
+      document.getElementById('qualityTechnicalMessage').textContent=[data.error || data.detail || data.message,...(data.quality?.warnings || [])].filter(Boolean).join(' ');
       document.getElementById('qualityReasons').textContent = data.outcome === 'uncertain' ?
         `Highest class probability: ${data.top_probability.toFixed(4)}; provisional threshold: ${data.probability_threshold.toFixed(4)}. Calibration is unverified.` :
         `Reason codes: ${(data.quality?.reason_codes?.length ? data.quality.reason_codes : [data.code]).join(', ')}`;
@@ -975,8 +1066,16 @@
 
       // Badge & experimental visual indicator
       const badge = document.getElementById('diagBadge');
-      badge.textContent = getClassLabel(data.prediction);
+      badge.textContent = data.result_summary?.title || getClassLabel(data.prediction);
       badge.className = 'badge ' + getBadgeStyle(data.prediction);
+      document.getElementById('resultSummaryCard').className='diagnosis-header summary-'+data.prediction;
+      document.getElementById('resultExplanation').textContent = data.result_summary?.explanation || data.advisory.guidance;
+      document.getElementById('resultNextCheck').textContent = data.result_summary?.next_check || 'Check soil moisture and inspect the plant before deciding whether to water.';
+      const note=document.getElementById('estimateNote');
+      note.textContent=data.result_summary?.reliability || 'Experimental visual estimate';
+      note.className='estimate-note'+(data.result_summary?.tentative ? ' tentative' : '');
+      document.getElementById('decisionPolicy').textContent = Number.isFinite(data.probability_threshold) ?
+        `Screening threshold: ${(data.probability_threshold*100).toFixed(0)}% model score. Results below 60% are tentative. Scores are not verified probabilities of plant condition.` : '';
 
       const indicatorEl = document.getElementById('indicatorValue');
       const showIndicator = data.prediction !== 'Disease_Confounded' && Number.isInteger(data.visual_stress_indicator);

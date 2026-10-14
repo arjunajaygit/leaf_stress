@@ -1,0 +1,16 @@
+{
+  "real_model_outcome": "classified",
+  "real_threshold": 0.5,
+  "simulated_UI_states": [
+    "Healthy",
+    "Moderate_Water_Stress",
+    "Severe_Water_Stress",
+    "Disease_Confounded"
+  ],
+  "tentative_label_visible": true,
+  "technical_details_collapsed": true,
+  "mobile_overflow": false,
+  "print_report_generated": true,
+  "page_errors": [],
+  "note": "Category screenshots use explicitly simulated UI states; actual-model.png uses the current saved model. This checks UI behaviour, not accuracy."
+}

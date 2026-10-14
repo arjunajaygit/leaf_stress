@@ -65,7 +65,8 @@ accuracy has not been established.
 
 If the page says **Model ran; no confident classification**, the provisional mask
 checks passed and inference completed. The highest model probability was below
-the 0.60 threshold. The page shows all model scores for inspection while withholding
+the configured threshold (whole-plant default 0.50; 0.50–0.60 is shown as tentative).
+The page shows model scores inside expandable details while withholding
 a class and stress indicator. Review the mask if it is wrong; if it is satisfactory,
 repeated clicking is not a remedy for classifier uncertainty. Prepare labelled
 training images consistently with SAM and evaluate on independent plants. The

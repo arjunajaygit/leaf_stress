@@ -113,7 +113,7 @@ const run = code => vm.runInContext(code, context);
     assert.equal(element('qualityCandidates').src, body.visualizations.candidate_mask);
     assert.equal(element('resetBtn').disabled, false);
     if (outcome === 'uncertain') {
-      assert.equal(element('qualityTitle').textContent, 'Model ran; no confident classification');
+      assert.equal(element('qualityTitle').textContent, 'No clear result yet');
       assert.match(element('qualityReasons').textContent, /0.5996/);
       assert.match(element('qualityModelDetails').textContent, /Healthy: 60.0%/);
       assert.match(element('qualityModelDetails').textContent, /No class or stress indicator/);
