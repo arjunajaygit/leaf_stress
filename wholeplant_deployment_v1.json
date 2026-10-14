@@ -1,5 +1,5 @@
 {
-  "model": "artifacts/wholeplant_v1_20261014T050449Z_493e7097/model.joblib",
-  "report": "artifacts/wholeplant_v1_20261014T050449Z_493e7097/development_report.json",
+  "model": "artifacts/wholeplant_v1_20261014T065521Z_ca9efd2f/model.joblib",
+  "report": "artifacts/wholeplant_v1_20261014T065521Z_ca9efd2f/development_report.json",
   "status": "experimental; no independent validation"
 }
