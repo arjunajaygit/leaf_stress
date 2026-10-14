@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAM Plant Annotator & Dataset Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111726;
+      --surface-elevated: #182238;
+      --border: #23304c;
+      --border-focus: #3b82f6;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --rose: #ef4444;
+      --rose-glow: rgba(239, 68, 68, 0.25);
+      --amber: #f59e0b;
+      --blue: #3b82f6;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #fff;
+    }
+
+    .brand-badge {
+      font-size: 0.68rem;
+      background: var(--emerald-glow);
+      color: var(--emerald);
+      border: 1px solid var(--emerald);
+      padding: 2px 7px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .progress-container {
+      margin-top: 14px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--surface-elevated);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--emerald));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .filter-btn {
+      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .filter-btn:hover { color: var(--text); }
+    .filter-btn.active {
+      background: var(--surface-elevated);
+      border-color: var(--border);
+      color: #fff;
+    }
+
+    .image-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .image-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.82rem;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      margin-bottom: 4px;
+    }
+
+    .image-item:hover { background: var(--surface-elevated); }
+    .image-item.active {
+      background: var(--surface-elevated);
+      border-color: var(--border-focus);
+      font-weight: 600;
+    }
+
+    .image-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .image-name {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      color: var(--text);
+    }
+
+    .image-class {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .badge-status {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .badge-pending { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.2); }
+    .badge-approved { background: var(--emerald-glow); color: var(--emerald); border: 1px solid var(--emerald); }
+    .badge-skipped { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid var(--amber); }
+
+    /* Main Area */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: var(--surface);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .image-meta-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .image-meta-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 2px;
+      background: var(--bg);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .view-btn {
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .view-btn:hover { color: var(--text); }
+    .view-btn.active {
+      background: var(--surface-elevated);
+      color: #fff;
+    }
+
+    .workspace {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #121929 0%, #090d16 100%);
+    }
+
+    .canvas-container {
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    canvas {
+      display: block;
+      cursor: crosshair;
+      user-select: none;
+    }
+
+    /* Floating Tool Palette */
+    .floating-tools {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(17, 23, 38, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+
+    .mode-radio {
+      display: flex;
+      background: var(--bg);
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid var(--border);
+    }
+
+    .mode-option {
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-option.keep.active {
+      background: var(--emerald-glow);
+      color: var(--emerald);
+      border: 1px solid var(--emerald);
+    }
+
+    .mode-option.exclude.active {
+      background: var(--rose-glow);
+      color: var(--rose);
+      border: 1px solid var(--rose);
+    }
+
+    .btn {
+      padding: 7px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn-secondary {
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { background: #222f4d; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .keyboard-hint {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 5px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+    }
+
+    .status-toast {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span>🍃 SAM Reviewer</span>
+        <span class="brand-badge">Interactive</span>
+      </div>
+      <div class="progress-container">
+        <div class="progress-label">
+          <span>Reviewed Progress</span>
+          <span id="progressText">0 / 0</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="Healthy">Healthy</button>
+      <button class="filter-btn" data-filter="Moderate_Water_Stress">Moderate</button>
+      <button class="filter-btn" data-filter="Severe_Water_Stress">Severe</button>
+      <button class="filter-btn" data-filter="Disease_Confounded">Disease</button>
+    </div>
+
+    <div class="image-list" id="imageList">
+      <!-- Items dynamically populated -->
+    </div>
+  </aside>
+
+  <!-- Main Canvas Area -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="image-meta-title" id="currentTitle">Select an image</div>
+          <div class="image-meta-sub" id="currentSubtitle">No active file</div>
+        </div>
+      </div>
+
+      <div class="view-toggle">
+        <button class="view-btn active" id="viewOverlay">Green Mask</button>
+        <button class="view-btn" id="viewIsolated">Segmented (Grey)</button>
+        <button class="view-btn" id="viewOriginal">Original</button>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary" id="btnPrev">◀ Prev <span class="keyboard-hint">←</span></button>
+        <button class="btn btn-secondary" id="btnNext">Next ▶ <span class="keyboard-hint">→</span></button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <div class="canvas-container">
+        <canvas id="samCanvas"></canvas>
+      </div>
+
+      <!-- Floating Controls -->
+      <div class="floating-tools">
+        <div class="mode-radio">
+          <div class="mode-option keep active" id="modeKeep">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--emerald);"></span>
+            Keep Plant <span class="keyboard-hint">1</span>
+          </div>
+          <div class="mode-option exclude" id="modeExclude">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--rose);"></span>
+            Exclude BG <span class="keyboard-hint">2</span>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" id="btnSuggest">
+          ✨ Auto-Suggest <span class="keyboard-hint">S</span>
+        </button>
+
+        <button class="btn btn-secondary" id="btnUndo">
+          ↩ Undo <span class="keyboard-hint">Z</span>
+        </button>
+
+        <button class="btn btn-secondary" id="btnClear">
+          ✕ Clear
+        </button>
+
+        <button class="btn btn-secondary" id="btnGenerate">
+          ⚡ Run SAM <span class="keyboard-hint">G</span>
+        </button>
+
+        <button class="btn btn-primary" id="btnSaveNext">
+          ✓ Save & Next <span class="keyboard-hint">Enter</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <div class="status-toast" id="toast"></div>
+
+  <script>
+    let images = [];
+    let currentIndex = 0;
+    let currentImage = null;
+    let activeFilter = 'all';
+    let currentMode = 1; // 1 = Keep, 0 = Exclude
+    let points = [];
+    let samResult = null;
+    let activeView = 'overlay'; // 'overlay', 'isolated', 'original'
+    let isProcessing = false;
+
+    const canvas = document.getElementById('samCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function showToast(msg, duration = 3000) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, duration);
+    }
+
+    async function loadImages() {
+      const res = await fetch('/api/images');
+      images = await res.json();
+      renderList();
+      updateProgress();
+      if (images.length > 0) selectImage(0);
+    }
+
+    function updateProgress() {
+      const approved = images.filter(i => i.status === 'approved').length;
+      document.getElementById('progressText').textContent = `${approved} / ${images.length}`;
+      document.getElementById('progressBar').style.width = `${(approved / images.length) * 100}%`;
+    }
+
+    function renderList() {
+      const list = document.getElementById('imageList');
+      list.innerHTML = '';
+      images.forEach((img, idx) => {
+        if (activeFilter !== 'all' && img.class !== activeFilter) return;
+
+        const item = document.createElement('div');
+        item.className = `image-item ${idx === currentIndex ? 'active' : ''}`;
+        item.onclick = () => selectImage(idx);
+        item.innerHTML = `
+          <div class="image-item-info">
+            <span class="image-name">${img.name}</span>
+            <span class="image-class">${img.class}</span>
+          </div>
+          <span class="badge-status badge-${img.status}">${img.status}</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    async function selectImage(idx) {
+      if (idx < 0 || idx >= images.length) return;
+      currentIndex = idx;
+      renderList();
+      points = [];
+      samResult = null;
+      activeView = 'overlay';
+      updateViewButtons();
+
+      const item = images[currentIndex];
+      document.getElementById('currentTitle').textContent = item.name;
+      document.getElementById('currentSubtitle').textContent = `${item.class} · ${currentIndex + 1} of ${images.length}`;
+
+      currentImage = new Image();
+      currentImage.src = `/api/image/${encodeURIComponent(item.filename)}`;
+      currentImage.onload = () => {
+        fitCanvas();
+        drawCanvas();
+      };
+    }
+
+    function fitCanvas() {
+      if (!currentImage) return;
+      const maxW = window.innerWidth - 380;
+      const maxH = window.innerHeight - 160;
+      const scale = Math.min(1.0, maxW / currentImage.naturalWidth, maxH / currentImage.naturalHeight);
+      canvas.width = Math.round(currentImage.naturalWidth * scale);
+      canvas.height = Math.round(currentImage.naturalHeight * scale);
+    }
+
+    function drawCanvas() {
+      if (!currentImage) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (activeView === 'isolated' && samResult?.image) {
+        ctx.drawImage(samResult.imageElement, 0, 0, canvas.width, canvas.height);
+      } else if (activeView === 'overlay' && samResult?.overlay) {
+        ctx.drawImage(samResult.overlayElement, 0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+      }
+
+      // Draw points
+      points.forEach((p, i) => {
+        const x = p.x * canvas.width;
+        const y = p.y * canvas.height;
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = p.label === 1 ? '#10b981' : '#ef4444';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText(String(i + 1), x + 8, y + 4);
+      });
+    }
+
+    canvas.addEventListener('click', (e) => {
+      if (!currentImage || isProcessing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / canvas.width;
+      const y = (e.clientY - rect.top) / canvas.height;
+      if (x < 0 || x > 1 || y < 0 || y > 1) return;
+
+      points.push({ x: Number(x.toFixed(4)), y: Number(y.toFixed(4)), label: currentMode });
+      drawCanvas();
+      runSAM();
+    });
+
+    // Right-click toggles mode and places point
+    canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      setMode(currentMode === 1 ? 0 : 1);
+    });
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('modeKeep').classList.toggle('active', mode === 1);
+      document.getElementById('modeExclude').classList.toggle('active', mode === 0);
+    }
+
+    document.getElementById('modeKeep').onclick = () => setMode(1);
+    document.getElementById('modeExclude').onclick = () => setMode(0);
+
+    document.getElementById('btnUndo').onclick = () => {
+      if (points.length > 0) {
+        points.pop();
+        drawCanvas();
+        if (points.length > 0) runSAM();
+        else samResult = null;
+      }
+    };
+
+    document.getElementById('btnClear').onclick = () => {
+      points = [];
+      samResult = null;
+      drawCanvas();
+    };
+
+    async function runSAM() {
+      if (points.length === 0 || isProcessing) return;
+      isProcessing = true;
+      document.getElementById('btnGenerate').disabled = true;
+
+      const item = images[currentIndex];
+      try {
+        const res = await fetch('/api/segment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: item.filename, points })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          const overlayImg = new Image();
+          overlayImg.src = data.overlay;
+          await overlayImg.decode();
+
+          const isolatedImg = new Image();
+          isolatedImg.src = data.image;
+          await isolatedImg.decode();
+
+          samResult = {
+            ...data,
+            overlayElement: overlayImg,
+            imageElement: isolatedImg
+          };
+          drawCanvas();
+          showToast(`SAM mask: ${(data.selected_fraction * 100).toFixed(1)}% plant foliage`);
+        } else {
+          showToast(data.error || 'SAM segmentation failed');
+        }
+      } catch (err) {
+        showToast('SAM connection error');
+      } finally {
+        isProcessing = false;
+        document.getElementById('btnGenerate').disabled = false;
+      }
+    }
+
+    document.getElementById('btnGenerate').onclick = runSAM;
+
+    document.getElementById('btnSuggest').onclick = async () => {
+      const item = images[currentIndex];
+      const res = await fetch(`/api/suggest-points?filename=${encodeURIComponent(item.filename)}`);
+      const data = await res.json();
+      if (data.points && data.points.length > 0) {
+        points = data.points;
+        drawCanvas();
+        runSAM();
+      }
+    };
+
+    document.getElementById('btnSaveNext').onclick = async () => {
+      if (!samResult) {
+        showToast('Generate a SAM mask before saving');
+        return;
+      }
+      const item = images[currentIndex];
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: item.filename,
+          points: points,
+          decision: 'approved'
+        })
+      });
+      if (res.ok) {
+        item.status = 'approved';
+        updateProgress();
+        renderList();
+        showToast(`Saved ${item.name}! Moving to next.`);
+        if (currentIndex < images.length - 1) {
+          selectImage(currentIndex + 1);
+        }
+      }
+    };
+
+    document.getElementById('btnPrev').onclick = () => { if (currentIndex > 0) selectImage(currentIndex - 1); };
+    document.getElementById('btnNext').onclick = () => { if (currentIndex < images.length - 1) selectImage(currentIndex + 1); };
+
+    function updateViewButtons() {
+      document.getElementById('viewOverlay').classList.toggle('active', activeView === 'overlay');
+      document.getElementById('viewIsolated').classList.toggle('active', activeView === 'isolated');
+      document.getElementById('viewOriginal').classList.toggle('active', activeView === 'original');
+    }
+
+    document.getElementById('viewOverlay').onclick = () => { activeView = 'overlay'; updateViewButtons(); drawCanvas(); };
+    document.getElementById('viewIsolated').onclick = () => { activeView = 'isolated'; updateViewButtons(); drawCanvas(); };
+    document.getElementById('viewOriginal').onclick = () => { activeView = 'original'; updateViewButtons(); drawCanvas(); };
+
+    // Filter Buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        renderList();
+      };
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === '1') setMode(1);
+      if (e.key === '2') setMode(0);
+      if (e.key.toLowerCase() === 'z') document.getElementById('btnUndo').click();
+      if (e.key.toLowerCase() === 's') document.getElementById('btnSuggest').click();
+      if (e.key.toLowerCase() === 'g') document.getElementById('btnGenerate').click();
+      if (e.key === 'Enter') document.getElementById('btnSaveNext').click();
+      if (e.key === 'ArrowLeft') document.getElementById('btnPrev').click();
+      if (e.key === 'ArrowRight') document.getElementById('btnNext').click();
+    });
+
+    window.addEventListener('resize', () => { fitCanvas(); drawCanvas(); });
+    window.addEventListener('DOMContentLoaded', loadImages);
+  </script>
+</body>
+</html>
