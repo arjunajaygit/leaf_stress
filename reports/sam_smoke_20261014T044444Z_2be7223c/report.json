@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-14T04:44:44.450229+00:00",
+  "source": "dataset_wholeplant_v1_20261013/Healthy/healthy_001.JPG",
+  "points": [
+    {
+      "x": 0.27,
+      "y": 0.14,
+      "label": 1
+    },
+    {
+      "x": 0.92,
+      "y": 0.88,
+      "label": 0
+    }
+  ],
+  "status": {
+    "available": true,
+    "checkpoint_present": true,
+    "device": "cpu",
+    "message": "SAM ready; first use loads the model.",
+    "missing_packages": [],
+    "model": "SAM ViT-B"
+  },
+  "segmentation_seconds": 22.54053237500193,
+  "width": 387,
+  "height": 516,
+  "selected_fraction": 0.023641407767962662,
+  "preview_status": 200,
+  "preview_outcome": "preview_only",
+  "prediction_status": 503,
+  "prediction_outcome": "model_update_required",
+  "model_load_error": "Cannot load model at /Users/arjun/Desktop/leaf_stress_app/artifacts/wholeplant_v1_20261013T144610Z_b344aa77/model.joblib: Model library versions differ from runtime; use the recorded training environment",
+  "warning": "Software smoke test on a training photo with one prompted leaf. Not a test of complete-plant masks, tomato identity, segmentation quality or classifier accuracy."
+}

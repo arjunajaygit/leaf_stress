@@ -13,3 +13,4 @@ venv/
 .venv-py313/
 models/*.pth
 models/*.part
+dataset_wholeplant_v1_20261013_original/

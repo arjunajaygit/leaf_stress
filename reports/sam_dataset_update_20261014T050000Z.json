@@ -1,0 +1,950 @@
+{
+  "timestamp": "2026-10-14T04:48:01.132414+00:00",
+  "dataset_dir": "/Users/arjun/Desktop/leaf_stress_app/dataset_wholeplant_v1_20261013",
+  "checkpoint": "/Users/arjun/Desktop/leaf_stress_app/models/sam_vit_b_01ec64.pth",
+  "total_images": 54,
+  "processed_images": 54,
+  "classes": {
+    "Healthy": {
+      "count": 14,
+      "avg_mask_fraction": 0.3347,
+      "avg_time_sec": 22.89
+    },
+    "Moderate_Water_Stress": {
+      "count": 13,
+      "avg_mask_fraction": 0.4154,
+      "avg_time_sec": 16.26
+    },
+    "Severe_Water_Stress": {
+      "count": 14,
+      "avg_mask_fraction": 0.3139,
+      "avg_time_sec": 9.0
+    },
+    "Disease_Confounded": {
+      "count": 13,
+      "avg_mask_fraction": 0.3989,
+      "avg_time_sec": 4.72
+    }
+  },
+  "records": [
+    {
+      "filename": "Healthy/healthy_001.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        516,
+        387
+      ],
+      "processed_shape": [
+        516,
+        387
+      ],
+      "mask_pixels": 83763,
+      "selected_fraction": 0.4195,
+      "sam_score": 0.9571,
+      "keep_points": 5,
+      "time_sec": 17.59
+    },
+    {
+      "filename": "Healthy/healthy_002.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 91432,
+      "selected_fraction": 0.2976,
+      "sam_score": 0.976,
+      "keep_points": 5,
+      "time_sec": 15.32
+    },
+    {
+      "filename": "Healthy/healthy_003.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 68141,
+      "selected_fraction": 0.2218,
+      "sam_score": 0.9454,
+      "keep_points": 5,
+      "time_sec": 20.7
+    },
+    {
+      "filename": "Healthy/healthy_004.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        1600,
+        1200
+      ],
+      "processed_shape": [
+        800,
+        600
+      ],
+      "mask_pixels": 2374,
+      "selected_fraction": 0.0049,
+      "sam_score": 0.9643,
+      "keep_points": 1,
+      "time_sec": 62.76
+    },
+    {
+      "filename": "Healthy/healthy_005.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        1440,
+        1920
+      ],
+      "processed_shape": [
+        600,
+        800
+      ],
+      "mask_pixels": 223386,
+      "selected_fraction": 0.4654,
+      "sam_score": 0.7941,
+      "keep_points": 5,
+      "time_sec": 22.35
+    },
+    {
+      "filename": "Healthy/healthy_006.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        711,
+        400
+      ],
+      "processed_shape": [
+        711,
+        400
+      ],
+      "mask_pixels": 41497,
+      "selected_fraction": 0.1459,
+      "sam_score": 0.727,
+      "keep_points": 3,
+      "time_sec": 21.14
+    },
+    {
+      "filename": "Healthy/healthy_007.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        470,
+        652
+      ],
+      "processed_shape": [
+        470,
+        652
+      ],
+      "mask_pixels": 61640,
+      "selected_fraction": 0.2011,
+      "sam_score": 0.9884,
+      "keep_points": 5,
+      "time_sec": 25.35
+    },
+    {
+      "filename": "Healthy/healthy_008.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        2560,
+        1928
+      ],
+      "processed_shape": [
+        800,
+        602
+      ],
+      "mask_pixels": 140348,
+      "selected_fraction": 0.2914,
+      "sam_score": 0.7787,
+      "keep_points": 5,
+      "time_sec": 19.51
+    },
+    {
+      "filename": "Healthy/healthy_009.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        678,
+        452
+      ],
+      "processed_shape": [
+        678,
+        452
+      ],
+      "mask_pixels": 174365,
+      "selected_fraction": 0.569,
+      "sam_score": 0.8642,
+      "keep_points": 5,
+      "time_sec": 16.09
+    },
+    {
+      "filename": "Healthy/healthy_010.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        309,
+        588
+      ],
+      "processed_shape": [
+        309,
+        588
+      ],
+      "mask_pixels": 114902,
+      "selected_fraction": 0.6324,
+      "sam_score": 0.9121,
+      "keep_points": 5,
+      "time_sec": 19.28
+    },
+    {
+      "filename": "Healthy/healthy_011.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        678,
+        452
+      ],
+      "processed_shape": [
+        678,
+        452
+      ],
+      "mask_pixels": 129976,
+      "selected_fraction": 0.4241,
+      "sam_score": 0.8803,
+      "keep_points": 5,
+      "time_sec": 17.75
+    },
+    {
+      "filename": "Healthy/helathy_013.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        1800,
+        1200
+      ],
+      "processed_shape": [
+        800,
+        533
+      ],
+      "mask_pixels": 48117,
+      "selected_fraction": 0.1128,
+      "sam_score": 0.7398,
+      "keep_points": 3,
+      "time_sec": 19.5
+    },
+    {
+      "filename": "Healthy/helathy_014.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        2560,
+        1928
+      ],
+      "processed_shape": [
+        800,
+        602
+      ],
+      "mask_pixels": 53898,
+      "selected_fraction": 0.1119,
+      "sam_score": 0.9593,
+      "keep_points": 5,
+      "time_sec": 14.39
+    },
+    {
+      "filename": "Healthy/helathy_015.JPG",
+      "class": "Healthy",
+      "original_shape": [
+        2560,
+        1928
+      ],
+      "processed_shape": [
+        800,
+        602
+      ],
+      "mask_pixels": 379622,
+      "selected_fraction": 0.7883,
+      "sam_score": 0.9092,
+      "keep_points": 5,
+      "time_sec": 28.72
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_001.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 205460,
+      "selected_fraction": 0.6688,
+      "sam_score": 0.9159,
+      "keep_points": 5,
+      "time_sec": 23.92
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_002.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 244811,
+      "selected_fraction": 0.7969,
+      "sam_score": 0.8971,
+      "keep_points": 5,
+      "time_sec": 19.83
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_003.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        619,
+        495
+      ],
+      "processed_shape": [
+        619,
+        495
+      ],
+      "mask_pixels": 83460,
+      "selected_fraction": 0.2724,
+      "sam_score": 0.8752,
+      "keep_points": 5,
+      "time_sec": 21.72
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_004.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        495,
+        619
+      ],
+      "processed_shape": [
+        495,
+        619
+      ],
+      "mask_pixels": 39088,
+      "selected_fraction": 0.1276,
+      "sam_score": 0.8233,
+      "keep_points": 1,
+      "time_sec": 17.78
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_005.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        619,
+        495
+      ],
+      "processed_shape": [
+        619,
+        495
+      ],
+      "mask_pixels": 72044,
+      "selected_fraction": 0.2351,
+      "sam_score": 0.8406,
+      "keep_points": 5,
+      "time_sec": 17.7
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_006.WEBP",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        280,
+        390
+      ],
+      "processed_shape": [
+        280,
+        390
+      ],
+      "mask_pixels": 61587,
+      "selected_fraction": 0.564,
+      "sam_score": 0.7517,
+      "keep_points": 1,
+      "time_sec": 10.3
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_007.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        182,
+        275
+      ],
+      "processed_shape": [
+        182,
+        275
+      ],
+      "mask_pixels": 25,
+      "selected_fraction": 0.0005,
+      "sam_score": 0.8984,
+      "keep_points": 1,
+      "time_sec": 21.02
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_008.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        638,
+        479
+      ],
+      "processed_shape": [
+        638,
+        479
+      ],
+      "mask_pixels": 185719,
+      "selected_fraction": 0.6077,
+      "sam_score": 0.965,
+      "keep_points": 5,
+      "time_sec": 8.16
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_009.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        639,
+        480
+      ],
+      "processed_shape": [
+        639,
+        480
+      ],
+      "mask_pixels": 253663,
+      "selected_fraction": 0.827,
+      "sam_score": 0.9226,
+      "keep_points": 5,
+      "time_sec": 16.88
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_010.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        480,
+        640
+      ],
+      "processed_shape": [
+        480,
+        640
+      ],
+      "mask_pixels": 746,
+      "selected_fraction": 0.0024,
+      "sam_score": 0.6811,
+      "keep_points": 1,
+      "time_sec": 19.67
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_011.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        547,
+        600
+      ],
+      "processed_shape": [
+        547,
+        600
+      ],
+      "mask_pixels": 49160,
+      "selected_fraction": 0.1498,
+      "sam_score": 0.8563,
+      "keep_points": 4,
+      "time_sec": 15.79
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_012.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        3194,
+        3020
+      ],
+      "processed_shape": [
+        800,
+        756
+      ],
+      "mask_pixels": 362193,
+      "selected_fraction": 0.5989,
+      "sam_score": 0.8131,
+      "keep_points": 5,
+      "time_sec": 8.7
+    },
+    {
+      "filename": "Moderate_Water_Stress/moderate_013.JPG",
+      "class": "Moderate_Water_Stress",
+      "original_shape": [
+        4032,
+        3024
+      ],
+      "processed_shape": [
+        800,
+        600
+      ],
+      "mask_pixels": 263800,
+      "selected_fraction": 0.5496,
+      "sam_score": 0.9207,
+      "keep_points": 5,
+      "time_sec": 9.93
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_001.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        1600,
+        1200
+      ],
+      "processed_shape": [
+        800,
+        600
+      ],
+      "mask_pixels": 101394,
+      "selected_fraction": 0.2112,
+      "sam_score": 0.9192,
+      "keep_points": 5,
+      "time_sec": 12.03
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_002.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 72246,
+      "selected_fraction": 0.2352,
+      "sam_score": 0.9491,
+      "keep_points": 5,
+      "time_sec": 12.37
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_003.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        853,
+        640
+      ],
+      "processed_shape": [
+        800,
+        600
+      ],
+      "mask_pixels": 146584,
+      "selected_fraction": 0.3054,
+      "sam_score": 0.9122,
+      "keep_points": 5,
+      "time_sec": 10.54
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_004.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        550,
+        800
+      ],
+      "processed_shape": [
+        550,
+        800
+      ],
+      "mask_pixels": 85194,
+      "selected_fraction": 0.1936,
+      "sam_score": 0.8956,
+      "keep_points": 5,
+      "time_sec": 12.23
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_005.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        441,
+        588
+      ],
+      "processed_shape": [
+        441,
+        588
+      ],
+      "mask_pixels": 49655,
+      "selected_fraction": 0.1915,
+      "sam_score": 0.887,
+      "keep_points": 5,
+      "time_sec": 15.03
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_006.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        644,
+        476
+      ],
+      "processed_shape": [
+        644,
+        476
+      ],
+      "mask_pixels": 209323,
+      "selected_fraction": 0.6828,
+      "sam_score": 0.9244,
+      "keep_points": 5,
+      "time_sec": 11.58
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_007.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 45797,
+      "selected_fraction": 0.1491,
+      "sam_score": 0.9384,
+      "keep_points": 5,
+      "time_sec": 11.32
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_008.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        639,
+        480
+      ],
+      "processed_shape": [
+        639,
+        480
+      ],
+      "mask_pixels": 69634,
+      "selected_fraction": 0.227,
+      "sam_score": 0.9133,
+      "keep_points": 5,
+      "time_sec": 12.22
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_009.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        4032,
+        3024
+      ],
+      "processed_shape": [
+        800,
+        600
+      ],
+      "mask_pixels": 24207,
+      "selected_fraction": 0.0504,
+      "sam_score": 0.5521,
+      "keep_points": 5,
+      "time_sec": 3.86
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_011.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 138887,
+      "selected_fraction": 0.4521,
+      "sam_score": 0.8014,
+      "keep_points": 5,
+      "time_sec": 4.45
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_012.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        415,
+        739
+      ],
+      "processed_shape": [
+        415,
+        739
+      ],
+      "mask_pixels": 139414,
+      "selected_fraction": 0.4546,
+      "sam_score": 0.9507,
+      "keep_points": 5,
+      "time_sec": 5.02
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_013.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        619,
+        495
+      ],
+      "processed_shape": [
+        619,
+        495
+      ],
+      "mask_pixels": 104149,
+      "selected_fraction": 0.3399,
+      "sam_score": 0.7719,
+      "keep_points": 5,
+      "time_sec": 5.31
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_014.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 73169,
+      "selected_fraction": 0.2382,
+      "sam_score": 0.9147,
+      "keep_points": 5,
+      "time_sec": 4.01
+    },
+    {
+      "filename": "Severe_Water_Stress/severe_10.JPG",
+      "class": "Severe_Water_Stress",
+      "original_shape": [
+        739,
+        415
+      ],
+      "processed_shape": [
+        739,
+        415
+      ],
+      "mask_pixels": 203669,
+      "selected_fraction": 0.6641,
+      "sam_score": 0.8623,
+      "keep_points": 5,
+      "time_sec": 5.97
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4829.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        639,
+        480
+      ],
+      "processed_shape": [
+        639,
+        480
+      ],
+      "mask_pixels": 186062,
+      "selected_fraction": 0.6066,
+      "sam_score": 0.9756,
+      "keep_points": 5,
+      "time_sec": 5.88
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4836.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        639,
+        480
+      ],
+      "processed_shape": [
+        639,
+        480
+      ],
+      "mask_pixels": 191394,
+      "selected_fraction": 0.624,
+      "sam_score": 0.9568,
+      "keep_points": 5,
+      "time_sec": 8.82
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4839.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        415,
+        739
+      ],
+      "processed_shape": [
+        415,
+        739
+      ],
+      "mask_pixels": 64483,
+      "selected_fraction": 0.2103,
+      "sam_score": 0.8713,
+      "keep_points": 5,
+      "time_sec": 4.7
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4841.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 134716,
+      "selected_fraction": 0.4385,
+      "sam_score": 0.8886,
+      "keep_points": 5,
+      "time_sec": 2.97
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4844.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        678,
+        452
+      ],
+      "processed_shape": [
+        678,
+        452
+      ],
+      "mask_pixels": 197863,
+      "selected_fraction": 0.6456,
+      "sam_score": 0.9028,
+      "keep_points": 5,
+      "time_sec": 3.49
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4845.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        387,
+        516
+      ],
+      "processed_shape": [
+        387,
+        516
+      ],
+      "mask_pixels": 175325,
+      "selected_fraction": 0.878,
+      "sam_score": 0.9315,
+      "keep_points": 5,
+      "time_sec": 5.94
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4846.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        1390,
+        1191
+      ],
+      "processed_shape": [
+        800,
+        685
+      ],
+      "mask_pixels": 20324,
+      "selected_fraction": 0.0371,
+      "sam_score": 0.7795,
+      "keep_points": 5,
+      "time_sec": 3.09
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4847.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 43700,
+      "selected_fraction": 0.1423,
+      "sam_score": 0.7161,
+      "keep_points": 3,
+      "time_sec": 4.12
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4849.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        2592,
+        1936
+      ],
+      "processed_shape": [
+        800,
+        598
+      ],
+      "mask_pixels": 113378,
+      "selected_fraction": 0.237,
+      "sam_score": 0.8227,
+      "keep_points": 5,
+      "time_sec": 4.2
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4850.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        640,
+        480
+      ],
+      "processed_shape": [
+        640,
+        480
+      ],
+      "mask_pixels": 60730,
+      "selected_fraction": 0.1977,
+      "sam_score": 0.9176,
+      "keep_points": 5,
+      "time_sec": 5.33
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4851.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        516,
+        387
+      ],
+      "processed_shape": [
+        516,
+        387
+      ],
+      "mask_pixels": 48792,
+      "selected_fraction": 0.2443,
+      "sam_score": 0.6412,
+      "keep_points": 5,
+      "time_sec": 3.96
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4900.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        496,
+        600
+      ],
+      "processed_shape": [
+        496,
+        600
+      ],
+      "mask_pixels": 67408,
+      "selected_fraction": 0.2265,
+      "sam_score": 0.9489,
+      "keep_points": 5,
+      "time_sec": 4.87
+    },
+    {
+      "filename": "Disease_Confounded/IMG_4902.JPG",
+      "class": "Disease_Confounded",
+      "original_shape": [
+        458,
+        600
+      ],
+      "processed_shape": [
+        458,
+        600
+      ],
+      "mask_pixels": 191737,
+      "selected_fraction": 0.6977,
+      "sam_score": 0.8773,
+      "keep_points": 5,
+      "time_sec": 3.98
+    }
+  ],
+  "total_time_sec": 719.51
+}
